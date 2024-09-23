@@ -13,3 +13,14 @@ class Classe(Base):
 
     def __repr__(self) -> str:
         return f"Classe(id={self.id!r}, nome={self.nome!r})"
+    
+    def add_by_name_array(self, name_array):
+        new_values = [Classe(nome=n) for n in name_array]
+        self.add_all(self, new_values=new_values)
+
+classes = ["Guerreiro", "Mago", "Ladino"]
+
+def insert_classes():
+    print(Classe.select_one(Classe))
+    if not Classe.select_one(Classe):
+        Classe.add_by_name_array(Classe, classes)
