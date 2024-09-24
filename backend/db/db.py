@@ -4,7 +4,7 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 
 engine = create_engine('postgresql://postgres:123@localhost:5432/fitquest', echo=True)
-Session = sessionmaker(engine)
+Session = sessionmaker(engine, expire_on_commit=False)
 if not database_exists(engine.url):
     # não funciona com a versão atual do python (3.12) :(
     create_database(engine.url)
