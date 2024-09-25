@@ -16,7 +16,12 @@ class Base(DeclarativeBase):
             sess.add(new_values)
             sess.commit()
 
-    def add_all(self, new_values):
+    def add_self(self):
+        with Session() as sess:
+            sess.add(self)
+            sess.commit()
+
+    def add_all(new_values):
         with Session() as sess:
             sess.add_all(new_values)
             sess.commit()
@@ -33,3 +38,7 @@ class Base(DeclarativeBase):
     def select_one(self):    
         with Session() as sess:
             return sess.execute(select(self)).first()
+    
+    def select_all(self):    
+        with Session() as sess:
+            return sess.execute(select(self)).fetchall()
