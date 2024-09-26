@@ -35,10 +35,13 @@ class Base(DeclarativeBase):
         with Session() as sess:
             sess.commit()
 
-    def select_one(self):    
+    def select_one(self):
         with Session() as sess:
             return sess.execute(select(self)).first()
     
     def select_all(self):    
         with Session() as sess:
-            return sess.execute(select(self)).fetchall()
+            return sess.execute(select(self))
+    
+    def select_all(self, sess):    
+        return sess.execute(select(self))

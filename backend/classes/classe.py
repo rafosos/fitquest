@@ -21,6 +21,5 @@ class Classe(Base):
 classes = ["Guerreiro", "Mago", "Ladino"]
 
 def insert_classes():
-    print(Classe.select_one(Classe))
     if not Classe.select_one(Classe):
         Classe.add_by_name_array(Classe, classes)

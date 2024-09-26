@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Response, status
 from typing import Annotated
 from db.db import engine, Base, Session
 from sqlalchemy import select, or_
@@ -40,17 +40,22 @@ def cadastro(
     return {"id": user.id}
 
 @app.post("/login")
-def login(login: Annotated[str, Body()], senha: Annotated[str, Body()]):
-    print(login)
-    print(senha)
-    # with Session() as sess:
-    return {}
+def login(login: Annotated[str, Body()], senha: Annotated[str, Body()], res: Response):
+    with Session() as sess:
+        stmt = select(User).where(or_(User.nickname == login, User.email == login), User.senha == senha)
+        user = sess.scalar(stmt)
+        if(user):
+            res.status_code = status.HTTP_200_OK
+            return user
+        else:
+            res.status_code = status.HTTP_401_UNAUTHORIZED
+            return {"message": "Error on login"}
 
 @app.get("/classe")
 def get_classes():
-    return Classe.select_all()
-
-
+    with Session() as sess:
+        result = Classe.select_all(Classe, sess)
+        return [{"id": r[0].id, "nome": r[0].nome} for r in result.all()]
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

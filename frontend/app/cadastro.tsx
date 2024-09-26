@@ -1,30 +1,45 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, StyleSheet, TextInput,Text, View,TouchableOpacity, Platform } from "react-native";
 import { router } from "expo-router";
-import RNDateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
+import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 import { useSession } from "./ctx";
 import UserService from "@/services/user_service";
 import ClasseService from "@/services/classe_service";
+import Classe from "@/classes/classe";
 
 export default function Cadastro() {
     const { signIn } = useSession();
+    
     const userService = UserService();
     const classeService = ClasseService();
     const [nickname, setNickname] = useState("");
     const [fullname, setFullname] = useState("");
     const [email, setEmail] = useState("");
     const [nascimento, setNascimento] = useState(new Date());
-    const [classe, setClasse] = useState(0);
+    const [classeId, setClasseId] = useState(0);
     const [senha, setSenha] = useState("");
-    const [classes, setClasses] = useState([]);
+    const [classes, setClasses] = useState<Classe[]>([]);
     const [datePicker, setDatePicker] = useState(false);
+
+    const fullnameRef = useRef<TextInput>(null);
+    const emailRef = useRef<TextInput>(null);
 
     useEffect(() => {
         classeService.getAll()
-            .then(res => setClasses(res.data))
+            .then(res => setClasses(res))
             .catch(err => console.log(err));
     }, []);
+
+    useEffect(() => {
+        if (Platform.OS == "android" && datePicker)
+            DateTimePickerAndroid.open({
+                mode: "date",
+                value: nascimento,
+                onChange: handleDatePickerChange
+        })
+    }, [datePicker])
 
     const handleCadastrar = () => {
         userService.cadastrar({
@@ -32,75 +47,90 @@ export default function Cadastro() {
             fullname,
             nascimento,
             email,
-            classe,
+            classe: classeId,
             senha
         })
             .then(res => {
-                console.log(res);
                 if (res){
-                    signIn();
                     router.replace("/");
                 }
             })
             .catch(err => console.log("Erro ao fazer login"));
     };
 
+    const handleDatePickerChange = (e: DateTimePickerEvent , data?: Date) => {
+        if (e.type == "set" && data)
+            setNascimento(data);
+        setDatePicker(false);
+    }
+
   return (
     <View style={styles.container}>
-        <View style={styles.separator} />
         <Text style={styles.title}>Cadastro</Text>
+        <View style={styles.separator} />
         <TextInput 
             placeholder="Nickname"
             value={nickname}
             onChangeText={(txt) => setNickname(txt)} 
-            style={styles.input} 
+            style={styles.input}
+            enterKeyHint="next"
+            blurOnSubmit={false}
+            onSubmitEditing={() => fullnameRef.current && fullnameRef.current.focus()}
             />
 
         <TextInput 
             placeholder="Nome completo"
             value={fullname}
             onChangeText={(txt) => setFullname(txt)} 
+            enterKeyHint="next"
             style={styles.input}
+            blurOnSubmit={false}
+            ref={fullnameRef}
+            onSubmitEditing={() => emailRef.current && emailRef.current.focus()}
         />
 
-        <TextInput 
+        <TextInput
+            autoComplete="email"
+            keyboardType="email-address"
             placeholder="Email"
             value={email}
             onChangeText={(txt) => setEmail(txt)} 
+            enterKeyHint="next"
+            ref={emailRef}
             style={styles.input}
         />
 
         <TouchableOpacity
-            style={{width: "100%"}} 
+            style={styles.input}
             onPress={() => setDatePicker(true)}
         >
             <TextInput 
                 placeholder="nascimento"
                 value={`${nascimento.getDate()}/${nascimento.getMonth()}/${nascimento.getFullYear()}`}
-                style={styles.input}
                 editable={false}
+                style={{color: "black"}}
             />
         </TouchableOpacity>
-        {datePicker && Platform.OS === "android" ?
-            <DateTimePickerAndroid
-                mode="date"
-                onChange={(e, value) => value ? setNascimento(value) : setDatePicker(false)}
-                value={nascimento}
-                // adicionar restrição para menores de alguma idade?
-            />
-            :
+        {(datePicker && Platform.OS != "android") &&
             <RNDateTimePicker 
                 mode="date"
-                onChange={(e, value) => value ? setNascimento(value) : setDatePicker(false)}
+                onChange={handleDatePickerChange}
                 value={nascimento}
-            />}
+            />
+        }
 
-        {/* <TextInput 
-            placeholder="Classe"
-            value={classe}
-            onChangeText={(txt) => setClasse(txt)} 
-            style={styles.input}
-        /> */}
+        <View style={{...styles.input, padding:0}}>
+        <Picker
+            selectedValue={classeId}
+            // style={{fontSize: 10}}
+            onValueChange={(itemValue) => itemValue != 0 && setClasseId(itemValue)}
+        >
+            <Picker.Item label="Selecione uma classe" value={0} key={0} style={{color: "rgba(0,0,0,0.6)"}}/>
+            {classes.map((c) => 
+                <Picker.Item label={c.nome} value={c.id} key={c.id}/>
+            )}
+        </Picker>
+        </View>
 
         <TextInput
             placeholder="Password"
@@ -109,7 +139,8 @@ export default function Cadastro() {
             onChangeText={(txt) => setSenha(txt)} 
             style={styles.input}
         />
-        <Button title="Login" onPress={handleCadastrar} />
+
+        <Button title="Cadastrar" onPress={handleCadastrar} />
     </View>
   );
 }

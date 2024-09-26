@@ -1,9 +1,13 @@
+import Classe from "@/classes/classe";
 import { get } from "./service_config"
+import { AxiosResponse } from "axios";
 
 export default function ClasseService(){
 
-    const getAll = () => 
-        get("/classe");
+    const getAll = () => {
+        const promise = get<Classe[]>("/classe");
+        return promise.then(res => res.data.map(classe => new Classe(classe.id, classe.nome)));
+    } 
 
     return {getAll}
 }
