@@ -1,3 +1,4 @@
+import User from "@/classes/user";
 import { get, post } from "./service_config";
 
 export default function UserService(){
@@ -17,6 +18,16 @@ export default function UserService(){
         return promise.then(res => res.data);
     }
 
+    const addAmigo = (nickname: string) =>{
+        const promise = post<boolean>("/add-amigo", {nickname});
+        return promise.then(res => res.data);
+    } 
 
-    return {cadastrar, login}
+    const getAmigos = (user_id: string) =>{
+        const promise = get<User[]>(`/get-amigos/${user_id}`);
+        return promise.then(res => res.data);
+    } 
+
+
+    return {cadastrar, login, addAmigo, getAmigos}
 }

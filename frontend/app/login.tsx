@@ -2,13 +2,15 @@ import { Button, StyleSheet, TextInput,Text, View } from "react-native";
 import { useSession } from "./ctx";
 import { router } from "expo-router";
 import UserService from "@/services/user_service";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function Login() {
     const { signIn } = useSession();
     const userService = UserService();
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
+
+    const passRef = useRef<TextInput>(null);
 
     const handleLogin = () => {
         console.log("login")
@@ -23,33 +25,38 @@ export default function Login() {
             .catch(err => console.log(err));
     };
 
-  return (
-    <View style={styles.container}>
-        <Text style={styles.title}>Bem vindo ao FitQuest 💪</Text>
-        <View style={styles.separator} />
-        <TextInput 
-            placeholder="Username"
-            value={login}
-            onChangeText={(txt) => setLogin(txt)} 
-            style={styles.input} 
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Bem vindo ao FitQuest 💪</Text>
+            <View style={styles.separator} />
+            <TextInput 
+                placeholder="Username"
+                value={login}
+                onChangeText={(txt) => setLogin(txt)} 
+                style={styles.input}
+                enterKeyHint="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => passRef.current && passRef.current.focus()} 
             />
-        <TextInput
-            placeholder="Password"
-            secureTextEntry
-            value={senha}
-            onChangeText={(txt) => setSenha(txt)} 
-            style={styles.input}
-        />
-        <Button title="Login" onPress={handleLogin} />
+            <TextInput
+                placeholder="Password"
+                secureTextEntry
+                value={senha}
+                onChangeText={(txt) => setSenha(txt)} 
+                style={styles.input}
+                ref={passRef}
+                onSubmitEditing={() => handleLogin()} 
+            />
+            <Button title="Login" onPress={handleLogin} />
 
-        <View style={styles.separator} />
-        
-        <View>
-            <Text>Ainda não tem conta?</Text>
-            <Button title="Cadastre-se agora!" onPress={() => router.push("/cadastro")} />
+            <View style={styles.separator} />
+            
+            <View>
+                <Text>Ainda não tem conta?</Text>
+                <Button title="Cadastre-se agora!" onPress={() => router.push("/cadastro")} />
+            </View>
         </View>
-    </View>
-  );
+    );
 }
 
 const styles = StyleSheet.create({

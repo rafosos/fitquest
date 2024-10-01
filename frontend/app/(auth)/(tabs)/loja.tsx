@@ -4,7 +4,7 @@ import { Text } from 'react-native';
 export default function TabLoja() {
   
     return (
-      <Text>loja</Text>
+      <Text>loja, um dia chega</Text>
     );
   }
   

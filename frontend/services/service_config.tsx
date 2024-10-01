@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'http://192.168.0.50:8000';
+const API_URL = 'http://192.168.0.17:8000';
 
 const get = <T extends unknown>(endpoint: string, params: any = {}) => 
     axios.get<T>(API_URL + endpoint)
