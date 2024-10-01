@@ -11,15 +11,16 @@ export default function Login() {
     const [senha, setSenha] = useState("");
 
     const handleLogin = () => {
+        console.log("login")
         userService.login(login, senha)
             .then(res => {
                 console.log(res);
                 if (res){
-                    signIn();
+                    signIn(res);
                     router.replace("/");
                 }
             })
-            .catch(err => console.log("Erro ao fazer login"));
+            .catch(err => console.log(err));
     };
 
   return (

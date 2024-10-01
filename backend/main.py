@@ -8,15 +8,22 @@ import uvicorn
 # nao apagar
 from classes import campeonato, dificuldade, exercicio, item, rotina, user_skill, exercicio_rotina
 from classes.classe import Classe, insert_classes
+from classes.amizade import Amizade
 from classes.user import User
 from classes.skill import Skill, insert_skills
+from classes.status import Status, insert_statuses
 
 app = FastAPI()
 Base.metadata.create_all(engine)
 
 insert_classes()
 insert_skills()
+insert_statuses()
 
+@app.get("/hello-world")
+def hello_world():
+    return "hello world"
+    
 @app.post("/cadastro")
 def cadastro(
     nickname: Annotated[str, Body()], 
@@ -41,15 +48,16 @@ def cadastro(
 
 @app.post("/login")
 def login(login: Annotated[str, Body()], senha: Annotated[str, Body()], res: Response):
+    print("POST: login", flush=True)
     with Session() as sess:
         stmt = select(User).where(or_(User.nickname == login, User.email == login), User.senha == senha)
         user = sess.scalar(stmt)
         if(user):
             res.status_code = status.HTTP_200_OK
-            return user
+            return user.nickname
         else:
             res.status_code = status.HTTP_401_UNAUTHORIZED
-            return {"message": "Error on login"}
+            return "Erro no login"
 
 @app.get("/classe")
 def get_classes():

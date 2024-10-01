@@ -37,7 +37,7 @@ class Base(DeclarativeBase):
 
     def select_one(self):
         with Session() as sess:
-            return sess.execute(select(self)).first()
+            return sess.execute(select(self)).first()[0]
     
     def select_all(self):    
         with Session() as sess:

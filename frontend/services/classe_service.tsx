@@ -1,6 +1,5 @@
 import Classe from "@/classes/classe";
-import { get } from "./service_config"
-import { AxiosResponse } from "axios";
+import { get } from "./service_config";
 
 export default function ClasseService(){
 
