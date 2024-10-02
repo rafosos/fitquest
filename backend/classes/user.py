@@ -23,18 +23,8 @@ class User(Base):
     classe: Mapped["Classe"] = relationship(back_populates="users")
     skills: Mapped[List["Skill"]] = relationship(secondary=user_skill)
     
-    amigos: Mapped[List["Amizade"]] = relationship("Amizade", 
-                                                    secondary="amizade",
-                                                    primaryjoin=Amizade.user1_id==id,
-                                                    secondaryjoin=Amizade.user2_id==id,
-                                                    back_populates="user1",
-                                                   )
-    adicionaram: Mapped[List["Amizade"]] = relationship("Amizade",
-                                                        secondary="amizade",
-                                                        primaryjoin=Amizade.user2_id==id,
-                                                        secondaryjoin=Amizade.user1_id==id,
-                                                        back_populates="user2",
-                                                       )
+    amizades_sent: Mapped[List["Amizade"]] = relationship("Amizade", foreign_keys=[Amizade.user1_id], back_populates="user1")
+    amizades_received: Mapped[List["Amizade"]] = relationship("Amizade", foreign_keys=[Amizade.user2_id], back_populates="user2")
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, nickname={self.nickname!r}, fullname={self.fullname!r})"

@@ -7,12 +7,14 @@ const AuthContext = React.createContext<{
   session?: string | null;
   isLoading: boolean;
   userId: string | null;
+  setUserId: (id: string) => void;
 }>({
   signIn: (token: string) => null,
   signOut: () => null,
   session: null,
   isLoading: false,
-  userId: null
+  userId: null,
+  setUserId: (id: string) => null
 });
 
 // This hook can be used to access the user info.
@@ -23,7 +25,7 @@ export function useSession() {
 
 export function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
-  const [[isLoadingUser, userId], setUser] = useStorageState("userId");
+  const [[isLoadingUser, userId], setUserId] = useStorageState("userId");
   return (
     <AuthContext.Provider
       value={{
@@ -35,7 +37,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
         },
         session,
         isLoading,
-        userId
+        userId,
+        setUserId
       }}
     >
       {props.children}

@@ -5,7 +5,7 @@ import UserService from "@/services/user_service";
 import { useRef, useState } from "react";
 
 export default function Login() {
-    const { signIn } = useSession();
+    const { signIn, setUserId } = useSession();
     const userService = UserService();
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
@@ -17,8 +17,10 @@ export default function Login() {
         userService.login(login, senha)
             .then(res => {
                 console.log(res);
+                res = res.toString()
                 if (res){
                     signIn(res);
+                    setUserId(res);
                     router.replace("/");
                 }
             })
