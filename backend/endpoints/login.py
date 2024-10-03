@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 import jwt
 from fastapi import APIRouter, Body, Response, status, Depends, HTTPException
 from typing import Annotated
@@ -75,7 +75,7 @@ def cadastro(
     nickname: Annotated[str, Body()], 
     fullname: Annotated[str, Body()], 
     email: Annotated[str, Body()], 
-    nascimento: Annotated[str, Body()], 
+    nascimento: Annotated[date, Body()], 
     classe: Annotated[int, Body()], 
     senha: Annotated[str, Body()], 
     ):

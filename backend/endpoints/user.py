@@ -37,6 +37,7 @@ def add_amigo(user_id: int, res: Response, nickname: str = Body(..., embed=True)
         if friendship_exists:
             res.status_code = status.HTTP_400_BAD_REQUEST
             return "A amizade já existe."
+        
         amizade = Amizade(status_id=2, data=date.today())
         amizade.user2 = amigo
         user.amizades_sent.append(amizade)

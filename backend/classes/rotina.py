@@ -2,7 +2,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from typing import List
 from db.db import Base
-from .exercicio_rotina import exercicio_rotina
 
 class Rotina(Base):
     __tablename__ = "rotina"
@@ -12,7 +11,7 @@ class Rotina(Base):
     dias: Mapped[int]
     user_id = mapped_column(ForeignKey("user.id"))
 
-    exercicios: Mapped[List["Exercicio"]] = relationship(secondary=exercicio_rotina)
+    exercicios: Mapped[List["ExercicioRotina"]] = relationship(back_populates="rotina")
 
 
     def __repr__(self) -> str:

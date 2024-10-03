@@ -10,6 +10,8 @@ class Exercicio(Base):
     dificuldade_id = mapped_column(ForeignKey("dificuldade.id"))
 
     dificuldade: Mapped["Dificuldade"] = relationship(back_populates="exercicios")
+    campeonatos: Mapped["ExercicioCampeonato"] = relationship(back_populates="exercicio")
+    rotinas: Mapped["ExercicioRotina"] = relationship(back_populates="exercicio")
 
     def __repr__(self) -> str:
         return f"Exercicio(id={self.id!r}, nome={self.nome!r}, dificuldade_id={self.dificuldade_id!r})"

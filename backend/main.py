@@ -2,15 +2,24 @@ import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.security import OAuth2PasswordBearer
 from db.db import engine, Base
-from endpoints import user, classe, login
+from endpoints import user, classe, login, exercicio, campeonato
 
 # nao apagar
-from classes import campeonato, dificuldade, exercicio, item, rotina, user_skill, exercicio_rotina
-from classes.classe import Classe, insert_classes
 from classes.amizade import Amizade
-from classes.user import User
+from classes.classe import Classe, insert_classes
 from classes.skill import Skill, insert_skills
 from classes.status import Status, insert_statuses
+from classes.user import User
+from classes.exercicio import Exercicio
+from classes.campeonato import Campeonato
+from classes import \
+    dificuldade, \
+    rotina, \
+    exercicio_campeonato, \
+    exercicio_rotina, \
+    item, \
+    user_skill, \
+    user_exercicio
 
 app = FastAPI()
 # app = FastAPI(dependencies=Depends[login.get_current_active_user])
@@ -24,6 +33,8 @@ insert_statuses()
 app.include_router(user.router)
 app.include_router(classe.router)
 app.include_router(login.router)
+app.include_router(exercicio.router)
+app.include_router(campeonato.router)
 
 @app.get("/hello-world")
 def hello_world():

@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import List
 from db.db import Base
+from .user_campeonato import user_campeonato
 import datetime
 
 class Campeonato(Base):
@@ -10,5 +11,9 @@ class Campeonato(Base):
     nome: Mapped[str]
     duracao: Mapped[datetime.datetime]
 
+    exercicios: Mapped[List["ExercicioCampeonato"]] = relationship(back_populates="campeonato")
+    users: Mapped[List["User"]] = relationship(secondary=user_campeonato)
+
+
     def __repr__(self) -> str:
-        return f"Exercicio(id={self.id!r}, nome={self.nome!r}, dificuldade_id={self.dificuldade_id!r})"
+        return f"Campeonato(id={self.id!r}, nome={self.nome!r}, duracao={self.duracao!r})"

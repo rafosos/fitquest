@@ -16,7 +16,7 @@ class Classe(Base):
     
     def add_by_name_array(self, name_array):
         new_values = [Classe(nome=n) for n in name_array]
-        self.add_all(self, new_values=new_values)
+        self.add_all(new_values=new_values)
 
 classes = ["Guerreiro", "Mago", "Ladino"]
 
