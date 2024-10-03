@@ -11,9 +11,9 @@ class User(Base):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    nickname: Mapped[str] = mapped_column(String(20), nullable=False)
+    nickname: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
     fullname: Mapped[str]
-    email: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
     level: Mapped[int] = mapped_column(Integer, default=0)
     admin: Mapped[bool]
     senha: Mapped[str]

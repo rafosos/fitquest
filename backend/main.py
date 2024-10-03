@@ -1,6 +1,7 @@
-from fastapi import FastAPI
-from db.db import engine, Base
 import uvicorn
+from fastapi import FastAPI, Depends
+from fastapi.security import OAuth2PasswordBearer
+from db.db import engine, Base
 from endpoints import user, classe, login
 
 # nao apagar
@@ -12,8 +13,10 @@ from classes.skill import Skill, insert_skills
 from classes.status import Status, insert_statuses
 
 app = FastAPI()
-Base.metadata.create_all(engine)
+# app = FastAPI(dependencies=Depends[login.get_current_active_user])
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+Base.metadata.create_all(engine)
 insert_classes()
 insert_skills()
 insert_statuses()
