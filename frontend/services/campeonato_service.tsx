@@ -4,8 +4,10 @@ import Campeonato from "@/classes/campeonato";
 
 export default function CampeonatoService(){
 
-    const addCampeonato = (params: Campeonato) => 
-        post("/add-campeonato", params);
+    const addCampeonato = (params: Campeonato) => {
+        console.log(params)
+        return post("/add-campeonato", params);
+    }
 
     const getCampeonatos = (user_id: string) =>{
         const promise = get<Campeonato[]>(`/get-campeonatos/${user_id}`);

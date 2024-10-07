@@ -1,7 +1,8 @@
 import { useSession } from '@/app/ctx';
 import UserService from '@/services/user_service';
 import { useState } from 'react';
-import { Modal, View, Text, StyleSheet, Button, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput } from 'react-native';
+import BaseModal from './base/modal';
 
 export default function AddUserModal({ isVisible = false, onClose = () => {} }) {
     const [nickname, setNickname] = useState("");
@@ -21,13 +22,10 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
             .catch(err => console.log(err));
 
     return (
-        <Modal 
-            animationType="slide" 
-            transparent={true} 
-            visible={isVisible}
-            onRequestClose={() => onClose()}
+        <BaseModal
+            isVisible={isVisible}
+            onClose={clearAndClose}
         >
-            <View style={styles.modalContent}>
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>Adicionar amigo</Text>
                 </View>
@@ -35,26 +33,17 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
                     placeholder='Nickname'
                     value={nickname}
                     onChangeText={(txt) => setNickname(txt)}
+                    style={styles.input}
                 />
                 <Button 
                     title='Adicionar'
                     onPress={addAmigo}    
                 />
-            </View>
-        </Modal>
+        </BaseModal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalContent: {
-      height: '25%',
-      width: '100%',
-      backgroundColor: '#fff',
-      borderTopRightRadius: 18,
-      borderTopLeftRadius: 18,
-      position: 'absolute',
-      bottom: 0,
-    },
     titleContainer: {
       height: '16%',
       borderTopRightRadius: 10,
@@ -67,5 +56,12 @@ const styles = StyleSheet.create({
     title: {
       fontSize: 16,
     },
+    input: {
+        borderWidth: 1,
+        borderColor: "#000",
+        padding: 10,
+        margin: 10,
+        borderRadius: 4,
+    }
   });
   

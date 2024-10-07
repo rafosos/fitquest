@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { StyleSheet, Platform, StatusBar } from "react-native";
 import { SessionProvider } from "./ctx";
+import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -17,7 +18,7 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-
+  
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -29,14 +30,16 @@ export default function RootLayout() {
   }
 
   return (
-    <SessionProvider>
-      <Stack screenOptions={{contentStyle: styles.AndroidSafeArea}}>
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="cadastro" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </SessionProvider>
+    <AutocompleteDropdownContextProvider>
+      <SessionProvider>
+        <Stack screenOptions={{contentStyle: styles.AndroidSafeArea}}>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="cadastro" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </SessionProvider>
+    </AutocompleteDropdownContextProvider>
   );
 }
 

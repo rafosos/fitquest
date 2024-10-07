@@ -28,6 +28,11 @@ export default function UserService(){
         return promise.then(res => res.data);
     }
 
+    const getAmigosFilter = (user_id: string, filter: string) =>{
+        const promise = get<User[]>(`/get-amigos/${user_id}/${filter}`);
+        return promise.then(res => res.data);
+    }
+
     const getPedidosAmizade = (user_id: string) =>{
         const promise = get<User[]>(`/get-pedidos-amizade/${user_id}`);
         return promise.then(res => res.data);
@@ -38,5 +43,5 @@ export default function UserService(){
         return promise.then(res => res.data);
     }
 
-    return {cadastrar, login, addAmigo, getAmigos, getPedidosAmizade, aceitarAmizade}
+    return {cadastrar, login, addAmigo, getAmigos, getAmigosFilter, getPedidosAmizade, aceitarAmizade}
 }

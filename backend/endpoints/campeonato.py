@@ -26,3 +26,10 @@ def add_amigo(model: CampeonatoModel):
         camp.users.extend(participantes)
         sess.add(camp)
         sess.commit()
+        return camp.id
+
+@router.get("/get-campeonatos/{user_id}")
+def add_amigo(user_id: int):
+    with Session() as sess:
+        campeonatos = sess.scalars(select(Campeonato).join(Campeonato.users).filter_by(id=user_id)).all()
+        return campeonatos

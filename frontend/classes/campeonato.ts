@@ -3,11 +3,11 @@ export default class Campeonato{
         this.id = id;
         this.nome = nome;
         this.duracao = duracao;
-        this.participantes = participantes;
+        this.participantes_ids = participantes;
     }
 
     id: number;
     nome: string;
     duracao: Date;
-    participantes: Array<number>;
+    participantes_ids: Array<number>;
 }

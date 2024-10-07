@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Button, FlatList, Text } from 'react-native';
+import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
 import AddUserModal from '@/components/AddUserModal';
 import UserService from '@/services/user_service';
+import ActionButton from '@/components/ActionButton';
 
 export default function TabAmigos() {
     const [addModal, setAddModal] = useState(false);
@@ -42,7 +43,6 @@ export default function TabAmigos() {
     const abrirModal = () => setAddModal(true);
 
     return (<>
-        <Text>i'll be there for you sz</Text>
         <AddUserModal
             isVisible={addModal}
             onClose={onCloseModal}
@@ -50,20 +50,25 @@ export default function TabAmigos() {
 
         <FlatList
             data={amigos}
+            contentContainerStyle={{flex:1}}
+            ListHeaderComponent={<>
+                <Text style={styles.titulo}>Amigos</Text>
+            </>}
             renderItem={({item:amigo}) => <> 
                 <Text>{amigo.fullname}</Text>
             </>}
-            ListEmptyComponent={<>
-            <Text>Parece que ainda não tem ninguém aqui... Adicione alguém agora! :) </Text>
-            <AntDesign onPress={abrirModal}
-            name="adduser" size={24} color="black" />
-            </>}
+            ListEmptyComponent={
+                <View style={styles.containerSemAmigos}>
+                    <Text style={styles.textoSemAmigos}>Parece que ainda não tem ninguém aqui... Adicione alguém agora! :) </Text>
+                    <AntDesign onPress={abrirModal} name="adduser" size={50} color="black" />
+                </View>
+            }
         />
 
         <FlatList
             data={pedidosAmizade}
             ListHeaderComponent={<>
-            <Text>Pedidos de amizade</Text>
+                <Text style={styles.titulo}>Pedidos de amizade</Text>
             </>}
             renderItem={({item:pedido}) => <> 
                 <Text>{pedido.fullname}</Text>
@@ -76,12 +81,22 @@ export default function TabAmigos() {
             <Text>Você não tem pedidos pendentes.</Text>
             </>}
         />
-
-        <Button 
-            title='add amigo'
-            onPress={abrirModal}
-        />
+        <ActionButton acao={abrirModal}/>
         </>
+
     );
 }
- 
+
+const styles = StyleSheet.create({
+    containerSemAmigos:{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    textoSemAmigos:{
+        fontSize: 18
+    },
+    titulo:{
+        fontSize: 18
+    }
+})
