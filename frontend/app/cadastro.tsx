@@ -119,10 +119,9 @@ export default function Cadastro() {
             />
         }
 
-        <View style={{...styles.input, padding:0}}>
+        {/* <View style={{...styles.input, padding:0}}>
         <Picker
             selectedValue={classeId}
-            // style={{fontSize: 10}}
             onValueChange={(itemValue) => itemValue != 0 && setClasseId(itemValue)}
         >
             <Picker.Item label="Selecione uma classe" value={0} key={0} style={{color: "rgba(0,0,0,0.6)"}}/>
@@ -130,7 +129,7 @@ export default function Cadastro() {
                 <Picker.Item label={c.nome} value={c.id} key={c.id}/>
             )}
         </Picker>
-        </View>
+        </View> */}
 
         <TextInput
             placeholder="Password"
@@ -146,32 +145,31 @@ export default function Cadastro() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  paragraph: {
-    margin: 24,
-    fontSize: 18,
-    textAlign: "center",
-  },
-
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-  input: {
-    width: "80%",
-    borderWidth: 1,
-    borderColor: "#000",
-    padding: 10,
-    margin: 10,
-    borderRadius: 4,
-  },
+    container: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    paragraph: {
+        margin: 24,
+        fontSize: 18,
+        textAlign: "center",
+    },
+    separator: {
+        marginVertical: 30,
+        height: 1,
+        width: "80%",
+    },
+    input: {
+        width: "80%",
+        borderWidth: 1,
+        borderColor: "#000",
+        padding: 10,
+        margin: 10,
+        borderRadius: 4,
+    },
 });

@@ -24,3 +24,14 @@ export const Colors = {
     tabIconSelected: tintColorDark,
   },
 };
+
+
+export const colors = {
+  cinza :{
+    medio: "#ccc",
+    escuro: "#444"
+  },
+  branco: {
+    padrao: "#fff"
+  }
+}

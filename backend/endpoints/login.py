@@ -70,24 +70,25 @@ def get_password_hash(password):
 #         raise credentials_exception
 #     return user
 
+class CadastroModel(BaseModel):
+    nickname: str 
+    fullname: str
+    email: str
+    nascimento: datetime 
+    classe: int
+    senha: str
+    
 @router.post("/cadastro")
-def cadastro(
-    nickname: Annotated[str, Body()], 
-    fullname: Annotated[str, Body()], 
-    email: Annotated[str, Body()], 
-    nascimento: Annotated[date, Body()], 
-    classe: Annotated[int, Body()], 
-    senha: Annotated[str, Body()], 
-    ):
+def cadastro(form: CadastroModel):
     user = User(
-        nickname=nickname,
-        fullname=fullname,
-        email=email,
+        nickname=form.nickname,
+        fullname=form.fullname,
+        email=form.email,
         level=0,
         admin=False,
-        nascimento=nascimento,
-        classe_id=classe,
-        senha=get_password_hash(senha)
+        nascimento=form.nascimento,
+        classe_id=form.classe,
+        senha=get_password_hash(form.senha)
     )
     user.add_user()
     return {"id": user.id}
