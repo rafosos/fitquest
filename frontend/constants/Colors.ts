@@ -27,6 +27,9 @@ export const Colors = {
 
 
 export const colors = {
+  preto: {
+    padrao: "#000"
+  },
   cinza :{
     medio: "#ccc",
     escuro: "#444"

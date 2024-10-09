@@ -10,10 +10,11 @@ from classes.classe import Classe, insert_classes
 from classes.skill import Skill, insert_skills
 from classes.status import Status, insert_statuses
 from classes.user import User
-from classes.exercicio import Exercicio
+from classes.exercicio import Exercicio, insert_exercicios
 from classes.campeonato import Campeonato
+from classes.exercicio import Exercicio
+from classes.grupo_muscular import GrupoMuscular, insert_grupos_musculares
 from classes import \
-    dificuldade, \
     rotina, \
     exercicio_campeonato, \
     exercicio_rotina, \
@@ -29,6 +30,8 @@ Base.metadata.create_all(engine)
 insert_classes()
 insert_skills()
 insert_statuses()
+insert_grupos_musculares()
+insert_exercicios()
 
 app.include_router(user.router)
 app.include_router(classe.router)

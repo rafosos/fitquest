@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = 'http://192.168.0.17:8000'; //casa
-// const API_URL = 'http://172.17.101.28:8000'; //facul
+// const API_URL = 'http://192.168.0.17:8000'; //casa
+const API_URL = 'http://172.17.102.113:8000'; //facul
 
 const get = <T extends unknown>(endpoint: string) => 
     axios.get<T>(API_URL + endpoint)

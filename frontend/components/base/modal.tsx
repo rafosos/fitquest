@@ -1,12 +1,16 @@
 import React from "react";
 import { TouchableOpacity, TouchableWithoutFeedback, Modal, View, StyleSheet } from 'react-native';
 
-export default function BaseModal({ isVisible = false, onClose = () => {}, ...props }) {
+export default function BaseModal({ 
+    transparent = true,
+    isVisible = false, 
+    onClose = () => {}, 
+    ...props }) {
 
     return (
         <Modal 
             animationType="slide" 
-            transparent={true} 
+            transparent={transparent} 
             visible={isVisible}
             onRequestClose={() => onClose()}
         >

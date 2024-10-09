@@ -1,4 +1,4 @@
-import { Button, Text, FlatList, ScrollView, RefreshControl, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, FlatList, RefreshControl, View, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';

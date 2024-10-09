@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
 export default function TabLayout() {
@@ -10,7 +10,7 @@ export default function TabLayout() {
             tabBarActiveTintColor: 'light',
             headerShown: false,
             tabBarItemStyle:{
-            marginVertical: 5
+                marginVertical: 5
             }
         }}
         initialRouteName='index'
@@ -21,7 +21,7 @@ export default function TabLayout() {
                 unmountOnBlur: true,
                 title: 'Competições',
                 tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'walk' : 'walk-outline'} color={color} />
+                    <TabBarIcon name={focused ? 'podium' : 'podium-outline'} color={color} />
                 ),
             }}
             />
@@ -53,6 +53,15 @@ export default function TabLayout() {
                 ),
             }}
         />
+        <Tabs.Screen
+            name="exercicios"
+            options={{
+                title: 'Treino',
+                tabBarIcon: ({ color, focused }) => (
+                    <FontAwesome6 name="dumbbell" size={24} color={color} />
+                ),
+            }}
+         />
         <Tabs.Screen
             name="loja"
             options={{

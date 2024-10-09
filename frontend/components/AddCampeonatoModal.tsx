@@ -24,7 +24,6 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
     const userService = UserService();
     const campeonatoService = CampeonatoService();
 
-    const partifipantesRef = useRef(null);
     const dropdownController = useRef<AutocompleteDropdownRef | null>(null);
 
     useEffect(() => {
@@ -114,7 +113,6 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
             }
 
             <AutocompleteDropdown
-                ref={partifipantesRef}
                 controller={controller => {
                     dropdownController.current = controller
                 }}
