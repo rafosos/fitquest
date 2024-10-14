@@ -9,7 +9,9 @@ export default class Exercicio{
 
     id: number;
     nome: string;
-    grupo_muscular: GrupoMuscular;
+    grupo_muscular_id: number = 0;
+    grupo_muscular_nome: string = "";
     series: number = 0;
     repeticoes: number = 0;
+    grupo_muscular: GrupoMuscular;
 }

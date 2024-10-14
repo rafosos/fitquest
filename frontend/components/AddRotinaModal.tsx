@@ -1,6 +1,6 @@
 import { useSession } from '@/app/ctx';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, Modal, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput, Modal, FlatList, Dimensions, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Exercicio from '@/classes/exercicio';
 import { AutocompleteDropdown, AutocompleteDropdownContextProvider, AutocompleteDropdownRef, TAutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
@@ -26,7 +26,11 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     
     const clearAndClose = () =>{
         setNome("");
+        setDuracao(0);
+        setExercicios([]);
+        setResultados([]);
         onClose();
+        console.log("deu")
     }
     
     const getExerciciosDropdown = (f: string) => {
@@ -61,6 +65,11 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
         setExercicios([...exercicios]);
     }
 
+    const removerExercicio = (index: number) => {
+        const e = exercicios.splice(index,1);
+        setExercicios([...exercicios]);
+    }
+
     const submit = () => {
         if(!userId) return
 
@@ -80,7 +89,10 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
             onRequestClose={clearAndClose}
         >
             <AutocompleteDropdownContextProvider>
-                <FlatList 
+                <FlatList
+                removeClippedSubviews={false}
+                    keyboardShouldPersistTaps="always"
+                    automaticallyAdjustKeyboardInsets
                     ListHeaderComponent={<>
                         <View style={styles.titleContainer}>
                             <AntDesign name="arrowleft" size={30} color={colors.preto.padrao} onPress={onClose}/>
@@ -127,14 +139,14 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                                 ...styles.inputAutocomplete,
                                 backgroundColor: colors.branco.padrao
                             }}
-                            ChevronIconComponent={<Feather name="chevron-down" size={20} color={colors.preto.padrao} />}
                             ClearIconComponent={<Feather name="x-circle" size={18} color={colors.preto.padrao} />}
                             inputHeight={50}
-                            closeOnBlur={false}
+                            closeOnBlur={true}
                             showChevron={false}
                             clearOnFocus={false}
+                            closeOnSubmit
                             EmptyResultComponent={<></>}
-                        />
+                            />
                     </>}
                     data={exercicios}
                     renderItem={({item, index}) => 
@@ -145,7 +157,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                                     <Text style={styles.tituloExercicio}>{item.nome}</Text>
                                     <Text style={styles.subTituloExercicio}>{item.grupo_muscular.nome}</Text>
                                 </View>
-                                <Feather name="trash-2" size={24} color="red" />
+                                <Feather name="trash-2" size={24} color="red" onPress={() => removerExercicio(index)}/>
                             </View>
 
                             <View style={styles.containerCamposExec}>

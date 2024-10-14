@@ -1,17 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '@/constants/Colors';
 import Rotina from '@/classes/rotina';
 import AddRotinaModal from '@/components/AddRotinaModal';
+import RotinaService from '@/services/rotina_service';
+import { useSession } from '@/app/ctx';
+import { errorHandlerDebug } from '@/services/service_config';
 
 export default function TabTreino() {
     const [refreshing, setRefreshing] = useState(false);
     const [rotinas, setRotinas] = useState<Rotina[]>([]);
     const [addRotina, setAddRotina] = useState(false);
+    const {userId} = useSession();
+    const rotinaService = RotinaService();
+
+    useEffect(() => {
+        refresh()
+    }, []);
+
 
     const getRotinas = () => {
-
+        if(!userId) return;
+        setRefreshing(true);
+        rotinaService.getRotinas(userId)
+            .then(res => setRotinas(res))
+            .catch(err => errorHandlerDebug(err))
+            .finally(() => setRefreshing(false))
     }
 
     const refresh = async () => {
@@ -32,7 +47,7 @@ export default function TabTreino() {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
                 ListHeaderComponent={
                     <View style={styles.header}>
-                        <Text style={styles.headerTitulo}>Treino</Text>
+                        <Text style={styles.headerTitulo}>Treinos</Text>
 
                         <TouchableOpacity style={styles.botaoAddRotina} onPress={() => setAddRotina(true)}>
                             <Text style={styles.textoAdd}>Adicionar rotina de treino</Text>
@@ -43,8 +58,9 @@ export default function TabTreino() {
                 data={rotinas}
                 renderItem={({item}) => <>
                     <TouchableOpacity style={styles.cardTreino}>
-                        <Text>{item.nome}</Text>
-                        <Text>{item.dias}</Text>
+                        <Text style={styles.nomeRotina}>{item.nome}</Text>
+                        <Text style={styles.diasRotina}>{item.dias}</Text>
+                        <Text style={styles.exercicios}>{item.exercicios.map(e => e.nome).join(", ")}</Text>
                     </TouchableOpacity>
                 </>}
                 ListEmptyComponent={<View style={styles.listEmptyContainer}>
@@ -58,7 +74,9 @@ export default function TabTreino() {
 const styles = StyleSheet.create({
     header:{
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        marginBottom: 20,
+        marginTop: 5
     },
     headerTitulo:{
         fontSize: 25,
@@ -82,12 +100,26 @@ const styles = StyleSheet.create({
         marginLeft: 5
     },
     cardTreino:{
-        backgroundColor: colors.cinza.medio
+        backgroundColor: colors.cinza.medio,
+        borderWidth:2,
+        borderColor: colors.cinza.escuro,
+        borderRadius: 15,
+        padding: 10
+    },
+    nomeRotina:{
+        fontSize: 20,
+        fontWeight: "800"
+    },
+    diasRotina:{
+        
+    },
+    exercicios:{
+        
     },
     listEmptyContainer:{
         flex:1,
         alignItems: "center",
         justifyContent: "center"
-    }
+    },
 });
   

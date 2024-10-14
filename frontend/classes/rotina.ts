@@ -1,3 +1,5 @@
+import Exercicio from "./exercicio";
+
 export default class Rotina{
     constructor(id: number, nome: string, dias: number) {
         this.id = id;
@@ -8,4 +10,5 @@ export default class Rotina{
     id: number;
     nome: string;
     dias: number;
+    exercicios: Exercicio[] = [];
 }

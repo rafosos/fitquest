@@ -14,3 +14,7 @@ class ExercicioRotina(Base):
     exercicio: Mapped["Exercicio"] = relationship(back_populates="rotinas")
     rotina: Mapped["Rotina"] = relationship(back_populates="exercicios")
     execs_user: Mapped[List["UserExercicio"]] = relationship(back_populates="exec_rotina")
+
+    def __repr__(self) -> str:
+        return f"ExercicioRotina(id={self.id!r}, exercicio_id={self.exercicio_id!r}, rotina_id={self.rotina_id!r}), qtd_serie={self.qtd_serie!r}), qtd_repeticoes={self.qtd_repeticoes!r})"
+    

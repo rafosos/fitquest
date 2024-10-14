@@ -1,5 +1,5 @@
 import Rotina from "@/classes/rotina";
-import { post } from "./service_config";
+import { get, post } from "./service_config";
 
 export default function RotinaService(){
 
@@ -13,9 +13,9 @@ export default function RotinaService(){
     }
     
     const getRotinas = (user_id: string) => {
-        const promise = post<Rotina>(`/rotina/${user_id}`);
+        const promise = get<Rotina[]>(`/rotina/${user_id}`);
         return promise.then(res => res.data);    
     }
 
-    return {addRotina}
+    return {addRotina, getRotinas}
 }
