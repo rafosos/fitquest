@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.security import OAuth2PasswordBearer
 from db.db import engine, Base
-from endpoints import user, classe, login, exercicio, campeonato
+from endpoints import user, classe, login, exercicio, campeonato, rotina
 
 # nao apagar
 from classes.amizade import Amizade
@@ -13,9 +13,9 @@ from classes.user import User
 from classes.exercicio import Exercicio, insert_exercicios
 from classes.campeonato import Campeonato
 from classes.exercicio import Exercicio
+from classes.rotina import Rotina
 from classes.grupo_muscular import GrupoMuscular, insert_grupos_musculares
 from classes import \
-    rotina, \
     exercicio_campeonato, \
     exercicio_rotina, \
     item, \
@@ -38,6 +38,7 @@ app.include_router(classe.router)
 app.include_router(login.router)
 app.include_router(exercicio.router)
 app.include_router(campeonato.router)
+app.include_router(rotina.router)
 
 @app.get("/hello-world")
 def hello_world():

@@ -8,8 +8,10 @@ class Exercicio(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str]
     grupo_muscular_id = mapped_column(ForeignKey("grupo_muscular.id"))
+    criado_por = mapped_column(ForeignKey("user.id"), nullable=True)
 
     grupo_muscular: Mapped["GrupoMuscular"] = relationship(back_populates="exercicios")
+    user: Mapped["User"] = relationship(back_populates="exercicios_custom")
     campeonatos: Mapped["ExercicioCampeonato"] = relationship(back_populates="exercicio")
     rotinas: Mapped["ExercicioRotina"] = relationship(back_populates="exercicio")
 

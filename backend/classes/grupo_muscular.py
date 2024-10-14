@@ -26,7 +26,8 @@ grupos_musculares = [
     "Bíceps",          # 5
     "Pernas",          # 6
     "Panturrilha",     # 7
-    "Abdômen"          # 8
+    "Abdômen",          # 8
+    "Cardio",          # 9
 ]
 
 def insert_grupos_musculares():
