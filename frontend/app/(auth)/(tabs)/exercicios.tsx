@@ -12,7 +12,7 @@ export default function TabTreino() {
     const [refreshing, setRefreshing] = useState(false);
     const [rotinas, setRotinas] = useState<Rotina[]>([]);
     const [addRotina, setAddRotina] = useState(false);
-    const {userId} = useSession();
+    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
     const rotinaService = RotinaService();
 
     useEffect(() => {

@@ -9,7 +9,7 @@ class Classe(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str]
 
-    users: Mapped[List["User"]] = relationship(back_populates="classe")
+    # users: Mapped[List["User"]] = relationship(back_populates="classe")
 
     def __repr__(self) -> str:
         return f"Classe(id={self.id!r}, nome={self.nome!r})"

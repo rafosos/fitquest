@@ -13,7 +13,7 @@ import { colors } from "@/constants/Colors";
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from "@react-native-community/datetimepicker";
 
 export default function AddCampeonatoModal({ isVisible = false, onClose = () => {} }) {
-    const {userId} = useSession();
+    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
     const [nome, setNome] = useState("");
     const [datePicker, setDatePicker] = useState(false);
     const [dataFinal, setDataFinal] = useState(new Date(Date.now() + 12096e5));

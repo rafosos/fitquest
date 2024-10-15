@@ -75,7 +75,7 @@ class CadastroModel(BaseModel):
     fullname: str
     email: str
     nascimento: datetime 
-    classe: int
+    # classe: int
     senha: str
     
 @router.post("/cadastro")
@@ -87,7 +87,7 @@ def cadastro(form: CadastroModel):
         level=0,
         admin=False,
         nascimento=form.nascimento,
-        classe_id=form.classe,
+        # classe_id=form.classe,
         senha=get_password_hash(form.senha)
     )
     user.add_user()
@@ -105,7 +105,7 @@ def login(login: Annotated[str, Body()], senha: Annotated[str, Body()], res: Res
         
         if(verify_password(senha, user.senha)):
             res.status_code = status.HTTP_200_OK
-            return user.id
+            return user
         else:
             res.status_code = status.HTTP_401_UNAUTHORIZED
             return "Senha incorreta"

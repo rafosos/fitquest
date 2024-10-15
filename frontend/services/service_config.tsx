@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const API_URL = 'http://192.168.0.41:8000'; //casa
-const API_URL = 'http://192.168.162.156:8000'; //cel
+const API_URL = 'http://192.168.0.20:8000'; //casa
+// const API_URL = 'http://192.168.162.156:8000'; //cel
 // const API_URL = 'http://172.17.102.113:8000'; //facul
 // const API_URL = 'http://192.168.162.156:8000'; //facul L
 

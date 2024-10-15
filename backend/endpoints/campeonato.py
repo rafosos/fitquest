@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from db.db import Session
-from sqlalchemy import select
+from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from datetime import datetime
 from pydantic import BaseModel
 from classes.campeonato import Campeonato
@@ -31,5 +32,12 @@ def add_amigo(model: CampeonatoModel):
 @router.get("/get-campeonatos/{user_id}")
 def add_amigo(user_id: int):
     with Session() as sess:
-        campeonatos = sess.scalars(select(Campeonato).join(Campeonato.users).filter_by(id=user_id)).all()
+        campeonatos = sess.execute(
+            select(Campeonato.id, Campeonato.nome, Campeonato.duracao, func.string_agg(User.nickname, ', ').label("participantes"))
+            .options(selectinload(Campeonato.users.and_(User.id is not user_id)))
+            .join(Campeonato.users)
+            .group_by(Campeonato.id)
+            # .filter_by(id=user_id)
+            ).mappings().all()
+        
         return campeonatos

@@ -6,7 +6,7 @@ import BaseModal from './base/modal';
 
 export default function AddUserModal({ isVisible = false, onClose = () => {} }) {
     const [nickname, setNickname] = useState("");
-    const {userId} = useSession();
+    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const userService = UserService();
 

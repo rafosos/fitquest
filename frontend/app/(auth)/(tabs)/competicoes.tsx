@@ -6,12 +6,13 @@ import Campeonato from '@/classes/campeonato';
 import AddCampeonatoModal from '@/components/AddCampeonatoModal';
 import CampeonatoService from '@/services/campeonato_service';
 import ActionButton from '@/components/ActionButton';
+import { colors } from '@/constants/Colors';
 
 export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
     const [campeonatos, setCampeonatos] = useState<Campeonato[]>([]);
     const [refreshing, setRefreshing] = useState(false);
-    const {userId} = useSession();
+    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const campeonatoService = CampeonatoService();
 
@@ -46,12 +47,15 @@ export default function TabEventos() {
         <FlatList 
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshCampeonatos}/>}
             data={campeonatos}
-            contentContainerStyle={{flex: 1}}
+            contentContainerStyle={styles.containerCampeonatos}
             ListHeaderComponent={
                 <Text style={styles.titulo}>Campeonatos</Text>
             }
-            renderItem={({item:campeonato}) => 
-                <Text>{campeonato.nome}</Text>
+            renderItem={({item:campeonato}) =>
+                <View style={styles.card}>
+                    <Text style={styles.nomeCampeonato}>{campeonato.nome}</Text>
+                    <Text>Competidores: </Text>
+                </View>
             }
             ListEmptyComponent={<View style={styles.containerSemCampeonatos}>
                 <Text>no campeonatos?</Text>
@@ -64,15 +68,32 @@ export default function TabEventos() {
 }
 
 const styles = StyleSheet.create({
+    containerCampeonatos:{
+        flex:1,
+        padding:14
+    },
+    titulo:{
+        fontSize: 25,
+        fontWeight: "800"
+    },
+    card:{
+        backgroundColor: colors.cinza.medio,
+        borderColor: colors.cinza.escuro,
+        borderWidth: 2,
+        borderRadius: 25,
+        padding: 10,
+        marginVertical: 2
+    },
+    nomeCampeonato:{
+        fontSize: 17,
+        fontWeight: "700"
+    },
     containerSemCampeonatos:{
         flex: 1,
         alignItems: "center",
         justifyContent: "center"
     },
     textoSemAmigos:{
-        fontSize: 18
-    },
-    titulo:{
         fontSize: 18
     }
 })

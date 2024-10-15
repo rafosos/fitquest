@@ -19,10 +19,10 @@ class User(Base):
     admin: Mapped[bool]
     senha: Mapped[str]
     nascimento: Mapped[datetime.date]
-    classe_id = mapped_column(ForeignKey("classe.id"))
+    # classe_id = mapped_column(ForeignKey("classe.id"))
 
 
-    classe: Mapped["Classe"] = relationship(back_populates="users")
+    # classe: Mapped["Classe"] = relationship(back_populates="users")
     exercicios: Mapped[List["UserExercicio"]] = relationship(back_populates="user")
     exercicios_custom: Mapped[List["Exercicio"]] = relationship(back_populates="user")
     skills: Mapped[List["Skill"]] = relationship(secondary=user_skill)

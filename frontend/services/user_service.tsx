@@ -8,13 +8,13 @@ export default function UserService(){
         fullname: string,
         email: string,
         nascimento: Date,
-        classe: number,
+        // classe: number,
         senha: string
     }) => 
         post("/cadastro", params);
 
     const login = (login: string, senha: string) => {
-        const promise = post<string>("/login", {login, senha});
+        const promise = post<User>("/login", {login, senha});
         return promise.then(res => res.data);
     }
 

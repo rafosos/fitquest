@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, StyleSheet, TextInput,Text, View,TouchableOpacity, Platform } from "react-native";
 import { router } from "expo-router";
-import { Picker } from '@react-native-picker/picker';
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 import { useSession } from "./ctx";
@@ -9,16 +8,14 @@ import UserService from "@/services/user_service";
 import ClasseService from "@/services/classe_service";
 import Classe from "@/classes/classe";
 
-export default function Cadastro() {
-    const { signIn } = useSession();
-    
+export default function Cadastro() {    
     const userService = UserService();
     const classeService = ClasseService();
     const [nickname, setNickname] = useState("");
     const [fullname, setFullname] = useState("");
     const [email, setEmail] = useState("");
     const [nascimento, setNascimento] = useState(new Date());
-    const [classeId, setClasseId] = useState(0);
+    // const [classeId, setClasseId] = useState(0);
     const [senha, setSenha] = useState("");
     const [classes, setClasses] = useState<Classe[]>([]);
     const [datePicker, setDatePicker] = useState(false);
@@ -42,12 +39,12 @@ export default function Cadastro() {
     }, [datePicker])
 
     const handleCadastrar = () => {
+        // classe: classeId,
         userService.cadastrar({
             nickname,
             fullname,
             nascimento,
             email,
-            classe: classeId,
             senha
         })
             .then(res => {
