@@ -56,12 +56,12 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     }
 
     const updateSerie = (index: number, value: number) => {
-        exercicios[index].series = value;
+        exercicios[index].qtd_serie = value;
         setExercicios([...exercicios]);
     }
  
     const updateRepeticao = (index: number, value: number) => {
-        exercicios[index].repeticoes = value;
+        exercicios[index].qtd_repeticoes = value;
         setExercicios([...exercicios]);
     }
 
@@ -76,7 +76,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
         rotinaService.addRotina(userId, {
             nome,
             dias: duracao,
-            exercicios: exercicios.map(e => {return{id: e.id, series: e.series, repeticoes: e.repeticoes}})
+            exercicios: exercicios.map(e => {return{id: e.id, series: e.qtd_serie, repeticoes: e.qtd_repeticoes}})
         }).then(res => clearAndClose())
         .catch(err => errorHandlerDebug(err));
     }
@@ -164,7 +164,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                                 <View style={styles.containerTxtCard}>
                                     <Text style={styles.txtCard}>Séries:</Text>
                                     <TextInput
-                                        value={item.series.toString()}
+                                        value={item.qtd_serie.toString()}
                                         keyboardType='numeric'
                                         onChangeText={(txt) => updateSerie(index, Number(txt))}
                                         style={styles.inputCard}
@@ -175,7 +175,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                                     <Text style={styles.txtCard}>Repetições:</Text>
                                     <TextInput
                                         keyboardType='numeric'
-                                        value={item.repeticoes.toString()}
+                                        value={item.qtd_repeticoes.toString()}
                                         onChangeText={(txt) => updateRepeticao(index, Number(txt))}
                                         style={styles.inputCard}
                                         />

@@ -2,16 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '@/constants/Colors';
-import Rotina from '@/classes/rotina';
+import { RotinaResumida } from '@/classes/rotina';
 import AddRotinaModal from '@/components/AddRotinaModal';
 import RotinaService from '@/services/rotina_service';
 import { useSession } from '@/app/ctx';
 import { errorHandlerDebug } from '@/services/service_config';
+import DetalhesRotinaModal from '@/components/DetalhesRotinaModal';
 
 export default function TabTreino() {
     const [refreshing, setRefreshing] = useState(false);
-    const [rotinas, setRotinas] = useState<Rotina[]>([]);
+    const [rotinas, setRotinas] = useState<RotinaResumida[]>([]);
     const [addRotina, setAddRotina] = useState(false);
+    const [detalhesModal, setDetahesModal] = useState({show: false, rotina_id:0});
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
     const rotinaService = RotinaService();
 
@@ -31,6 +33,7 @@ export default function TabTreino() {
 
     const refresh = async () => {
         setAddRotina(false);
+        setDetahesModal({...detalhesModal, show:false});
         setRefreshing(true);
         await getRotinas();
         setRefreshing(false);
@@ -40,6 +43,11 @@ export default function TabTreino() {
         <View style={{marginHorizontal: 15, marginVertical: 7, flex:1}}>
             <AddRotinaModal 
                 isVisible={addRotina}
+                onClose={refresh}
+            />
+            <DetalhesRotinaModal
+                rotinaId={detalhesModal.rotina_id}
+                isVisible={detalhesModal.show}
                 onClose={refresh}
             />
             <FlatList 
@@ -57,10 +65,10 @@ export default function TabTreino() {
                 }
                 data={rotinas}
                 renderItem={({item}) => <>
-                    <TouchableOpacity style={styles.cardTreino}>
+                    <TouchableOpacity style={styles.cardTreino} onPress={() => setDetahesModal({show: true, rotina_id: item.id})}>
                         <Text style={styles.nomeRotina}>{item.nome}</Text>
                         <Text style={styles.diasRotina}>{item.dias}</Text>
-                        <Text style={styles.exercicios}>{item.exercicios.map(e => e.nome).join(", ")}</Text>
+                        <Text style={styles.exercicios}>{item.exercicios}</Text>
                     </TouchableOpacity>
                 </>}
                 ListEmptyComponent={<View style={styles.listEmptyContainer}>

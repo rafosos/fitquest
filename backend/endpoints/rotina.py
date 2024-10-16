@@ -3,9 +3,9 @@ from typing import List
 from collections import defaultdict
 from db.db import Session
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
+from classes.user_exercicio import UserExercicio
 from classes.rotina import Rotina
 from classes.grupo_muscular import GrupoMuscular
 from classes.exercicio_rotina import ExercicioRotina
@@ -53,50 +53,95 @@ def add_rotina(user_id, model: RotinaModel, res: Response):
     return "A nova rotina foi adicionada com sucesso."
 
 @router.get("/rotina/{user_id}")
-def add_amigo(user_id: int):
-        stmt = (
-            select(
-                Rotina.id, 
-                Rotina.nome, 
-                Rotina.dias, 
-                Exercicio.id, 
-                ExercicioRotina.qtd_serie, 
-                ExercicioRotina.qtd_repeticoes, 
-                Exercicio.nome.label('exercicio_nome'), 
-                GrupoMuscular.id.label('grupo_muscular_id'), 
-                GrupoMuscular.nome.label('grupo_muscular_nome')
-            )
-            .join(ExercicioRotina, Rotina.id == ExercicioRotina.rotina_id)
-            .join(Exercicio, ExercicioRotina.exercicio_id == Exercicio.id)
-            .join(GrupoMuscular, Exercicio.grupo_muscular_id == GrupoMuscular.id)
-            .filter(Rotina.user_id == user_id)
-            .order_by(Rotina.id)
+def get_rotina(user_id: int):
+    stmt = (
+        select(
+            Rotina.id, 
+            Rotina.nome, 
+            Rotina.dias, 
+            Exercicio.nome.label('exercicio_nome')
         )
-        with Session() as sess:
-            result = sess.execute(stmt).all()
+        .join(ExercicioRotina, Rotina.id == ExercicioRotina.rotina_id)
+        .join(Exercicio, ExercicioRotina.exercicio_id == Exercicio.id)
+        .filter(Rotina.user_id == user_id)
+        .order_by(Rotina.id)
+    )
+    with Session() as sess:
+        result = sess.execute(stmt).all()
 
-        rotinas_dict = defaultdict(list)
-        for row in result:
-            rotina_id = row[0]
+    rotinas_dict = defaultdict(list)
+    for row in result:
+        rotina_id = row[0]
 
-            if(not rotinas_dict[rotina_id]):
-                rotinas_dict[rotina_id] = {
-                    "id": row[0],
-                    "nome": row[1],
-                    "dias": row[2],
-                    "exercicios": []
-                }
+        if(not rotinas_dict[rotina_id]):
+            rotinas_dict[rotina_id] = {
+                "id": row[0],
+                "nome": row[1],
+                "dias": row[2],
+                "exercicios": row[3]
+            }
+            continue
 
-            exercicio_info = {
-                "id": row[3],
-                "qtd_serie": row[4],
-                "qtd_repeticoes": row[5],
-                "nome": row[6],
-                "grupo_muscular_id": row[7],
-                "grupo_muscular_nome": row[8],
+        rotinas_dict[rotina_id]["exercicios"] = rotinas_dict[rotina_id]["exercicios"] + f", {row[3]}"
+
+    return [v for k,v in rotinas_dict.items()]
+
+@router.get("/rotina_detalhes/{rotina_id}")
+def get_rotina_detalhes(rotina_id: int):
+    stmt = (
+        select(
+            Rotina.id, 
+            Rotina.nome, 
+            Rotina.dias, 
+            ExercicioRotina.id, 
+            ExercicioRotina.qtd_serie, 
+            ExercicioRotina.qtd_repeticoes, 
+            Exercicio.nome.label('exercicio_nome'), 
+            GrupoMuscular.id.label('grupo_muscular_id'), 
+            GrupoMuscular.nome.label('grupo_muscular_nome')
+        )
+        .join(ExercicioRotina, Rotina.id == ExercicioRotina.rotina_id)
+        .join(Exercicio, ExercicioRotina.exercicio_id == Exercicio.id)
+        .join(GrupoMuscular, Exercicio.grupo_muscular_id == GrupoMuscular.id)
+        .filter(Rotina.id == rotina_id)
+    )
+    with Session() as sess:
+        result = sess.execute(stmt).all()
+
+    rotina = None
+    for row in result:
+
+        if(rotina is None):
+            rotina = {
+                "id": row[0],
+                "nome": row[1],
+                "dias": row[2],
+                "exercicios": []
             }
 
-            rotinas_dict[rotina_id]["exercicios"].append(exercicio_info)
+        exercicio_info = {
+            "id": row[3],
+            "qtd_serie": row[4],
+            "qtd_repeticoes": row[5],
+            "nome": row[6],
+            "grupo_muscular_id": row[7],
+            "grupo_muscular_nome": row[8],
+        }
 
+        rotina["exercicios"].append(exercicio_info)
 
-        return [v for k,v in rotinas_dict.items()]
+    return rotina
+
+class TreinoModel(BaseModel):
+    rotinaId: int
+    userId: int
+    ids_exercicios: List[int]
+
+@router.post("/add-treino")
+def add_rotina(model: TreinoModel, res: Response):
+    with Session() as sess:
+        exercicios = [UserExercicio(user_id=model.userId, exec_rotina_id=id) for id in model.ids_exercicios]
+        sess.add_all(exercicios)
+        sess.commit()
+    res.status_code = status.HTTP_200_OK
+    return "O novo treino foi adicionado com sucesso."

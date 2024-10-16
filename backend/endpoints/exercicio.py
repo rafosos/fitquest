@@ -41,3 +41,29 @@ def get_exercicios(user_id: int, f: str, ids_escolhidos: Annotated[list[int] | N
         exercicios = sess.scalars(stmt).all()
 
         return exercicios
+
+@router.get("/exercicio/streak/{user_id}")
+def get_streak(user_id:int):
+    return user_id
+
+    # query para exercicios em dias seguidos (contar quantos dias nessa semana)
+    # select min(lag_data) streak_start, max(data) streak_end,
+    #     count(*) + 1 streak_length
+    # from (
+    # select t.*,
+    #         sum(
+    #         case when data = lag_data + INTERVAL '1 day'
+    #             -- case when datepart(weekday, lag_date) = 6 then 3 else 1 end,
+    #         then 0 else 1 end) over(order by data desc)  grp
+    # from (
+    #     select data, lag(data) over(order by data) lag_data
+    #     from user_exercicio
+    #     group by data
+    # ) t
+    # order by data desc
+    # ) t
+    # where grp = 0
+    # contagem de dias na ultima semana
+    # select count(distinct data)
+    # from public.user_exercicio as t
+    # where date_part('week', data) = date_part('week', current_date) 

@@ -11,7 +11,7 @@ export default class Exercicio{
     nome: string;
     grupo_muscular_id: number = 0;
     grupo_muscular_nome: string = "";
-    series: number = 0;
-    repeticoes: number = 0;
+    qtd_serie: number = 0;
+    qtd_repeticoes: number = 0;
     grupo_muscular: GrupoMuscular;
 }
