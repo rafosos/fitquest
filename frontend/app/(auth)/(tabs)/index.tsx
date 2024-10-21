@@ -1,41 +1,75 @@
 import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
+import { TreinoResumo } from '@/classes/user_exercicio';
 import { colors } from '@/constants/Colors';
+import ExercicioService from '@/services/exercicio_service';
+import { errorHandlerDebug } from '@/services/service_config';
 import UserService from '@/services/user_service';
-import React, { useRef } from 'react';
-import { Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { Link } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
 export default function TabAvatar() {
-  const service = UserService();
-  const { signOut, user: userString } = useSession();
-  const user:User = useRef(JSON.parse(userString ?? "{}")).current;
+    const [atividades, setAtividades] = useState<TreinoResumo[]>([]);
+    const exercicioService = ExercicioService();
+    const [refreshing, setRefreshing] = useState(false);
+    const { user: userString } = useSession();
+    const user:User = useRef(JSON.parse(userString ?? "{}")).current;
 
-  const onPressLogOut = () => {
-    signOut();
-  }
-  
+    useEffect(() => {
+        getAtividades()
+    }, []);
+
+    const getAtividades = () => {
+        setRefreshing(true)
+        exercicioService.getUltimosTreinosResumo(user.id)
+          .then(res => {
+            console.log(res),
+            setAtividades(res)})
+          .catch(err => errorHandlerDebug(err))
+          .finally(() => setRefreshing(false))
+    }
+
     return (
-      <ScrollView contentContainerStyle={s.container}>
-        <View style={s.containerNomes}>
-          <Text style={s.nickname}>{user.nickname}</Text>
-          {/* <Text style={styles.fullname}>{user.fullname}</Text> */}
-        </View>
+        <FlatList
+            contentContainerStyle={s.container}
+            data={atividades}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getAtividades}/>}
+            ListHeaderComponent={<>
+                <View style={s.containerNomes}>
+                <Text style={s.nickname}>{user.nickname}</Text>
+                <Link href="/configuracoes" style={s.iconeConfigs}>
+                    <Feather name="settings" size={24} color="black" />
+                </Link>
+                </View>
 
-        <View style={s.containerImagem}>
-          <Image style={s.gifAvatar} source={require('@/assets/images/avatar.gif')} />
-        </View>
+                <View style={s.containerImagem}>
+                <Image style={s.gifAvatar} source={require('@/assets/images/avatar.gif')} />
+                </View>
 
-        <Text style={s.tituloCard}>Dados pessoais</Text>
-        <View>
-          <Text style={{...s.cardInfo, ...s.textTop}}>Nome completo: <Text style={s.valorCard}>{user.fullname}</Text></Text>
-          <Text style={{...s.cardInfo, ...s.textMiddle}}>Data de nascimento: <Text style={s.valorCard}>{user.nascimento}</Text></Text>
-          <Text style={{...s.cardInfo, ...s.textBottom}}>Email: <Text style={s.valorCard}>{user.email}</Text></Text>
-        </View>
+                <Text style={s.tituloUltimasAtividades}>Últimas atividades</Text>
+            </>}
+            renderItem={({item}) => 
+                <View style={s.card}>
+                    <View style={s.headerCard}>
+                        <View>
+                            <Text>{item.campeonato_nome ?? item.rotina_nome}</Text>
+                            <View style={s.chip}>
+                                <Text style={s.txtChip}>{item.rotina_id ? "Rotina" : "Campeonato"}</Text>
+                            </View>
+                        </View>
 
-        <TouchableOpacity style={{...s.cardInfo, ...s.containerBotao}} onPress={onPressLogOut}>
-          <Text style={s.textoBotao}>SAIR</Text>
-        </TouchableOpacity>
-      </ScrollView>
+                        {/* <Text>{`${item.data.getDate()} ${meses[item.data.getMonth()]}`}</Text> */}
+                        <Text>{`${item.data}`}</Text>
+                    </View>
+
+                <Text>{item.exercicios}</Text>
+                </View>
+            }
+        />
     );
 }
 
@@ -47,14 +81,15 @@ const s = StyleSheet.create({
     padding: 10
   },
   containerNomes:{
-    // flex:1
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   nickname:{
     color: colors.preto.padrao,
     fontSize: 20,
     fontWeight: "800"
   },
-  fullname:{
+  iconeConfigs:{
 
   },
   containerImagem:{
@@ -67,49 +102,25 @@ const s = StyleSheet.create({
     height: '100%',
     alignSelf: "center"
   },
+  tituloUltimasAtividades:{
+    fontSize: 20,
+    fontWeight: "700",
+  },
   card:{
+    marginVertical: 5,
     borderColor: colors.cinza.escuro,
     borderWidth: 2,
     borderRadius: 10,
-    flex:1,
     padding: 10
   },
-  tituloCard:{
-    fontSize: 19,
-    fontWeight: "600",
-    paddingLeft: 5
+  headerCard:{
+    flexDirection:"row",
+    justifyContent: "space-between"
   },
-  cardInfo:{
-    borderWidth: 2, 
-    borderColor: colors.cinza.escuro,
-    padding:10,
-    fontWeight: "600",
-    fontSize: 16
+  chip:{
+
   },
-  textTop:{
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  textMiddle:{
-    borderTopWidth: 0, 
-    borderBottomWidth: 0
-  },
-  textBottom:{
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-  valorCard:{
-    fontWeight: "400"
-  },
-  containerBotao:{
-    backgroundColor: colors.cinza.escuro,
-    justifyContent: "center",
-    borderRadius: 10,
-    marginVertical: 10,
-    alignSelf: "flex-end"
-  },
-  textoBotao:{
-    textAlign: 'center',
-    color: colors.branco.padrao
+  txtChip:{
+
   }
 })

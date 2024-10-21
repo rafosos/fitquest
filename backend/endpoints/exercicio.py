@@ -1,10 +1,17 @@
 from fastapi import APIRouter, Query, Response, status
 from typing import Annotated
 from db.db import Session
-from sqlalchemy import select, or_, and_
+from sqlalchemy import select, or_, and_, func
 from sqlalchemy.orm import selectinload
+from collections import defaultdict
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
+from classes.user_exercicio import UserExercicio
+from classes.rotina import Rotina
+from classes.exercicio_rotina import ExercicioRotina
+from classes.exercicio_campeonato import ExercicioCampeonato
+from classes.campeonato import Campeonato
+from classes.treino import Treino
 
 router = APIRouter(
     tags=["exercicio"],
@@ -41,6 +48,34 @@ def get_exercicios(user_id: int, f: str, ids_escolhidos: Annotated[list[int] | N
         exercicios = sess.scalars(stmt).all()
 
         return exercicios
+
+@router.get("/treinos_resumo/{user_id}")
+def get_treinos_resumo(user_id: int):
+    with Session() as sess:
+        stmt = select(
+            Treino.id,
+            Treino.rotina_id,
+            Treino.data,
+            func.string_agg(Exercicio.nome, ", ").label("exercicios"),
+            Rotina.nome.label("rotina_nome"),
+            Campeonato.nome.label("campeonato_nome")
+        ).select_from(Treino)\
+        .join(UserExercicio, UserExercicio.treino_id == Treino.id)\
+        .join(ExercicioRotina, ExercicioRotina.id == UserExercicio.exec_rotina_id, isouter=True)\
+        .join(Rotina, ExercicioRotina.rotina_id == Rotina.id, isouter=True)\
+        .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id, isouter=True)\
+        .join(Campeonato, Campeonato.id == ExercicioCampeonato.campeonato_id, isouter=True)\
+        .join(Exercicio, or_(ExercicioCampeonato.exercicio_id == Exercicio.id, ExercicioRotina.exercicio_id == Exercicio.id))\
+        .where(Treino.user_id == user_id)\
+        .group_by(Treino.id,
+            Treino.rotina_id,
+            Treino.data,
+            Rotina.nome.label("rotina_nome"),
+            Campeonato.nome.label("campeonato_nome"))
+        
+        result = sess.execute(stmt).mappings().all()
+
+        return result
 
 @router.get("/exercicio/streak/{user_id}")
 def get_streak(user_id:int):

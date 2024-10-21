@@ -1,4 +1,4 @@
-import Rotina, { RotinaDetalhes, RotinaResumida } from "@/classes/rotina";
+import { RotinaDetalhes, RotinaResumida } from "@/classes/rotina";
 import { get, post } from "./service_config";
 
 export default function RotinaService(){

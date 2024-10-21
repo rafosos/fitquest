@@ -67,7 +67,7 @@ export default function TabTreino() {
                 renderItem={({item}) => <>
                     <TouchableOpacity style={styles.cardTreino} onPress={() => setDetahesModal({show: true, rotina_id: item.id})}>
                         <Text style={styles.nomeRotina}>{item.nome}</Text>
-                        <Text style={styles.diasRotina}>{item.dias}</Text>
+                        <Text style={styles.diasRotina}>Dias na semana: {item.dias}</Text>
                         <Text style={styles.exercicios}>{item.exercicios}</Text>
                     </TouchableOpacity>
                 </>}
@@ -112,7 +112,8 @@ const styles = StyleSheet.create({
         borderWidth:2,
         borderColor: colors.cinza.escuro,
         borderRadius: 15,
-        padding: 10
+        padding: 10,
+        marginVertical: 5
     },
     nomeRotina:{
         fontSize: 20,

@@ -6,6 +6,7 @@ from sqlalchemy import select
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
 from classes.user_exercicio import UserExercicio
+from classes.treino import Treino
 from classes.rotina import Rotina
 from classes.grupo_muscular import GrupoMuscular
 from classes.exercicio_rotina import ExercicioRotina
@@ -140,8 +141,11 @@ class TreinoModel(BaseModel):
 @router.post("/add-treino")
 def add_rotina(model: TreinoModel, res: Response):
     with Session() as sess:
-        exercicios = [UserExercicio(user_id=model.userId, exec_rotina_id=id) for id in model.ids_exercicios]
-        sess.add_all(exercicios)
+        rotina_id = sess.execute(select(ExercicioRotina.rotina_id).where(ExercicioRotina.id == model.ids_exercicios[0])).first()[0]
+        treino = Treino(user_id=model.userId, rotina_id=rotina_id)
+        exercicios = [UserExercicio(exec_rotina_id=id) for id in model.ids_exercicios]
+        treino.exercicios = exercicios
+        sess.add(treino)
         sess.commit()
     res.status_code = status.HTTP_200_OK
     return "O novo treino foi adicionado com sucesso."

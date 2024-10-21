@@ -23,7 +23,7 @@ class User(Base):
 
 
     # classe: Mapped["Classe"] = relationship(back_populates="users")
-    exercicios: Mapped[List["UserExercicio"]] = relationship(back_populates="user")
+    treinos: Mapped[List["Treino"]] = relationship(back_populates="user")
     exercicios_custom: Mapped[List["Exercicio"]] = relationship(back_populates="user")
     skills: Mapped[List["Skill"]] = relationship(secondary=user_skill)
     campeonatos: Mapped[List["Campeonato"]] = relationship(secondary=user_campeonato)

@@ -24,14 +24,13 @@ export default function TabLayout() {
                     <TabBarIcon name={focused ? 'podium' : 'podium-outline'} color={color} />
                 ),
             }}
-            />
+        />
         <Tabs.Screen
-            name="ranking"
+            name="amigos"
             options={{
-                    unmountOnBlur: true,
-                title: 'Ranking',
+                title: 'Amigos',
                 tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'trophy' : 'trophy-outline'} color={color} />
+                    <TabBarIcon name={focused ? 'people' : 'people-outline'} color={color} />
                 ),
             }}
         />
@@ -44,15 +43,6 @@ export default function TabLayout() {
                 ),
             }}
             />
-        <Tabs.Screen
-            name="amigos"
-            options={{
-                title: 'Amigos',
-                tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'people' : 'people-outline'} color={color} />
-                ),
-            }}
-        />
         <Tabs.Screen
             name="exercicios"
             options={{

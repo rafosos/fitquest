@@ -12,6 +12,7 @@ class Rotina(Base):
     user_id = mapped_column(ForeignKey("user.id"))
 
     exercicios: Mapped[List["ExercicioRotina"]] = relationship(back_populates="rotina")
+    treinos: Mapped[List["Treino"]] = relationship(back_populates="rotina")
 
 
     def __repr__(self) -> str:

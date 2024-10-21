@@ -16,6 +16,7 @@ from classes.exercicio import Exercicio
 from classes.rotina import Rotina
 from classes.grupo_muscular import GrupoMuscular, insert_grupos_musculares
 from classes import \
+    treino, \
     exercicio_campeonato, \
     exercicio_rotina, \
     item, \
@@ -27,8 +28,8 @@ app = FastAPI()
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 Base.metadata.create_all(engine)
-insert_classes()
-insert_skills()
+# insert_classes()
+# insert_skills()
 insert_statuses()
 insert_grupos_musculares()
 insert_exercicios()
