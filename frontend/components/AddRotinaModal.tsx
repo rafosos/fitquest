@@ -1,9 +1,9 @@
 import { useSession } from '@/app/ctx';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, Modal, FlatList, Dimensions, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput, Modal, FlatList, Dimensions } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Exercicio from '@/classes/exercicio';
-import { AutocompleteDropdown, AutocompleteDropdownContextProvider, AutocompleteDropdownRef, TAutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
+import { AutocompleteDropdown, AutocompleteDropdownContextProvider, IAutocompleteDropdownRef, AutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
 import RotinaService from '@/services/rotina_service';
 import ExercicioService from '@/services/exercicio_service';
 import { Feather } from '@expo/vector-icons';
@@ -22,7 +22,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     const rotinaService = RotinaService();
     const exercicioService = ExercicioService();
 
-    const dropdownController = useRef<AutocompleteDropdownRef | null>(null);
+    const dropdownController = useRef<IAutocompleteDropdownRef | null>(null);
     
     const clearAndClose = () =>{
         setNome("");
@@ -35,7 +35,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     
     const getExerciciosDropdown = (f: string) => {
         if (!f.length) {
-            setExercicios([]);
+            setResultados([]);
             return;
         }
 
@@ -46,7 +46,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
             .finally(() => setLoading(false));
     }
 
-    const onSelectItem = (item: TAutocompleteDropdownItem) => {
+    const onSelectItem = (item: AutocompleteDropdownItem) => {
         if(!item) return
         const e = resultados.splice(resultados.findIndex((r) => r.id.toString() == item.id),1);
         if(!e) return;
@@ -90,7 +90,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
         >
             <AutocompleteDropdownContextProvider>
                 <FlatList
-                removeClippedSubviews={false}
+                    removeClippedSubviews={false}
                     keyboardShouldPersistTaps="always"
                     automaticallyAdjustKeyboardInsets
                     ListHeaderComponent={<>
@@ -125,7 +125,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             direction={"down"}
                             dataSet={resultados.map(res => {return {...res, id: res.id.toString(), title: res.nome}})}
                             onChangeText={getExerciciosDropdown}
-                            onSelectItem={onSelectItem}
+                            onSelectItem={(item) => item && onSelectItem(item)}
                             debounce={600}
                             suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
                             loading={loading}
@@ -146,7 +146,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             clearOnFocus={false}
                             closeOnSubmit
                             EmptyResultComponent={<></>}
-                            />
+                        />
                     </>}
                     data={exercicios}
                     renderItem={({item, index}) => 

@@ -1,4 +1,4 @@
-import { Text, FlatList, RefreshControl, View, StyleSheet } from 'react-native';
+import { Text, FlatList, RefreshControl, View, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';
@@ -7,11 +7,13 @@ import AddCampeonatoModal from '@/components/AddCampeonatoModal';
 import CampeonatoService from '@/services/campeonato_service';
 import ActionButton from '@/components/ActionButton';
 import { colors } from '@/constants/Colors';
+import DetalhesCampeonatoModal from '@/components/DetlhesCampeonatoModal';
 
 export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
     const [campeonatos, setCampeonatos] = useState<Campeonato[]>([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [detalhesModal, setDetahesModal] = useState({show: false, campeonato_id:0});
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const campeonatoService = CampeonatoService();
@@ -31,6 +33,7 @@ export default function TabEventos() {
   
     const onCloseModal = () => {
         setAddModal(false);
+        setDetahesModal({show:false, campeonato_id: 0})
         refreshCampeonatos();
         // show smth for user, some feedback
     }
@@ -44,6 +47,12 @@ export default function TabEventos() {
             onClose={onCloseModal}
         />
 
+        <DetalhesCampeonatoModal 
+            isVisible={detalhesModal.show}
+            campeonatoId={detalhesModal.campeonato_id}
+            onClose={onCloseModal}
+        />
+
         <FlatList 
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshCampeonatos}/>}
             data={campeonatos}
@@ -52,10 +61,10 @@ export default function TabEventos() {
                 <Text style={styles.titulo}>Campeonatos</Text>
             }
             renderItem={({item:campeonato}) =>
-                <View style={styles.card}>
+                <TouchableOpacity style={styles.card} onPress={() => setDetahesModal({show: true, campeonato_id: campeonato.id})}>
                     <Text style={styles.nomeCampeonato}>{campeonato.nome}</Text>
-                    <Text>Competidores: </Text>
-                </View>
+                    <Text>Participantes: {campeonato.participantes}</Text>
+                </TouchableOpacity>
             }
             ListEmptyComponent={<View style={styles.containerSemCampeonatos}>
                 <Text>no campeonatos?</Text>

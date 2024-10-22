@@ -71,7 +71,8 @@ def get_treinos_resumo(user_id: int):
             Treino.rotina_id,
             Treino.data,
             Rotina.nome.label("rotina_nome"),
-            Campeonato.nome.label("campeonato_nome"))
+            Campeonato.nome.label("campeonato_nome"))\
+        .order_by(Treino.data.desc())
         
         result = sess.execute(stmt).mappings().all()
 

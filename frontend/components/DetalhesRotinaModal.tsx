@@ -56,17 +56,22 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
 
     const showDiaMes = (data:Date|null|undefined) => data ? `${data.getDate()}/${data.getMonth()}` : "";
 
+    const checkExercicio = (value: boolean, index:number) => {
+        checkboxes[index] = value;
+        setCheckboxes([...checkboxes]);
+    }
+
     return (
         <Modal
             animationType="slide" 
             transparent
             visible={isVisible}
-            onRequestClose={() => onClose()}
+            onRequestClose={() => clearAndClose()}
         >
             <TouchableOpacity
                 activeOpacity={1}
                 style={styles.modalWrapper}
-                onPressOut={onClose}
+                onPressOut={clearAndClose}
             >
                 <TouchableWithoutFeedback>
                     <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
@@ -111,15 +116,18 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                             }
                         </>}
                         renderItem={({item, index}) => 
-                            <View style={styles.containerExercicio} onStartShouldSetResponder={() => true}>
+                            <TouchableOpacity
+                                activeOpacity={0} 
+                                style={styles.containerExercicio} 
+                                onPress={() => novoTreino ? checkExercicio(!checkboxes[index], index) : null}
+                            >
                                 {novoTreino && 
-                                    <Checkbox 
-                                        value={checkboxes[index]}
-                                        onValueChange={(value) => {
-                                            checkboxes[index] = value;
-                                            setCheckboxes([...checkboxes])
-                                        }}
-                                    />
+                                    <View>
+                                        <Checkbox 
+                                            value={checkboxes[index]}
+                                            onValueChange={(value) => checkExercicio(value, index)}
+                                        />
+                                    </View>
                                 }
 
                                 <View style={styles.cardExercicio}>
@@ -142,7 +150,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                                         </View>
                                     </View>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         }
                         ListFooterComponent={novoTreino ?
                             <View style={styles.footerTreino}>
@@ -170,24 +178,22 @@ const styles = StyleSheet.create({
         flex:1,
         backgroundColor: colors.preto.fade[5],
         alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: "5%",
+        justifyContent: "center"
     },
     modalContent: {
-      width: '100%',
-      height: "90%",
-      backgroundColor: colors.branco.padrao,
-      borderRadius: 18,
-      padding: 5
+        marginVertical: "10%",
+        backgroundColor: colors.branco.padrao,
+        borderRadius: 18,
+        padding: 5,
+        flex:1,
+        width: '90%',
     },
     container:{
         paddingHorizontal: 5,
-        // height: "90%"
     },
     containerNovoTreino:{
-        // height: "90%",
-        width: "100%",
-        flex:1
+        paddingHorizontal: 5,
+
     },
     titleContainer: {
         borderTopRightRadius: 10,

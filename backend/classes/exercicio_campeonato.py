@@ -10,6 +10,8 @@ class ExercicioCampeonato(Base):
     exercicio_id: Mapped[int] = mapped_column(ForeignKey("exercicio.id"))
     campeonato_id: Mapped[int] = mapped_column(ForeignKey("campeonato.id"))
     data: Mapped[date] = mapped_column(server_default=func.now())
+    qtd_serie: Mapped[int]
+    qtd_repeticoes: Mapped[int]
     
     exercicio: Mapped["Exercicio"] = relationship(back_populates="campeonatos")
     campeonato: Mapped["Campeonato"] = relationship(back_populates="exercicios")

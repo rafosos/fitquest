@@ -8,9 +8,7 @@ import UserService from '@/services/user_service';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
-
-const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+import { FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 export default function TabAvatar() {
     const [atividades, setAtividades] = useState<TreinoResumo[]>([]);
@@ -26,9 +24,7 @@ export default function TabAvatar() {
     const getAtividades = () => {
         setRefreshing(true)
         exercicioService.getUltimosTreinosResumo(user.id)
-          .then(res => {
-            console.log(res),
-            setAtividades(res)})
+          .then(res => setAtividades(res))
           .catch(err => errorHandlerDebug(err))
           .finally(() => setRefreshing(false))
     }
@@ -40,10 +36,10 @@ export default function TabAvatar() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getAtividades}/>}
             ListHeaderComponent={<>
                 <View style={s.containerNomes}>
-                <Text style={s.nickname}>{user.nickname}</Text>
-                <Link href="/configuracoes" style={s.iconeConfigs}>
-                    <Feather name="settings" size={24} color="black" />
-                </Link>
+                  <Text style={s.nickname}>{user.nickname}</Text>
+                  <Link href="/configuracoes" style={s.iconeConfigs}>
+                      <Feather name="settings" size={24} color="black" />
+                  </Link>
                 </View>
 
                 <View style={s.containerImagem}>
@@ -62,13 +58,13 @@ export default function TabAvatar() {
                             </View>
                         </View>
 
-                        {/* <Text>{`${item.data.getDate()} ${meses[item.data.getMonth()]}`}</Text> */}
                         <Text>{`${item.data}`}</Text>
                     </View>
 
                 <Text>{item.exercicios}</Text>
                 </View>
             }
+            ListEmptyComponent={<Text>Nenhuma atividade recente.</Text>}
         />
     );
 }
