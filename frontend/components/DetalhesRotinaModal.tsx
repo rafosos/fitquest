@@ -69,7 +69,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                 onPressOut={onClose}
             >
                 <TouchableWithoutFeedback>
-                    <View style={styles.modalContent} onTouchStart={() => {}}>
+                    <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
 
                     <FlatList
                         data={rotina?.exercicios}
@@ -111,7 +111,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                             }
                         </>}
                         renderItem={({item, index}) => 
-                            <View style={styles.containerExercicio}>
+                            <View style={styles.containerExercicio} onStartShouldSetResponder={() => true}>
                                 {novoTreino && 
                                     <Checkbox 
                                         value={checkboxes[index]}
