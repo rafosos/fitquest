@@ -138,7 +138,7 @@ class TreinoModel(BaseModel):
     userId: int
     ids_exercicios: List[int]
 
-@router.post("/add-treino")
+@router.post("/rotina/add-treino")
 def add_rotina(model: TreinoModel, res: Response):
     with Session() as sess:
         rotina_id = sess.execute(select(ExercicioRotina.rotina_id).where(ExercicioRotina.id == model.ids_exercicios[0])).first()[0]

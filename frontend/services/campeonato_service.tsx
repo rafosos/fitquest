@@ -19,7 +19,7 @@ export default function CampeonatoService(){
     }
 
     const addTreino = (params: {campeonatoId: number, userId: number, exercicios_ids: number[]}) => {
-        return post("/add-treino", params);
+        return post("/campeonato/add-treino", params);
     }
 
     return {addCampeonato, getCampeonatos, getCampeonatoDetalhes, addTreino}

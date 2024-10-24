@@ -109,7 +109,7 @@ class TreinoModel(BaseModel):
     userId: int
     exercicios_ids: List[int]
 
-@router.post("/add-treino")
+@router.post("/campeonato/add-treino")
 def add_treino(model: TreinoModel):
     with Session() as sess:
         campeonato_id = sess.execute(select(ExercicioCampeonato.campeonato_id).where(ExercicioCampeonato.id == model.exercicios_ids[0])).first()[0]

@@ -23,7 +23,7 @@ export default function RotinaService(){
     }
 
     const addTreino = (treino: {rotinaId: number, userId: number, ids_exercicios: number[]}) =>{
-        const promise = post<string>(`/add-treino`, treino);
+        const promise = post<string>(`/rotina/add-treino`, treino);
         return promise.then(res => res.data);
     }
 
