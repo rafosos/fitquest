@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from typing import List
-from db.db import Base
+from .base_class import Base
 
 class Rotina(Base):
     __tablename__ = "rotina"

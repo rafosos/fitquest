@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from db.db import Base
+from .base_class import Base
 from typing import List
 
 class ExercicioRotina(Base):

@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from db.db import Base
+from .base_class import Base
 from .exercicio import Exercicio
 
 class GrupoMuscular(Base):

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import List
-from db.db import Base
+from .base_class import Base
 from .user_campeonato import user_campeonato
 import datetime
 

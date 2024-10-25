@@ -1,38 +1,37 @@
 import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.security import OAuth2PasswordBearer
-from db.db import engine, Base
 from endpoints import user, classe, login, exercicio, campeonato, rotina
+from classes.status import insert_statuses
+from classes.exercicio import insert_exercicios
+from classes.grupo_muscular import insert_grupos_musculares
 
-# nao apagar
-from classes.amizade import Amizade
-from classes.classe import Classe, insert_classes
-from classes.skill import Skill, insert_skills
-from classes.status import Status, insert_statuses
-from classes.user import User
-from classes.exercicio import Exercicio, insert_exercicios
-from classes.campeonato import Campeonato
-from classes.exercicio import Exercicio
-from classes.rotina import Rotina
-from classes.grupo_muscular import GrupoMuscular, insert_grupos_musculares
-from classes import \
-    treino, \
-    exercicio_campeonato, \
-    exercicio_rotina, \
-    item, \
-    user_skill, \
-    user_exercicio
+import logging
+from contextlib import asynccontextmanager
+from alembic import command
+from alembic.config import Config
 
-app = FastAPI()
+log = logging.getLogger("uvicorn")
+
+def run_migrations():
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+
+@asynccontextmanager
+async def lifespan(app_: FastAPI):
+    log.info("Starting up...")
+    log.info("run alembic upgrade head...")
+    run_migrations()
+    insert_statuses()
+    insert_grupos_musculares()
+    insert_exercicios()
+    yield
+    log.info("Shutting down...")
+
+
+app = FastAPI(lifespan=lifespan)
 # app = FastAPI(dependencies=Depends[login.get_current_active_user])
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-Base.metadata.create_all(engine)
-# insert_classes()
-# insert_skills()
-insert_statuses()
-insert_grupos_musculares()
-insert_exercicios()
 
 app.include_router(user.router)
 app.include_router(classe.router)
@@ -45,5 +44,5 @@ app.include_router(rotina.router)
 def hello_world():
     return "hello world"
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

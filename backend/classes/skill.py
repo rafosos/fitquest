@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from db.db import Base
+from .base_class import Base
 
 class Skill(Base):
     __tablename__ = "skill"

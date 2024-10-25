@@ -1,8 +1,9 @@
 import datetime
 from typing import List
-from sqlalchemy import String, ForeignKey, Integer
+from sqlalchemy import String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from db.db import Base, Session
+from db.db import Session
+from .base_class import Base
 from .user_skill import user_skill
 from .user_campeonato import user_campeonato
 from .skill import Skill

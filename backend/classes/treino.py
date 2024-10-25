@@ -2,7 +2,7 @@ from sqlalchemy import ForeignKey
 from datetime import date
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
-from db.db import Base
+from .base_class import Base
 from typing import List
 
 class Treino(Base):

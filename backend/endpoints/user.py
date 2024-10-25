@@ -86,7 +86,7 @@ def get_amigos(user_id, filtro):
             .where(
                 and_(
                     or_(Amizade.user1_id == user_id, Amizade.user2_id == user_id), 
-                    or_(User.nickname.like(filtro_string), User.fullname.like(filtro_string))
+                    or_(User.nickname.ilike(filtro_string), User.fullname.ilike(filtro_string))
                     )
                 )
             )

@@ -2,7 +2,7 @@ from sqlalchemy import ForeignKey
 from datetime import date
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
-from db.db import Base
+from .base_class import Base
 
 class ExercicioCampeonato(Base):
     __tablename__ = "exercicio_campeonato"
