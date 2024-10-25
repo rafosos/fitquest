@@ -15,6 +15,7 @@ from classes.user import User
 
 router = APIRouter(
     tags=["campeonato"],
+    prefix='/campeonato',
     responses={404: {"description": "Not found"}}
 )
 
@@ -30,7 +31,7 @@ class CampeonatoModel(BaseModel):
     exercicios: list[ExercicioModel]
     # criador: int
 
-@router.post("/add-campeonato")
+@router.post("/")
 def add_campeonato(model: CampeonatoModel):
     with Session() as sess:
         participantes = sess.scalars(select(User).where(User.id.in_(model.participantes_ids))).all()
@@ -43,7 +44,7 @@ def add_campeonato(model: CampeonatoModel):
         sess.commit()
         return camp.id
 
-@router.get("/get-campeonatos/{user_id}")
+@router.get("/{user_id}")
 def get_campeonato(user_id: int):
     with Session() as sess:
         campeonatos = sess.execute(
@@ -59,7 +60,7 @@ def get_campeonato(user_id: int):
             ).mappings().all()
         return campeonatos
 
-@router.get("/get-campeonato-detalhes/{campeonato_id}")
+@router.get("/detalhes/{campeonato_id}")
 def get_campeonato_detalhes(campeonato_id: int):
     stmt = select(
             Campeonato.id,
@@ -109,7 +110,7 @@ class TreinoModel(BaseModel):
     userId: int
     exercicios_ids: List[int]
 
-@router.post("/campeonato/add-treino")
+@router.post("/add-treino")
 def add_treino(model: TreinoModel):
     with Session() as sess:
         campeonato_id = sess.execute(select(ExercicioCampeonato.campeonato_id).where(ExercicioCampeonato.id == model.exercicios_ids[0])).first()[0]
@@ -119,3 +120,15 @@ def add_treino(model: TreinoModel):
         sess.add(treino)
         sess.commit()
     return "O novo treino foi adicionado com sucesso."
+
+@router.delete("/{campeonato_id}")
+def delete_campeonato(campeonato_id: int):
+    with Session() as sess:
+        campeonato = sess.scalar(select(Campeonato)
+                                 .options(selectinload(Campeonato.exercicios))
+                                #  .options(selectinload(Campeonato.exercicios))
+                                 .where(Campeonato.id == campeonato_id)
+                                )
+        sess.delete(campeonato)
+        sess.commit()
+    return "O campeonato foi deletado com sucesso"

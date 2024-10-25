@@ -23,6 +23,9 @@ const post = <T extends unknown>(endpoint: string, params: any = {}) =>
 const put = <T extends unknown>(endpoint: string, params: any = {}) => 
     axios.put<T>(API_URL + endpoint, params)
 
+const deletar = <T extends unknown>(endpoint: string) => 
+    axios.delete<T>(API_URL + endpoint)
+
 
 const errorHandlerDebug = (error: any) => {
     console.log(error.toJSON())
@@ -41,4 +44,4 @@ const errorHandlerDebug = (error: any) => {
 }
 
 
-export {get, post, put, errorHandlerDebug}
+export {get, post, put, deletar, errorHandlerDebug}

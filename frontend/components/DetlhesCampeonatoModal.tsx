@@ -1,12 +1,13 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useEffect, useState } from 'react';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
 import { useSession } from '@/app/ctx';
 import { errorHandlerDebug } from '@/services/service_config';
 import { colors } from '@/constants/Colors';
 import { CampeonatoDetalhes } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
+import ModalConfirmacao from './ModalConfirmacao';
 
 interface Props {
     isVisible: boolean;
@@ -18,6 +19,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     const [campeonato, setCampeonato] = useState<CampeonatoDetalhes>();
     const [novoTreino, setNovoTreino] = useState(false);
     const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
+    const [modalConfirma, setModalConfirma] = useState(false);
     const campeonatoService = CampeonatoService();
     const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
 
@@ -42,6 +44,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     const clearAndClose = () => {
         setNovoTreino(false);
         setCheckboxes([]);
+        setModalConfirma(false);
         onClose();
     }
 
@@ -62,6 +65,13 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         setCheckboxes([...checkboxes])
     }
 
+    const deletar = () => {
+        if (!campeonato) return
+        campeonatoService.deleteCampeonato(campeonato.id)
+            .then(res => clearAndClose())
+            .catch(err => errorHandlerDebug(err))
+    }
+
     return (
         <Modal
             animationType="slide" 
@@ -69,6 +79,20 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
             visible={isVisible}
             onRequestClose={() => clearAndClose()}
         >
+            <ModalConfirmacao 
+                show={modalConfirma}
+                onConfirma={deletar}
+                onClose={() => setModalConfirma(false)}
+                titulo={`Você tem certeza que deseja excluir o campeonato ${campeonato?.nome}?`}
+                subtitulo={"Essa ação não poderá ser desfeita"}
+                botaoConfirmar={
+                    <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
+                        <Feather name="trash-2" style={styles.iconeDeletar} />
+                        <Text style={styles.txtBotaoDeletar}>EXCLUIR</Text>
+                    </TouchableOpacity>
+                }
+            />
+
             <TouchableOpacity
                 activeOpacity={1}
                 style={styles.modalWrapper}
@@ -83,6 +107,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                             ListHeaderComponent={<>
                                 <View style={styles.titleContainer}>
                                     <Text style={styles.title}>{campeonato?.nome}</Text>
+                                    <Feather name="trash-2" style={styles.botaoApagar} onPress={() => setModalConfirma(true)}/>
                                 </View>
                                 
                                 {!novoTreino && <> 
@@ -177,6 +202,22 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
 }
 
 const styles = StyleSheet.create({
+    botaoDeletar:{
+        flexDirection: "row",
+        borderRadius: 15,
+        backgroundColor: colors.vermelho.padrao,
+        marginHorizontal:20,
+        padding:5,
+        paddingHorizontal: 20
+    },
+    txtBotaoDeletar:{
+        color:colors.branco.padrao
+    },
+    iconeDeletar:{
+        color:colors.branco.padrao,
+        textAlignVertical: 'center',
+        marginRight:5
+    },
     modalWrapper: {
         flex:1,
         backgroundColor: colors.preto.fade[5],
@@ -198,6 +239,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5
     },
     titleContainer: {
+        paddingVertical: 5,
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
         paddingHorizontal: 20,
@@ -209,6 +251,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "700",
         textAlign: "center"
+    },
+    botaoApagar:{
+        position:"absolute",
+        right: 5,
+        color: colors.preto.padrao,
+        fontSize: 24
     },
     infoContainer: {
         flexDirection: 'row',
