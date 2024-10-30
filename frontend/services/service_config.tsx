@@ -23,8 +23,8 @@ const post = <T extends unknown>(endpoint: string, params: any = {}) =>
 const put = <T extends unknown>(endpoint: string, params: any = {}) => 
     axios.put<T>(API_URL + endpoint, params)
 
-const deletar = <T extends unknown>(endpoint: string) => 
-    axios.delete<T>(API_URL + endpoint)
+const deletar = <T extends unknown>(endpoint: string, params: any = {}) => 
+    axios.delete<T>(API_URL + endpoint, {params})
 
 
 const errorHandlerDebug = (error: any) => {

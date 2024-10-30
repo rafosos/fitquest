@@ -3,6 +3,7 @@ import { useSession } from "./ctx";
 import { router } from "expo-router";
 import UserService from "@/services/user_service";
 import { useRef, useState } from "react";
+import { colors } from "@/constants/Colors";
 
 export default function Login() {
     const { signIn, setUser } = useSession();
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
   input: {
     width: "80%",
     borderWidth: 1,
-    borderColor: "#000",
+    borderColor: colors.preto.padrao,
     padding: 10,
     margin: 10,
     borderRadius: 4,

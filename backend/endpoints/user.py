@@ -14,13 +14,13 @@ router = APIRouter(
 )
 
 @router.post("/add-amigo/{user_id}")
-def add_amigo(user_id: int, res: Response, nickname: str = Body(..., embed=True)):
+def add_amigo(user_id: int, res: Response, amigoId: int = Body(..., embed=True)):
     with Session() as sess:
-        stmt = select(User).where(User.nickname == nickname)
+        stmt = select(User).where(User.id == amigoId)
         amigo = sess.execute(stmt).first()
         if (amigo is None):
             res.status_code = status.HTTP_400_BAD_REQUEST
-            return f"Usuário {nickname} não encontrado."
+            return f"Usuário com id {amigoId} não encontrado."
         amigo = amigo[0]
 
         stmt = select(User).where(User.id == user_id)
@@ -95,6 +95,34 @@ def get_amigos(user_id, filtro):
         amigos = [{"id": r[0], "nickname": r[1], "fullname": r[2]} for r in sess.execute(stmt).all()]
         return amigos
     
+@router.get("/get-nao-amigos/{user_id}/{filtro}")
+def get_amigos(user_id, filtro):
+    filtro_string = f"%%{filtro}%%"
+
+    with Session() as sess:
+        cte = select(Status.id).where(Status.descricao == statuses[0]).cte("status_ativo") 
+
+        stmt = select(User.id, User.nickname, User.fullname).where(User.id.not_in(
+            select(
+                case(
+                    (Amizade.user1_id == user_id, 
+                     Amizade.user2_id), 
+                    else_=Amizade.user1_id
+                )
+            )
+            .join(cte, cte.c.id == Amizade.status_id)
+            .where(
+                and_(
+                    or_(Amizade.user1_id == user_id, Amizade.user2_id == user_id), 
+                    or_(User.nickname.ilike(filtro_string), User.fullname.ilike(filtro_string))
+                    )
+                )
+            )
+        )
+        
+        amigos = [{"id": r[0], "nickname": r[1], "fullname": r[2]} for r in sess.execute(stmt).all()]
+        return amigos
+    
 @router.get("/get-pedidos-amizade/{user_id}")
 def get_pedidos_amizade(user_id: int):
     with Session() as sess:
@@ -121,8 +149,8 @@ def change_status_pedido_amizade(user_id: int, id: Annotated[int, Body()], statu
 
         return f"Status da amizade alterado com sucesso para {status}"
 
-@router.delete("/delete-amizade/{user_id}")
-def delete_amizade(user_id: int, id: int = Body(..., embed=True)):
+@router.delete("/delete-amizade/{user_id}/{id}")
+def delete_amizade(user_id: int, id: int):
     with Session() as sess:
         stmt = select(Amizade).where(
             or_(

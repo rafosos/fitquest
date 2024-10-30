@@ -1,23 +1,51 @@
 import { useSession } from '@/app/ctx';
 import UserService from '@/services/user_service';
-import { useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput } from 'react-native';
+import { useRef, useState } from 'react';
+import { View, Text, StyleSheet, Button, TextInput, Dimensions } from 'react-native';
 import BaseModal from './base/modal';
+import { colors } from '@/constants/Colors';
+import { AutocompleteDropdown, AutocompleteDropdownContextProvider, AutocompleteDropdownItem, IAutocompleteDropdownRef } from 'react-native-autocomplete-dropdown';
+import Exercicio from '@/classes/exercicio';
+import User from '@/classes/user';
+import { Feather } from '@expo/vector-icons';
+import { errorHandlerDebug } from '@/services/service_config';
 
 export default function AddUserModal({ isVisible = false, onClose = () => {} }) {
     const [nickname, setNickname] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [amigoId, setAmigoId] = useState<number | null>(null);
+    const [resultados, setResultados] = useState<AutocompleteDropdownItem[]>([]);
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const userService = UserService();
+    const dropdownController = useRef<IAutocompleteDropdownRef | null>(null);
 
     const clearAndClose = () =>{
         setNickname("");
         onClose();
     }
+    
+    const getUsersDropdown = (f: string) => {
+        if(!userId) return;
+
+        setLoading(true);
+        userService.getNaoAmigos(userId, f)
+            .then(res => setResultados(res.map(user => {return {id: user.id.toString(), title:user.fullname}})))
+            .catch(err => errorHandlerDebug(err))
+            .finally(() => setLoading(false));
+    }
+
+    const onSelectItem = (item: AutocompleteDropdownItem | null) => {
+        if(!item) return
+        const e = resultados.find((r) => r.id.toString() == item.id);
+        if(!e) return;
+
+        setAmigoId(Number(e.id));
+    }
 
     const addAmigo = () => 
-        userId &&
-        userService.addAmigo(userId, nickname)
+        userId && amigoId &&
+        userService.addAmigo(userId, amigoId)
             .then(res => clearAndClose())
             .catch(err => console.log(err));
 
@@ -26,26 +54,54 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
             isVisible={isVisible}
             onClose={clearAndClose}
         >
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Adicionar amigo</Text>
-                </View>
-                <TextInput
-                    placeholder='Nickname'
-                    value={nickname}
-                    onChangeText={(txt) => setNickname(txt)}
-                    style={styles.input}
-                />
-                <Button 
-                    title='Adicionar'
-                    onPress={addAmigo}    
-                />
+            <View style={styles.titleContainer}>
+                <Text style={styles.title}>Adicionar amigo</Text>
+            </View>
+            <AutocompleteDropdown
+                editable={!loading}
+                dataSet={resultados}
+                onChangeText={getUsersDropdown}
+                onSelectItem={onSelectItem}
+                debounce={600}
+                suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
+                loading={loading}
+                useFilter={false}
+                suggestionsListContainerStyle={{
+                    backgroundColor: colors.branco.padrao
+                }}
+                suggestionsListTextStyle={{
+                    color: colors.preto.padrao
+                }}
+                textInputProps={{
+                    placeholder: 'Pesquisar usuário',
+                    autoCorrect: false,
+                    autoCapitalize: 'none',
+                    style:{
+                        color: colors.preto.padrao
+                    }
+                }}
+                inputContainerStyle={{
+                    ...styles.inputAutocomplete,
+                    backgroundColor: colors.branco.padrao
+                }}
+                ClearIconComponent={<Feather name="x-circle" size={18} color={colors.preto.padrao} />}
+                inputHeight={50}
+                closeOnBlur={true}
+                showChevron={false}
+                clearOnFocus={false}
+                closeOnSubmit
+                EmptyResultComponent={<></>}
+            />
+            <Button 
+                title='Adicionar'
+                onPress={addAmigo}    
+            />
         </BaseModal>
     );
 }
 
 const styles = StyleSheet.create({
     titleContainer: {
-      height: '16%',
       borderTopRightRadius: 10,
       borderTopLeftRadius: 10,
       paddingHorizontal: 20,
@@ -58,10 +114,17 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
-        borderColor: "#000",
+        borderColor: colors.preto.padrao,
         padding: 10,
         margin: 10,
         borderRadius: 4,
-    }
+    },
+    inputAutocomplete:{
+        borderWidth: 1,
+        borderColor: colors.preto.padrao,
+        // padding: 10,
+        margin: 10,
+        borderRadius: 4,
+    },
   });
   

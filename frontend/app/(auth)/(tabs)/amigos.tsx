@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Button, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
@@ -7,11 +7,17 @@ import AddUserModal from '@/components/AddUserModal';
 import UserService from '@/services/user_service';
 import ActionButton from '@/components/ActionButton';
 import { colors } from '@/constants/Colors';
+import ModalConfirmacao from '@/components/ModalConfirmacao';
+import { Feather } from '@expo/vector-icons';
+import { errorHandlerDebug } from '@/services/service_config';
 
 export default function TabAmigos() {
     const [addModal, setAddModal] = useState(false);
     const [amigos, setAmigos] = useState<User[]>([]);
+    const [modalConfirma, setModalConfirma] = useState<{show:boolean, user: User | null}>({show: false, user: null});
     const [pedidosAmizade, setPedidosAmizade] = useState<User[]>([]);
+    const [loadingRequests, setLoadingRequests] = useState(false);
+    const [loadingAmigos, setLoadingAmigos] = useState(false);
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const userService = UserService();
@@ -21,13 +27,25 @@ export default function TabAmigos() {
 
     const refreshFriendList = () => {
         if(!userId) return;
-            userService.getPedidosAmizade(userId)
-                .then(res => setPedidosAmizade(res))
-                .catch(err => console.log(err));
 
-            userService.getAmigos(userId)
-                .then(res => setAmigos(res))
-                .catch(err => console.log(err));
+        refreshAmigos();
+        refreshRequests();
+    }
+        
+    const refreshAmigos = () => {
+        setLoadingAmigos(true);
+        userService.getAmigos(userId)
+            .then(res => setAmigos(res))
+            .catch(err => console.log(err))
+            .finally(() => setLoadingAmigos(false));          
+    }
+    
+    const refreshRequests = () => {
+        setLoadingRequests(true);
+        userService.getPedidosAmizade(userId)
+            .then(res => setPedidosAmizade(res))
+            .catch(err => console.log(err))
+            .finally(() => setLoadingRequests(false))
     }
     
     const onCloseModal = () => {
@@ -43,22 +61,49 @@ export default function TabAmigos() {
 
     const abrirModal = () => setAddModal(true);
 
+    const deletarAmizade = () => {
+        if(!modalConfirma.user?.id) return;
+
+        userService.deletarAmizade(userId, modalConfirma.user.id)
+            .then(res => {
+                setModalConfirma({show:false, user:null});
+                refreshFriendList();
+            })
+            .catch(err => errorHandlerDebug(err));
+    }
+
     return (<>
         <AddUserModal
             isVisible={addModal}
             onClose={onCloseModal}
         />
 
+        <ModalConfirmacao
+            show={modalConfirma.show}
+            onClose={() => setModalConfirma({show: false, user: null})}
+            onConfirma={deletarAmizade}
+            titulo={`Deseja realmente desfazer a amizade com ${modalConfirma.user?.nickname}?`}
+            botaoConfirmar={
+            <TouchableOpacity onPress={deletarAmizade} style={styles.botaoConfirmaDeletar}>
+                <Feather name="trash-2" size={18} color={colors.branco.padrao}/>
+                <Text style={styles.txtConfirmaDeletar}>DESFAZER</Text>
+            </TouchableOpacity>}
+        />
+
         <FlatList
             data={amigos}
             contentContainerStyle={styles.containerAmigos}
+            refreshControl={<RefreshControl refreshing={loadingAmigos} onRefresh={refreshAmigos}/>}
             ListHeaderComponent={<>
                 <Text style={styles.titulo}>Amigos</Text>
             </>}
             renderItem={({item:amigo}) => 
-                <View style={styles.cardAmigo}> 
-                    <Text style={styles.nickname}>{amigo.nickname}</Text>
-                    <Text style={styles.fullname}>{amigo.fullname}</Text>
+                <View style={styles.cardAmigo}>
+                    <View>
+                        <Text style={styles.nickname}>{amigo.nickname}</Text>
+                        <Text style={styles.fullname}>{amigo.fullname}</Text>
+                    </View>
+                    <Feather name="trash-2" size={24} color={colors.vermelho.padrao} onPress={() => setModalConfirma({show:true, user: amigo})}/>
                 </View>
             }
             ListEmptyComponent={
@@ -71,6 +116,7 @@ export default function TabAmigos() {
 
         <FlatList
             data={pedidosAmizade}
+            refreshControl={<RefreshControl refreshing={loadingRequests} onRefresh={refreshRequests}/>}
             contentContainerStyle={styles.containerAmigos}
             ListHeaderComponent={<>
                 <Text style={styles.titulo}>Pedidos de amizade</Text>
@@ -86,9 +132,9 @@ export default function TabAmigos() {
             <Text>Você não tem pedidos pendentes.</Text>
             </>}
         />
+
         <ActionButton acao={abrirModal}/>
         </>
-
     );
 }
 
@@ -107,7 +153,9 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 25,
         padding: 10,
-        marginVertical: 2
+        marginVertical: 2,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     },
     nickname:{
         fontSize: 17,
@@ -123,4 +171,18 @@ const styles = StyleSheet.create({
     textoSemAmigos:{
         fontSize: 18
     },
+    botaoConfirmaDeletar:{
+        backgroundColor: colors.vermelho.padrao,
+        flex:1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        borderRadius: 15,
+        marginHorizontal:20
+    },
+    txtConfirmaDeletar:{
+        color: colors.branco.padrao,
+        textAlignVertical: 'center',
+        marginLeft: 7
+    }
 })

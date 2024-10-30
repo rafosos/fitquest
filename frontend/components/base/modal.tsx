@@ -1,5 +1,6 @@
 import React from "react";
 import { TouchableOpacity, TouchableWithoutFeedback, Modal, View, StyleSheet } from 'react-native';
+import { AutocompleteDropdownContextProvider } from "react-native-autocomplete-dropdown";
 
 export default function BaseModal({ 
     transparent = true,
@@ -14,17 +15,20 @@ export default function BaseModal({
             visible={isVisible}
             onRequestClose={() => onClose()}
         >
+            <AutocompleteDropdownContextProvider>
+
             <TouchableOpacity
                 activeOpacity={1}
                 style={styles.modalWrapper}
                 onPressOut={onClose}
-            >
+                >
                 <TouchableWithoutFeedback>
                     <View style={styles.modalContent} onTouchStart={() => {}}>
                         {props.children}
                     </View>
                 </TouchableWithoutFeedback>
             </TouchableOpacity>
+            </AutocompleteDropdownContextProvider>
         </Modal>
     );
 }
@@ -38,10 +42,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: "5%",
     },
     modalContent: {
-      width: '100%',
-      backgroundColor: '#fff',
-      borderRadius: 18,
-      padding: 5
+        width: '100%',
+        backgroundColor: '#fff',
+        borderRadius: 18,
+        padding: 5
     }
   });
   
