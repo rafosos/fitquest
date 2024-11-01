@@ -7,7 +7,7 @@ class ExercicioRotina(Base):
     __tablename__ = "exercicio_rotina"
     id: Mapped[int] = mapped_column(primary_key=True)
     exercicio_id: Mapped[int] = mapped_column(ForeignKey("exercicio.id"))
-    rotina_id: Mapped[int] = mapped_column(ForeignKey("rotina.id"))
+    rotina_id: Mapped[int] = mapped_column(ForeignKey("rotina.id"), nullable=True)
     qtd_serie: Mapped[int] = mapped_column(nullable=True)
     qtd_repeticoes: Mapped[int] = mapped_column(nullable=True)
     

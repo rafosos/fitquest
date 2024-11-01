@@ -134,7 +134,8 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                                 placeholder: 'Pesquisar exercício',
                                 autoCorrect: false,
                                 autoCapitalize: 'none',
-                            }}
+                                style: {color: colors.preto.padrao}  
+                            }}                            
                             inputContainerStyle={{
                                 ...styles.inputAutocomplete,
                                 backgroundColor: colors.branco.padrao

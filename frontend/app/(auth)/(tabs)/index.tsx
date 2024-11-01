@@ -1,6 +1,6 @@
 import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
-import { TreinoResumo } from '@/classes/user_exercicio';
+import { TipoTreino, TreinoResumo } from '@/classes/user_exercicio';
 import { colors } from '@/constants/Colors';
 import ExercicioService from '@/services/exercicio_service';
 import { errorHandlerDebug } from '@/services/service_config';
@@ -21,12 +21,13 @@ export default function TabAvatar() {
         getAtividades()
     }, []);
 
+    
     const getAtividades = () => {
-        setRefreshing(true)
-        exercicioService.getUltimosTreinosResumo(user.id)
-          .then(res => setAtividades(res))
-          .catch(err => errorHandlerDebug(err))
-          .finally(() => setRefreshing(false))
+      setRefreshing(true)
+      exercicioService.getUltimosTreinosResumo(user.id)
+      .then(res => setAtividades(res))
+      .catch(err => errorHandlerDebug(err))
+      .finally(() => setRefreshing(false))
     }
 
     return (
@@ -52,9 +53,9 @@ export default function TabAvatar() {
                 <View style={s.card}>
                     <View style={s.headerCard}>
                         <View>
-                            <Text>{item.campeonato_nome ?? item.rotina_nome}</Text>
+                            <Text>{item.nome ?? "Treino"}</Text>
                             <View style={s.chip}>
-                                <Text style={s.txtChip}>{item.rotina_id ? "Rotina" : "Campeonato"}</Text>
+                                <Text style={s.txtChip}>{item.tipo && TipoTreino[item.tipo]}</Text>
                             </View>
                         </View>
 

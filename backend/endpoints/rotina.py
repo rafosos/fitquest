@@ -6,13 +6,14 @@ from sqlalchemy import select
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
 from classes.user_exercicio import UserExercicio
-from classes.treino import Treino
+from classes.treino import Treino, TipoTreino
 from classes.rotina import Rotina
 from classes.grupo_muscular import GrupoMuscular
 from classes.exercicio_rotina import ExercicioRotina
 
 router = APIRouter(
     tags=["rotina"],
+    prefix='/rotina',
     responses={404: {"description": "Not found"}}
 )
 
@@ -26,7 +27,7 @@ class RotinaModel(BaseModel):
     dias: int
     exercicios: List[ExercicioModel]
 
-@router.post("/add-rotina/{user_id}")
+@router.post("/{user_id}")
 def add_rotina(user_id, model: RotinaModel, res: Response):
     with Session() as sess:
             rotina = Rotina(user_id=user_id, nome=model.nome, dias=model.dias)
@@ -53,7 +54,7 @@ def add_rotina(user_id, model: RotinaModel, res: Response):
     res.status_code = status.HTTP_200_OK
     return "A nova rotina foi adicionada com sucesso."
 
-@router.get("/rotina/{user_id}")
+@router.get("/{user_id}")
 def get_rotina(user_id: int):
     stmt = (
         select(
@@ -87,7 +88,7 @@ def get_rotina(user_id: int):
 
     return [v for k,v in rotinas_dict.items()]
 
-@router.get("/rotina_detalhes/{rotina_id}")
+@router.get("/detalhes/{rotina_id}")
 def get_rotina_detalhes(rotina_id: int):
     stmt = (
         select(
@@ -138,14 +139,27 @@ class TreinoModel(BaseModel):
     userId: int
     ids_exercicios: List[int]
 
-@router.post("/rotina/add-treino")
-def add_rotina(model: TreinoModel, res: Response):
+@router.post("/treino/")
+def add_treino(model: TreinoModel, res: Response):
     with Session() as sess:
-        rotina_id = sess.execute(select(ExercicioRotina.rotina_id).where(ExercicioRotina.id == model.ids_exercicios[0])).first()[0]
-        treino = Treino(user_id=model.userId, rotina_id=rotina_id)
+        result = sess.execute(
+            select(ExercicioRotina.rotina_id, Rotina.nome)
+            .select_from(ExercicioRotina)
+            .join(Rotina, Rotina.id == ExercicioRotina.rotina_id)
+            .where(ExercicioRotina.id == model.ids_exercicios[0])).first()
+        treino = Treino(user_id=model.userId, rotina_id=result[0], nome=result[1], tipo=TipoTreino.rotina)
         exercicios = [UserExercicio(exec_rotina_id=id) for id in model.ids_exercicios]
         treino.exercicios = exercicios
         sess.add(treino)
         sess.commit()
     res.status_code = status.HTTP_200_OK
     return "O novo treino foi adicionado com sucesso."
+
+@router.delete("/{id}")
+def delete_rotina(id: int, res: Response):
+    with Session() as sess:
+        rotina = sess.scalar(select(Rotina).where(Rotina.id == id))
+        sess.delete(rotina)
+        sess.commit()
+    res.status_code = status.HTTP_200_OK
+    return "A rotina foi deletada com sucesso."

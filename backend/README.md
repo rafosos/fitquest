@@ -2,3 +2,17 @@ Instruções de como criar um ambiente virtual (virtual environment) utilizando 
 
 Rodar:
 fastapi dev main.py
+
+ou
+
+python main.py
+
+
+Gerar migration:
+
+alembic revision --autogenerate -m "name"
+
+
+Rodar migration na mão:
+
+alembic upgrade head

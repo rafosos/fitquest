@@ -30,6 +30,11 @@ export class Treino{
     exercicios: UserExercicio[];
 }
 
+export enum TipoTreino{
+    Rotina = 1,
+    Campeonato = 2
+}
+
 export class TreinoResumo{
     constructor(id:number, data: Date, exercicios: string) {
         this.id = id;
@@ -40,8 +45,8 @@ export class TreinoResumo{
     id: number;
     data: Date;
     rotina_id: number | undefined;
-    rotina_nome: string | undefined;
+    tipo: TipoTreino | undefined;
     campeonato_id: number | undefined;
-    campeonato_nome: string | undefined;
+    nome: string | undefined;
     exercicios: string;
 }

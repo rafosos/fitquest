@@ -66,13 +66,13 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
 
     const submit = () => {
         campeonatoService.addCampeonato(
-            new Campeonato(nome, 
-                new Date(dataFinal), 
-                [...participantes.map(p => Number(p.id)), Number(userId)],
-                [...exercicios.map(e => new ExercicioCampeonato(e.id, e.qtd_serie, e.qtd_repeticoes))]
-            ))
+            {nome, 
+                duracao: new Date(dataFinal), 
+                participantes_ids: [...participantes.map(p => Number(p.id)), Number(userId)],
+                exercicios:[...exercicios.map(e => new ExercicioCampeonato(e.id, e.qtd_serie, e.qtd_repeticoes))]
+            })
             .then(res => clearAndClose())
-            .catch(err => console.log(err));
+            .catch(err => errorHandlerDebug(err));
     }
 
     const removerParticipante = (item: AutocompleteDropdownItem) => {

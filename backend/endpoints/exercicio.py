@@ -55,23 +55,23 @@ def get_treinos_resumo(user_id: int):
         stmt = select(
             Treino.id,
             Treino.rotina_id,
+            Treino.campeonato_id,
             Treino.data,
+            Treino.nome,
+            Treino.tipo,
             func.string_agg(Exercicio.nome, ", ").label("exercicios"),
-            Rotina.nome.label("rotina_nome"),
-            Campeonato.nome.label("campeonato_nome")
         ).select_from(Treino)\
         .join(UserExercicio, UserExercicio.treino_id == Treino.id)\
         .join(ExercicioRotina, ExercicioRotina.id == UserExercicio.exec_rotina_id, isouter=True)\
-        .join(Rotina, ExercicioRotina.rotina_id == Rotina.id, isouter=True)\
         .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id, isouter=True)\
-        .join(Campeonato, Campeonato.id == ExercicioCampeonato.campeonato_id, isouter=True)\
         .join(Exercicio, or_(ExercicioCampeonato.exercicio_id == Exercicio.id, ExercicioRotina.exercicio_id == Exercicio.id))\
         .where(Treino.user_id == user_id)\
         .group_by(Treino.id,
             Treino.rotina_id,
-            Treino.data,
-            Rotina.nome.label("rotina_nome"),
-            Campeonato.nome.label("campeonato_nome"))\
+            Treino.campeonato_id,
+            Treino.nome,
+            Treino.tipo,
+            Treino.data,)\
         .order_by(Treino.data.desc())
         
         result = sess.execute(stmt).mappings().all()

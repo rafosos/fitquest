@@ -9,7 +9,7 @@ from classes.campeonato import Campeonato
 from classes.exercicio_campeonato import ExercicioCampeonato
 from classes.grupo_muscular import GrupoMuscular
 from classes.exercicio import Exercicio
-from classes.treino import Treino
+from classes.treino import Treino, TipoTreino
 from classes.user_exercicio import UserExercicio
 from classes.user import User
 
@@ -113,8 +113,15 @@ class TreinoModel(BaseModel):
 @router.post("/add-treino")
 def add_treino(model: TreinoModel):
     with Session() as sess:
-        campeonato_id = sess.execute(select(ExercicioCampeonato.campeonato_id).where(ExercicioCampeonato.id == model.exercicios_ids[0])).first()[0]
-        treino = Treino(user_id=model.userId, campeonato_id=campeonato_id)
+        result = sess.execute(
+            select(
+                ExercicioCampeonato.campeonato_id,
+                Campeonato.nome
+            )  
+            .select_from(ExercicioCampeonato)
+            .join(Campeonato, ExercicioCampeonato.campeonato_id == Campeonato.id)
+            .where(ExercicioCampeonato.id == model.exercicios_ids[0])).first()
+        treino = Treino(user_id=model.userId, campeonato_id=result[0], nome=result[1], tipo=TipoTreino.campeonato)
         exercicios = [UserExercicio(exec_campeonato_id=id) for id in model.exercicios_ids]
         treino.exercicios = exercicios
         sess.add(treino)

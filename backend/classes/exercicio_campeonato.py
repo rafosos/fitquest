@@ -8,7 +8,7 @@ class ExercicioCampeonato(Base):
     __tablename__ = "exercicio_campeonato"
     id: Mapped[int] = mapped_column(primary_key=True)
     exercicio_id: Mapped[int] = mapped_column(ForeignKey("exercicio.id"))
-    campeonato_id: Mapped[int] = mapped_column(ForeignKey("campeonato.id"))
+    campeonato_id: Mapped[int] = mapped_column(ForeignKey("campeonato.id"), nullable=True)
     data: Mapped[date] = mapped_column(server_default=func.now())
     qtd_serie: Mapped[int]
     qtd_repeticoes: Mapped[int]

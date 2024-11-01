@@ -11,7 +11,7 @@ class Campeonato(Base):
     nome: Mapped[str]
     duracao: Mapped[datetime.datetime]
 
-    exercicios: Mapped[List["ExercicioCampeonato"]] = relationship(back_populates="campeonato", cascade="all, delete")
+    exercicios: Mapped[List["ExercicioCampeonato"]] = relationship(back_populates="campeonato")
     treinos: Mapped[List["Treino"]] = relationship(back_populates="campeonato")
     users: Mapped[List["User"]] = relationship(secondary=user_campeonato)
 

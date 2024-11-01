@@ -1,27 +1,23 @@
 import { useSession } from '@/app/ctx';
 import UserService from '@/services/user_service';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Button, Dimensions } from 'react-native';
 import BaseModal from './base/modal';
 import { colors } from '@/constants/Colors';
-import { AutocompleteDropdown, AutocompleteDropdownContextProvider, AutocompleteDropdownItem, IAutocompleteDropdownRef } from 'react-native-autocomplete-dropdown';
-import Exercicio from '@/classes/exercicio';
-import User from '@/classes/user';
+import { AutocompleteDropdown, AutocompleteDropdownItem, IAutocompleteDropdownRef } from 'react-native-autocomplete-dropdown';
 import { Feather } from '@expo/vector-icons';
 import { errorHandlerDebug } from '@/services/service_config';
 
 export default function AddUserModal({ isVisible = false, onClose = () => {} }) {
-    const [nickname, setNickname] = useState("");
     const [loading, setLoading] = useState(false);
     const [amigoId, setAmigoId] = useState<number | null>(null);
     const [resultados, setResultados] = useState<AutocompleteDropdownItem[]>([]);
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const userService = UserService();
-    const dropdownController = useRef<IAutocompleteDropdownRef | null>(null);
-
+    
     const clearAndClose = () =>{
-        setNickname("");
+        setAmigoId(null);
         onClose();
     }
     
@@ -58,7 +54,6 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
                 <Text style={styles.title}>Adicionar amigo</Text>
             </View>
             <AutocompleteDropdown
-                editable={!loading}
                 dataSet={resultados}
                 onChangeText={getUsersDropdown}
                 onSelectItem={onSelectItem}

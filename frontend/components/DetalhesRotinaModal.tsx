@@ -5,8 +5,9 @@ import RotinaService from '@/services/rotina_service';
 import { RotinaDetalhes } from '@/classes/rotina';
 import { errorHandlerDebug } from '@/services/service_config';
 import { colors } from '@/constants/Colors';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
+import ModalConfirmacao from './ModalConfirmacao';
 
 interface Props {
     isVisible: boolean;
@@ -18,6 +19,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
     const [rotina, setRotina] = useState<RotinaDetalhes>();
     const [novoTreino, setNovoTreino] = useState(false);
     const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
+    const [modalConfirma, setModalConfirma] = useState(false);
     const rotinaService = RotinaService();
     const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
 
@@ -46,7 +48,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
 
     const finalizarTreino = () => {
         rotinaService.addTreino({
-            rotinaId: rotinaId, 
+            rotinaId, 
             userId, 
             ids_exercicios: rotina?.exercicios.filter((e, i) => checkboxes[i]).map(e => e.id) ?? []
         })
@@ -61,6 +63,12 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
         setCheckboxes([...checkboxes]);
     }
 
+    const deletar = () => {
+        rotinaService.deletarRotina(rotinaId)
+            .then(res => clearAndClose())
+            .catch(err => errorHandlerDebug(err));
+    }
+
     return (
         <Modal
             animationType="slide" 
@@ -68,6 +76,21 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
             visible={isVisible}
             onRequestClose={() => clearAndClose()}
         >
+
+            <ModalConfirmacao 
+                show={modalConfirma}
+                onConfirma={deletar}
+                onClose={() => setModalConfirma(false)}
+                titulo={`Você tem certeza que deseja excluir a rotina ${rotina?.nome}?`}
+                subtitulo={"Essa ação não poderá ser desfeita"}
+                botaoConfirmar={
+                    <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
+                        <Feather name="trash-2" style={styles.iconeDeletar} />
+                        <Text style={styles.txtBotaoDeletar}>EXCLUIR</Text>
+                    </TouchableOpacity>
+                }
+            />
+
             <TouchableOpacity
                 activeOpacity={1}
                 style={styles.modalWrapper}
@@ -82,6 +105,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                         ListHeaderComponent={<>
                             <View style={styles.titleContainer}>
                                 <Text style={styles.title}>{rotina?.nome}</Text>
+                                <Feather name="trash-2" style={styles.botaoApagar} onPress={() => setModalConfirma(true)}/>
                             </View>
                             
                             {!novoTreino && <> 
@@ -117,7 +141,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                         </>}
                         renderItem={({item, index}) => 
                             <TouchableOpacity
-                                activeOpacity={0} 
+                                activeOpacity={1} 
                                 style={styles.containerExercicio} 
                                 onPress={() => novoTreino ? checkExercicio(!checkboxes[index], index) : null}
                             >
@@ -174,6 +198,22 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
 }
 
 const styles = StyleSheet.create({
+    botaoDeletar:{
+        flexDirection: "row",
+        borderRadius: 15,
+        backgroundColor: colors.vermelho.padrao,
+        marginHorizontal:20,
+        padding:5,
+        paddingHorizontal: 20
+    },
+    txtBotaoDeletar:{
+        color:colors.branco.padrao
+    },
+    iconeDeletar:{
+        color:colors.branco.padrao,
+        textAlignVertical: 'center',
+        marginRight:5
+    },
     modalWrapper: {
         flex:1,
         backgroundColor: colors.preto.fade[5],
@@ -202,11 +242,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: 5
     },
     title: {
         fontSize: 16,
         fontWeight: "700",
         textAlign: "center"
+    },
+    botaoApagar:{
+        position:"absolute",
+        right: 5,
+        color: colors.preto.padrao,
+        fontSize: 24
     },
     infoContainer: {
         flexDirection: 'row',
