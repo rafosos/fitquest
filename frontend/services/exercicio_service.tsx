@@ -1,6 +1,7 @@
 import { TreinoResumo } from "@/classes/user_exercicio";
 import { get } from "./service_config";
 import Exercicio from "@/classes/exercicio";
+import { Streaks } from "@/classes/streaks";
 
 export default function ExercicioService(){
     const getExercicioFiltro = (user_id: number, f: string, ids_escolhidos: number[]) => {
@@ -13,5 +14,10 @@ export default function ExercicioService(){
         return promise.then(res => res.data);    
     }
 
-    return {getExercicioFiltro, getUltimosTreinosResumo}
+    const getStreaks = (userId: number) => {
+        const promise = get<Streaks>(`/exercicio/streak_geral/${userId}`);
+        return promise.then(res => res.data);
+    }
+
+    return {getExercicioFiltro, getUltimosTreinosResumo, getStreaks}
 }

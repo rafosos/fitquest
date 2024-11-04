@@ -1,4 +1,5 @@
 import { useSession } from '@/app/ctx';
+import { Streaks } from '@/classes/streaks';
 import User from '@/classes/user';
 import { TipoTreino, TreinoResumo } from '@/classes/user_exercicio';
 import { colors } from '@/constants/Colors';
@@ -11,30 +12,41 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 export default function TabAvatar() {
-    const [atividades, setAtividades] = useState<TreinoResumo[]>([]);
-    const exercicioService = ExercicioService();
-    const [refreshing, setRefreshing] = useState(false);
     const { user: userString } = useSession();
+    const [atividades, setAtividades] = useState<TreinoResumo[]>([]);
+    const [streaks, setStreaks] = useState<Streaks>();
+    const [refreshing, setRefreshing] = useState(false);
     const user:User = useRef(JSON.parse(userString ?? "{}")).current;
+    const exercicioService = ExercicioService();
 
     useEffect(() => {
-        getAtividades()
+      refresh();
     }, []);
+    
+    const refresh = () => {
+      getAtividades();
+      getStreaks();  
+    }
 
+    const getStreaks = () => {
+        exercicioService.getStreaks(user.id)
+            .then(res => setStreaks(res))
+            .catch(err => errorHandlerDebug(err));
+    }
     
     const getAtividades = () => {
-      setRefreshing(true)
-      exercicioService.getUltimosTreinosResumo(user.id)
-      .then(res => setAtividades(res))
-      .catch(err => errorHandlerDebug(err))
-      .finally(() => setRefreshing(false))
+        setRefreshing(true)
+        exercicioService.getUltimosTreinosResumo(user.id)
+        .then(res => setAtividades(res))
+        .catch(err => errorHandlerDebug(err))
+        .finally(() => setRefreshing(false))
     }
 
     return (
         <FlatList
             contentContainerStyle={s.container}
             data={atividades}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getAtividades}/>}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
             ListHeaderComponent={<>
                 <View style={s.containerNomes}>
                   <Text style={s.nickname}>{user.nickname}</Text>
@@ -45,6 +57,18 @@ export default function TabAvatar() {
 
                 <View style={s.containerImagem}>
                 <Image style={s.gifAvatar} source={require('@/assets/images/avatar.gif')} />
+                </View>
+
+                <View style={s.streaksContainer}>
+                    <View style={s.card}>
+                        <Text>Streak semanal</Text>
+                        <Text style={s.txtStreak}>{streaks?.streak_semanal?.streak_length}</Text>
+                    </View>
+
+                    <View style={s.card}>
+                        <Text>Streak diário</Text>
+                        <Text style={s.txtStreak}>{streaks?.streak_diario?.streak_length}</Text>
+                    </View>
                 </View>
 
                 <Text style={s.tituloUltimasAtividades}>Últimas atividades</Text>
@@ -98,6 +122,13 @@ const s = StyleSheet.create({
     resizeMode: "contain",
     height: '100%',
     alignSelf: "center"
+  },
+  streaksContainer:{
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  txtStreak:{
+    textAlign: 'center'
   },
   tituloUltimasAtividades:{
     fontSize: 20,
