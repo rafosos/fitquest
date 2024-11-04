@@ -130,16 +130,16 @@ def get_progresso(campeonato_id: int):
             user_campeonato.c.user_id,
             User.nickname,
             User.fullname,
-            func.count(user_campeonato.c.user_id).label("dias")
+            func.count(Treino.user_id).label("dias")
         ).select_from(user_campeonato)\
         .join(User, User.id == user_campeonato.c.user_id)\
-        .join(Treino, User.id == Treino.user_id, isouter=True)\
+        .join(Treino, and_(User.id == Treino.user_id, user_campeonato.c.campeonato_id == Treino.campeonato_id), isouter=True)\
         .where(and_(Treino.tipo == TipoTreino.campeonato, user_campeonato.c.campeonato_id == campeonato_id))\
         .group_by(user_campeonato.c.user_id, User.nickname, User.fullname)\
-        .order_by(func.count(user_campeonato.c.user_id).desc())
+        .order_by(func.count(Treino.user_id).desc())
     
         return sess.execute(stmt).mappings().all()
-    
+
 class TreinoModel(BaseModel):
     campeonatoId: int
     userId: int

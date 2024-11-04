@@ -47,6 +47,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
             .catch(err => errorHandlerDebug(err));
 
     const iniciarNovoTreino = () => {
+        setIndex(0);
         setNovoTreino(true);
     }
 
@@ -59,6 +60,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         setNovoTreino(false);
         setCheckboxes([]);
         setModalConfirma(false);
+        setIndex(0);
         onClose();
     }
 
@@ -81,7 +83,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
 
     const checkExercicio = (value: boolean, index: number) => {
         checkboxes[index] = value;
-        setCheckboxes([...checkboxes])
+        setCheckboxes([...checkboxes]);
     }
 
     const deletar = () => {
@@ -148,7 +150,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                             </View>
                             <View style={styles.infoContainer}>
                                 <View style={styles.itemInfo}>
-                                    <Text>Dias treinados</Text>
+                                    <Text>Treinos</Text>
                                     <Text style={styles.title}>{progresso.find(u => u.user_id == userId)?.dias ?? "..."}</Text>
                                 </View>
                                 
@@ -178,6 +180,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                             initialLayout={{width: layout.width}}
                             swipeEnabled={!novoTreino}
                             renderTabBar={(props) => 
+                                (novoTreino && props.navigationState.index == 0) ? <></> :
                                 <TabBar 
                                     {...props}
                                     style={styles.tabs}
@@ -265,7 +268,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                     
                         {novoTreino &&
                         <View style={styles.footerTreino}>
-                            <TouchableOpacity style={styles.botaoFooter} onPress={cancelarTreino}>
+                            <TouchableOpacity style={[styles.botaoFooter, styles.botaoFooterCancelar]} onPress={cancelarTreino}>
                                 <AntDesign name="close" style={styles.iconeBotaoTreino} />
                                 <Text style={styles.txtBotaoNovoTreino}>Cancelar</Text>
                             </TouchableOpacity>
@@ -440,9 +443,12 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 15,
         flexDirection: "row",        
-        backgroundColor: colors.cinza.escuro,
+        backgroundColor: colors.verde.padrao,
         alignItems: "center",
         justifyContent: "center"
+    },
+    botaoFooterCancelar:{
+        backgroundColor: colors.cinza.escuro
     }
 });
   
