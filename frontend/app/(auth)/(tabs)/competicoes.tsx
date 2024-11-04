@@ -1,4 +1,4 @@
-import { Text, FlatList, RefreshControl, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';
@@ -64,6 +64,7 @@ export default function TabEventos() {
                 <TouchableOpacity style={styles.card} onPress={() => setDetahesModal({show: true, campeonato_id: campeonato.id})}>
                     <Text style={styles.nomeCampeonato}>{campeonato.nome}</Text>
                     <Text>Participantes: {campeonato.participantes}</Text>
+                    <Text>Criador: {campeonato.nickname_criador}</Text>
                 </TouchableOpacity>
             }
             ListEmptyComponent={
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
         fontWeight: "800"
     },
     card:{
-        backgroundColor: colors.cinza.medio,
+        backgroundColor: colors.branco.padrao,
         borderColor: colors.cinza.escuro,
         borderWidth: 2,
         borderRadius: 25,

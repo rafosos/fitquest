@@ -14,6 +14,7 @@ export default class Campeonato{
     duracao: Date;
     participantes_ids: Array<number>;
     participantes: string | undefined;
+    nickname_criador: string | undefined;
 }
 
 export class ExercicioCampeonato{
@@ -39,7 +40,15 @@ export class CampeonatoDetalhes{
     id: number;
     nome: string;
     duracao: Date;
+    ultimo_treino: Date | undefined;
     participantes: Array<User> | undefined;
     exercicios: Array<Exercicio> | undefined;
     userId: number | undefined;
+}
+
+export class UserProgresso{
+    user_id: number | undefined;
+    nickname: string | undefined;
+    fullname: string | undefined;
+    dias: number | undefined;
 }

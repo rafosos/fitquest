@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from db.db import Session
 from typing import List
-from sqlalchemy import select, func, case
-from sqlalchemy.orm import selectinload
+from sqlalchemy import select, func, case, and_, literal_column, text, or_
+from sqlalchemy.orm import selectinload, aliased
 from datetime import datetime
 from pydantic import BaseModel
 from classes.campeonato import Campeonato
@@ -11,6 +11,7 @@ from classes.grupo_muscular import GrupoMuscular
 from classes.exercicio import Exercicio
 from classes.treino import Treino, TipoTreino
 from classes.user_exercicio import UserExercicio
+from classes.user_campeonato import user_campeonato
 from classes.user import User
 
 router = APIRouter(
@@ -37,7 +38,7 @@ def add_campeonato(model: CampeonatoModel):
         participantes = sess.scalars(select(User).where(User.id.in_(model.participantes_ids))).all()
         exercicios = [ExercicioCampeonato(exercicio_id=e.exercicio_id, qtd_serie=e.qtd_serie, qtd_repeticoes=e.qtd_repeticoes) for e in model.exercicios]
 
-        camp = Campeonato(nome=model.nome, duracao=model.duracao)
+        camp = Campeonato(nome=model.nome, duracao=model.duracao, criado_por_id=model.participantes_ids[-1])
         camp.users.extend(participantes)
         camp.exercicios.extend(exercicios)
         sess.add(camp)
@@ -47,31 +48,49 @@ def add_campeonato(model: CampeonatoModel):
 @router.get("/{user_id}")
 def get_campeonato(user_id: int):
     with Session() as sess:
+        participantes = aliased(User)
+        criador = aliased(User)
         campeonatos = sess.execute(
             select(
                 Campeonato.id, 
                 Campeonato.nome, 
-                Campeonato.duracao, 
-                func.string_agg(case((User.id != user_id, User.nickname), else_=None), ', ').label("participantes"),
+                Campeonato.duracao,
+                Campeonato.data_criacao,
+                criador.nickname.label("nickname_criador"),
+                func.string_agg(case((participantes.id != user_id, participantes.nickname), else_=None), ', ').label("participantes"),
             )
-            .join(Campeonato.users)
-            .group_by(Campeonato.id, Campeonato.nome, Campeonato.duracao)
+            .join(criador, Campeonato.criador)
+            .join(participantes, Campeonato.users)
+            .group_by(Campeonato.id, Campeonato.nome, Campeonato.duracao, criador.nickname)
+            .where(or_(criador.id == user_id, participantes.id == user_id)) #check this with a 3rd user
             ).mappings().all()
         return campeonatos
 
-@router.get("/detalhes/{campeonato_id}")
-def get_campeonato_detalhes(campeonato_id: int):
+@router.get("/detalhes/{user_id}/{campeonato_id}")
+def get_campeonato_detalhes(user_id: int, campeonato_id: int):
+    cte_ultimo_treino = select(Treino.data.label("ultimo_treino"), Treino.campeonato_id)\
+        .where(
+            and_(
+                Treino.tipo == TipoTreino.campeonato, 
+                Treino.user_id == user_id,
+                Treino.campeonato_id == campeonato_id
+            ))\
+        .limit(1).order_by(Treino.data.desc()).cte("cte_ultimo_treino")
+    
     stmt = select(
             Campeonato.id,
             Campeonato.nome,
             Campeonato.duracao, 
+            literal_column("cte_ultimo_treino.ultimo_treino"),
             ExercicioCampeonato.id, 
             ExercicioCampeonato.qtd_serie, 
             ExercicioCampeonato.qtd_repeticoes, 
             Exercicio.nome.label('exercicio_nome'), 
             GrupoMuscular.id.label('grupo_muscular_id'), 
-            GrupoMuscular.nome.label('grupo_muscular_nome')
+            GrupoMuscular.nome.label('grupo_muscular_nome'),
         )\
+        .select_from(Campeonato)\
+        .join(cte_ultimo_treino, literal_column("cte_ultimo_treino.campeonato_id") == Campeonato.id, isouter=True)\
         .join(ExercicioCampeonato, Campeonato.id == ExercicioCampeonato.campeonato_id)\
         .join(Exercicio, ExercicioCampeonato.exercicio_id == Exercicio.id)\
         .join(GrupoMuscular, Exercicio.grupo_muscular_id == GrupoMuscular.id)\
@@ -87,22 +106,39 @@ def get_campeonato_detalhes(campeonato_id: int):
                 "id": row[0],
                 "nome": row[1],
                 "duracao": row[2],
+                "ultimo_treino": row[3],
                 "exercicios": []
             }
 
         exercicio_info = {
-            "id": row[3],
-            "qtd_serie": row[4],
-            "qtd_repeticoes": row[5],
-            "nome": row[6],
-            "grupo_muscular_id": row[7],
-            "grupo_muscular_nome": row[8],
+            "id": row[4],
+            "qtd_serie": row[5],
+            "qtd_repeticoes": row[6],
+            "nome": row[7],
+            "grupo_muscular_id": row[8],
+            "grupo_muscular_nome": row[9],
         }
 
         campeonato["exercicios"].append(exercicio_info)
 
     return campeonato
 
+@router.get("/detalhes_progresso/{campeonato_id}")
+def get_progresso(campeonato_id: int):
+    with Session() as sess:
+        stmt = select(
+            user_campeonato.c.user_id,
+            User.nickname,
+            User.fullname,
+            func.count(user_campeonato.c.user_id).label("dias")
+        ).select_from(user_campeonato)\
+        .join(User, User.id == user_campeonato.c.user_id)\
+        .join(Treino, User.id == Treino.user_id, isouter=True)\
+        .where(and_(Treino.tipo == TipoTreino.campeonato, user_campeonato.c.campeonato_id == campeonato_id))\
+        .group_by(user_campeonato.c.user_id, User.nickname, User.fullname)\
+        .order_by(func.count(user_campeonato.c.user_id).desc())
+    
+        return sess.execute(stmt).mappings().all()
     
 class TreinoModel(BaseModel):
     campeonatoId: int
@@ -132,7 +168,6 @@ def delete_campeonato(campeonato_id: int):
     with Session() as sess:
         campeonato = sess.scalar(select(Campeonato)
                                  .options(selectinload(Campeonato.exercicios))
-                                #  .options(selectinload(Campeonato.exercicios))
                                  .where(Campeonato.id == campeonato_id)
                                 )
         sess.delete(campeonato)

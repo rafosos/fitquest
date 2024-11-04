@@ -1,5 +1,5 @@
 import { deletar, get, post } from "./service_config";
-import Campeonato, { CampeonatoDetalhes, ExercicioCampeonato } from "@/classes/campeonato";
+import Campeonato, { CampeonatoDetalhes, ExercicioCampeonato, UserProgresso } from "@/classes/campeonato";
 
 export default function CampeonatoService(){
     const prefix = "/campeonato";
@@ -19,8 +19,13 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);
     }
     
-    const getCampeonatoDetalhes = (campeonatoId: number) => {
-        const promise = get<CampeonatoDetalhes>(prefix +`/detalhes/${campeonatoId}`);
+    const getCampeonatoDetalhes = (userId: number, campeonatoId: number) => {
+        const promise = get<CampeonatoDetalhes>(prefix +`/detalhes/${userId}/${campeonatoId}`);
+        return promise.then(res => res.data);
+    }
+
+    const getDetalhesProgresso = (campeonatoId: number) => {
+        const promise = get<UserProgresso[]>(prefix +`/detalhes_progresso/${campeonatoId}`);
         return promise.then(res => res.data);
     }
 
@@ -32,5 +37,5 @@ export default function CampeonatoService(){
         return deletar(prefix + `/${campeonatoId}`);
     }
 
-    return {addCampeonato, getCampeonatos, getCampeonatoDetalhes, addTreino, deleteCampeonato}
+    return {addCampeonato, getCampeonatos, getCampeonatoDetalhes, addTreino, deleteCampeonato, getDetalhesProgresso}
 }

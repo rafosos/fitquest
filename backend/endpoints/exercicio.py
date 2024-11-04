@@ -3,17 +3,13 @@ from typing import Annotated
 from db.db import Session
 from sqlalchemy import select, or_, and_, func, text, case, literal_column, Interval
 from sqlalchemy.sql.expression import bindparam
-# from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.orm import selectinload
-from collections import defaultdict
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
 from classes.user_exercicio import UserExercicio
-from classes.rotina import Rotina
 from classes.exercicio_rotina import ExercicioRotina
 from classes.exercicio_campeonato import ExercicioCampeonato
 from datetime import timedelta
-from classes.campeonato import Campeonato
 from classes.treino import Treino
 
 router = APIRouter(
