@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect } from "react";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSession } from '@/app/ctx';
-import Campeonato, { ExercicioCampeonato } from '@/classes/campeonato';
+import { ExercicioCampeonato } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
 import UserService from '@/services/user_service';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, Dimensions, FlatList, TouchableOpacity, Platform, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Dimensions, FlatList, TouchableOpacity, Platform, Modal } from 'react-native';
 import { AutocompleteDropdown, AutocompleteDropdownContextProvider, IAutocompleteDropdownRef, AutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
 import { Feather } from "@expo/vector-icons";
 import { colors } from "@/constants/Colors";
@@ -13,14 +13,19 @@ import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from "@r
 import Exercicio from "@/classes/exercicio";
 import ExercicioService from "@/services/exercicio_service";
 import { errorHandlerDebug } from "@/services/service_config";
+import ErroInput from "./ErroInput";
+
+const DUAS_SEMANAS = 12096e5;
 
 export default function AddCampeonatoModal({ isVisible = false, onClose = () => {} }) {
+    const hoje = new Date();
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
+    const [erros, setErros] = useState<any>({});
     const [exercicios, setExercicios] = useState<Exercicio[]>([]);
     const [resultados, setResultados] = useState<Exercicio[]>([]);
     const [nome, setNome] = useState("");
     const [datePicker, setDatePicker] = useState(false);
-    const [dataFinal, setDataFinal] = useState(new Date(Date.now() + 12096e5));
+    const [dataFinal, setDataFinal] = useState(new Date(Date.now() + DUAS_SEMANAS));
     const [participantes, setParticipantes] = useState<AutocompleteDropdownItem[]>([]);
     const [loadingAmigos, setLoadingAmigos] = useState(false);
     const [loadingExercicios, setLoadingExercicios] = useState(false);
@@ -38,6 +43,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
             DateTimePickerAndroid.open({
                 mode: "date",
                 value: dataFinal,
+                minimumDate: hoje,
                 onChange: handleDatePickerChange
         })
     }, [datePicker]);
@@ -65,6 +71,19 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
     const onClearPress = useCallback(() => setAmigos([]), [])
 
     const submit = () => {
+        let erroObj = {...erros};
+
+        // checagem de erros
+        erroObj = {...erros, 
+            exercicios: !exercicios.length,
+            nome: !nome,
+            seriesRepeticoes: exercicios.some(exec => exec.qtd_repeticoes <= 0 || exec.qtd_serie <= 0)
+        };
+        setErros(erroObj);        
+
+        // se algum erro existe, a função .some vai voltar true e não vai chamar submit
+        if(Object.values(erroObj).some(err => err)) return;
+
         campeonatoService.addCampeonato(
             {nome, 
                 duracao: new Date(dataFinal), 
@@ -81,8 +100,14 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
     }
 
     const handleDatePickerChange = (e: DateTimePickerEvent , data?: Date) => {
-        if (e.type == "set" && data)
+        if (!data) return;
+
+        if (e.type == "set")
             setDataFinal(data);
+
+        if (data < hoje) setErros({...erros, "data": true});
+        else setErros({...erros, data: false});
+
         setDatePicker(false);
     }
 
@@ -101,10 +126,13 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
 
     const onSelectItem = (item: AutocompleteDropdownItem | null) => {
         if(!item) return
+
         const e = resultados.splice(resultados.findIndex((r) => r.id.toString() == item.id),1);
         if(!e) return;
+        
         setExercicios([...exercicios, ...e]);
         setResultados([...resultados]);
+        setErros({...erros, exercicios: false});
         dropdownExecController.current?.clear();
     }
 
@@ -123,20 +151,24 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         setExercicios([...exercicios]);
     }
 
+    const datediff = (first: Date, second: Date) => {        
+        return Math.abs(Math.round((second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24))).toString();
+    }
+
     return (
         <Modal 
             visible={isVisible}
             transparent={false}
             onRequestClose={onClose}
-            style={styles.modal}
         >
             <AutocompleteDropdownContextProvider>
+            <View style={styles.container}>
                 
             <FlatList
                 data={exercicios}
                 ListHeaderComponent={<>
                     <View style={styles.titleContainer}>
-                        <AntDesign name="arrowleft" size={30} color={colors.preto.padrao} onPress={onClose}/>                            
+                        <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose}/>
                         <Text style={styles.title}>Novo campeonato</Text>
                     </View>
 
@@ -145,31 +177,52 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                         <TextInput
                             placeholder='Nome'
                             value={nome}
-                            style={styles.input}
+                            onBlur={() => setErros({...erros, "inputNome": !nome})}
+                            style={[styles.input, erros.inputNome && styles.inputErro]}
                             onChangeText={(txt) => setNome(txt)}
+                        />
+                        <ErroInput
+                            show={erros.nome} 
+                            texto="O campo nome é obrigatório!"
                         />
                     </View>
 
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Data final</Text>
-                        <TouchableOpacity
-                            style={styles.input}
-                            onPress={() => setDatePicker(true)}
-                        >
+                    <View style={styles.linhaInput}>
+                        <View style={{...styles.inputContainer, flex:3}}>
+                            <Text style={styles.label}>Data final</Text>
+                            <TouchableOpacity
+                                style={[styles.input, erros.inputData && styles.inputErro]}
+                                onPress={() => setDatePicker(true)}
+                            >
+                                <TextInput
+                                    placeholder="Data final"
+                                    value={`${dataFinal.getDate()}/${dataFinal.getMonth()+1}/${dataFinal.getFullYear()}`}
+                                    editable={false}
+                                    style={{color: colors.preto.padrao}}
+                                />
+                            </TouchableOpacity>
+                            {(datePicker && Platform.OS != "android") &&
+                                <RNDateTimePicker
+                                    mode="date"
+                                    onChange={handleDatePickerChange}
+                                    value={dataFinal}
+                                    minimumDate={hoje}
+                                />
+                            }
+                            <ErroInput
+                                show={erros.data}
+                                texto="A data inserida é inválida!" 
+                            />
+                        </View>
+
+                        <View style={{...styles.inputContainer, flex:1}}>
+                            <Text style={styles.label}>Dias até final</Text>
                             <TextInput 
-                                placeholder="Data final"
-                                value={`${dataFinal.getDate()}/${dataFinal.getMonth()}/${dataFinal.getFullYear()}`}
+                                style={styles.input}
+                                value={datediff(dataFinal, hoje)}
                                 editable={false}
-                                style={{color: colors.preto.padrao}}
                             />
-                        </TouchableOpacity>
-                        {(datePicker && Platform.OS != "android") &&
-                            <RNDateTimePicker
-                            mode="date"
-                            onChange={handleDatePickerChange}
-                            value={dataFinal}
-                            />
-                        }
+                        </View>
                     </View>
 
                     <AutocompleteDropdown
@@ -249,10 +302,11 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                                 color: colors.preto.padrao
                             }
                         }}
-                        inputContainerStyle={{
-                            ...styles.inputAutocomplete,
-                            backgroundColor: colors.branco.padrao
-                        }}
+                        inputContainerStyle={[
+                            styles.inputAutocomplete,
+                            {backgroundColor: colors.branco.padrao},
+                            (erros.exercicios || erros.seriesRepeticoes) && styles.inputErro
+                        ]}
                         ClearIconComponent={<Feather name="x-circle" size={18} color={colors.preto.padrao} />}
                         inputHeight={50}
                         closeOnBlur={true}
@@ -261,6 +315,16 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                         closeOnSubmit
                         EmptyResultComponent={<></>}
                     />
+
+                    <ErroInput 
+                        show={erros.exercicios}
+                        texto="A lista de exercícios não pode estar em branco!"
+                    />
+                    <ErroInput 
+                        show={erros.seriesRepeticoes}
+                        texto="O valor de série/repetição não pode ser 0!"
+                    />
+
                 </>}
                 renderItem={({item, index}) => 
                     <View style={styles.cardExercicio}>
@@ -296,51 +360,64 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                         </View>
                     </View>
                 }
+                ListFooterComponent={
+                    <TouchableOpacity onPress={submit} style={styles.botaoSubmit}>
+                        <Text style={styles.txtBotaoSubmit}>CRIAR CAMPEONATO</Text>
+                    </TouchableOpacity>
+                }
             />
 
-            <Button
-                title='Criar'
-                onPress={submit}
-            />
+            </View>
             </AutocompleteDropdownContextProvider>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    modal:{
+    container:{
+        flex:1,
+        backgroundColor: colors.cinza.background
     },
     titleContainer: {
         flexDirection: "row",
         alignItems: "center",
-        margin: 5
+        margin: 5,
+        color: colors.branco.padrao
     },
     title: {
         margin: 10,
         fontSize: 20,
-        fontWeight: "800"
+        fontWeight: "800",
+        color: colors.branco.padrao
+    },
+    linhaInput:{
+        flexDirection: 'row'
     },
     inputContainer:{
         margin: 10,
     },
     label:{
-        // marginLeft: 10
+        color: colors.branco.padrao
     },
     input: {
+        color: colors.preto.padrao,
         borderWidth: 1,
-        borderColor: colors.preto.padrao,
+        borderColor: colors.branco.padrao,
         padding: 10,
         borderRadius: 4,
+        backgroundColor: colors.branco.padrao
+    },
+    inputErro:{
+        borderColor: colors.vermelho.padrao
     },
     containerChips:{
-        flexWrap: "wrap", 
+        flexWrap: "wrap",
         alignItems: "flex-start",
         marginHorizontal: 10
     },
     inputAutocomplete:{
         borderWidth: 1,
         borderColor: colors.preto.padrao,
-        // padding: 10,
         margin: 10,
         borderRadius: 4,
     },
@@ -355,7 +432,8 @@ const styles = StyleSheet.create({
     },
     cardExercicio:{
         borderWidth: 1,
-        borderColor: colors.preto.padrao,
+        borderColor: colors.branco.padrao,
+        backgroundColor: colors.branco.padrao,
         padding: 10,
         margin: 10,
         borderRadius: 4
@@ -393,6 +471,17 @@ const styles = StyleSheet.create({
     },
     containerCamposExec: {
         flexDirection: "row",
+    },
+    botaoSubmit:{
+        backgroundColor: colors.verde.padrao,
+        padding:10,
+        borderRadius: 25,
+        alignItems: 'center',
+        marginHorizontal: 10,
+        marginVertical: 10
+    },
+    txtBotaoSubmit:{
+        color: colors.branco.padrao
     }
   });
   

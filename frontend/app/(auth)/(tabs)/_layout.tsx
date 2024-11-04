@@ -12,7 +12,7 @@ export default function TabLayout() {
             headerShown: false,
             tabBarItemStyle:{
                 marginVertical: 5
-            }
+            }  
         }}
         initialRouteName='index'
     >

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from db.db import Session
 from typing import List
-from sqlalchemy import select, func
+from sqlalchemy import select, func, case
 from sqlalchemy.orm import selectinload
 from datetime import datetime
 from pydantic import BaseModel
@@ -52,10 +52,9 @@ def get_campeonato(user_id: int):
                 Campeonato.id, 
                 Campeonato.nome, 
                 Campeonato.duracao, 
-                func.string_agg(User.nickname, ', ').label("participantes"),
+                func.string_agg(case((User.id != user_id, User.nickname), else_=None), ', ').label("participantes"),
             )
             .join(Campeonato.users)
-            .filter(User.id != user_id)
             .group_by(Campeonato.id, Campeonato.nome, Campeonato.duracao)
             ).mappings().all()
         return campeonatos

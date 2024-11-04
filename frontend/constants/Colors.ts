@@ -22,8 +22,12 @@ export const Colors = {
 
 
 export const colors = {
+  verde:{
+    padrao: '#3EBA52'
+  },
   vermelho:{
-    padrao: "#d50000"
+    padrao: "#d50000",
+    erro: '#ff0000'
   },
   preto: {
     padrao: "#000",
@@ -40,6 +44,7 @@ export const colors = {
     }
   },
   cinza :{
+    background: "#494949",
     medio: "#ccc",
     escuro: "#444"
   },

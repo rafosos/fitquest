@@ -6,6 +6,7 @@ import 'react-native-reanimated';
 import { StyleSheet, Platform, StatusBar } from "react-native";
 import { SessionProvider } from "./ctx";
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
+import { colors } from '@/constants/Colors';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -46,7 +47,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   AndroidSafeArea: {
     flex: 1,
-    // backgroundColor: "white",
+    backgroundColor: colors.cinza.background,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   }
 });

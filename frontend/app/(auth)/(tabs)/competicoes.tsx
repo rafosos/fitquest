@@ -66,10 +66,12 @@ export default function TabEventos() {
                     <Text>Participantes: {campeonato.participantes}</Text>
                 </TouchableOpacity>
             }
-            ListEmptyComponent={<View style={styles.containerSemCampeonatos}>
-                <Text>no campeonatos?</Text>
-                <AntDesign onPress={abrirModal} name="adduser" size={24} color="black" />
-            </View>}
+            ListEmptyComponent={
+                <TouchableOpacity onPress={abrirModal} style={styles.containerSemCampeonatos}>
+                    <Text style={styles.textoSemCampeonatos}>Nenhum campeonato encontrado, clique para adicionar um novo!</Text>
+                    <AntDesign name="plus" size={30} color={colors.branco.padrao} />
+                </TouchableOpacity>
+            }
         />
 
         <ActionButton acao={abrirModal}/>
@@ -79,9 +81,11 @@ export default function TabEventos() {
 const styles = StyleSheet.create({
     containerCampeonatos:{
         flex:1,
-        padding:14
+        padding:14,
+        backgroundColor: colors.cinza.background
     },
     titulo:{
+        color: colors.branco.padrao,
         fontSize: 25,
         fontWeight: "800"
     },
@@ -100,10 +104,13 @@ const styles = StyleSheet.create({
     containerSemCampeonatos:{
         flex: 1,
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        paddingHorizontal: 10,
     },
-    textoSemAmigos:{
-        fontSize: 18
+    textoSemCampeonatos:{
+        fontSize: 18,
+        color: colors.branco.padrao,
+        textAlign: 'center'
     }
 })
   
