@@ -50,6 +50,9 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
 
     const clearAndClose = () =>{
         setNome("");
+        setParticipantes([]);
+        setExercicios([]);
+        setErros({});
         onClose();
     }
 
