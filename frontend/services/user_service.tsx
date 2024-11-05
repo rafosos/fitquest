@@ -48,10 +48,15 @@ export default function UserService(){
         return promise.then(res => res.data);
     }
 
+    const recusarAmizade = (user_id: string, id: number) =>{
+        const promise = deletar<boolean>(`/delete-pedido-amizade/${user_id}/${id}`);
+        return promise.then(res => res.data);
+    }
+
     const deletarAmizade = (user_id: string, id: number) =>{
         const promise = deletar<boolean>(`/delete-amizade/${user_id}/${id}`);
         return promise.then(res => res.data);
     }
 
-    return {cadastrar, login, addAmigo, getAmigos, getAmigosFilter, getPedidosAmizade, aceitarAmizade, getNaoAmigos, deletarAmizade}
+    return {cadastrar, login, addAmigo, getAmigos, getAmigosFilter, getPedidosAmizade, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade}
 }

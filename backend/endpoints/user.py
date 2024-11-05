@@ -102,25 +102,24 @@ def get_amigos(user_id, filtro):
     with Session() as sess:
         cte = select(Status.id).where(Status.descricao == statuses[0]).cte("status_ativo") 
 
-        stmt = select(User.id, User.nickname, User.fullname).where(User.id.not_in(
-            select(
-                case(
-                    (Amizade.user1_id == user_id, 
-                     Amizade.user2_id), 
-                    else_=Amizade.user1_id
-                )
-            )
-            .join(cte, cte.c.id == Amizade.status_id)
-            .where(
-                and_(
-                    or_(Amizade.user1_id == user_id, Amizade.user2_id == user_id), 
-                    or_(User.nickname.ilike(filtro_string), User.fullname.ilike(filtro_string))
+        stmt = select(User.id, User.nickname, User.fullname).where(
+            and_(
+                User.id.not_in(
+                    select(
+                        case(
+                            (Amizade.user1_id == user_id, Amizade.user2_id), 
+                            else_=Amizade.user1_id
+                        )
                     )
-                )
+                    .join(cte, cte.c.id == Amizade.status_id)
+                    .where(or_(Amizade.user1_id == user_id, Amizade.user2_id == user_id))
+                ),
+                User.id != user_id,
+                or_(User.nickname.ilike(filtro_string), User.fullname.ilike(filtro_string)),
             )
         )
         
-        amigos = [{"id": r[0], "nickname": r[1], "fullname": r[2]} for r in sess.execute(stmt).all()]
+        amigos = sess.execute(stmt).mappings().all()
         return amigos
     
 @router.get("/get-pedidos-amizade/{user_id}")
@@ -149,6 +148,20 @@ def change_status_pedido_amizade(user_id: int, id: Annotated[int, Body()], statu
 
         return f"Status da amizade alterado com sucesso para {status}"
 
+@router.delete("/delete-pedido-amizade/{user_id}/{id}")
+def delete_pedido_amizade(user_id: int, id: int):
+    with Session() as sess:
+        stmt = select(Amizade).where(Amizade.user1_id == id, Amizade.user2_id == user_id)
+
+        amizade = sess.scalar(stmt)
+        sess.delete(amizade)
+        try:
+            sess.commit()
+        except Exception as err:
+            return err
+
+        return f"Pedido de amizade deletado com sucesso"
+    
 @router.delete("/delete-amizade/{user_id}/{id}")
 def delete_amizade(user_id: int, id: int):
     with Session() as sess:
@@ -165,4 +178,4 @@ def delete_amizade(user_id: int, id: int):
         except Exception as err:
             return err
 
-        return f"Amizade deleteda com sucesso"
+        return f"Amizade deletada com sucesso"

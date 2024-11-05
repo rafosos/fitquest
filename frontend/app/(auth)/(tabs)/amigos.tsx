@@ -58,6 +58,11 @@ export default function TabAmigos() {
         userId && userService.aceitarAmizade(userId, id)
             .then(res => refreshFriendList())
             .catch(err => console.log(err));
+    
+    const recusarAmizade = (id: number) => 
+        userId && userService.recusarAmizade(userId, id)
+                .then(res => refreshFriendList())
+                .catch(err => console.log(err));
 
     const abrirModal = () => setAddModal(true);
 
@@ -72,7 +77,7 @@ export default function TabAmigos() {
             .catch(err => errorHandlerDebug(err));
     }
 
-    return (<>
+    return (<View style={styles.container}>
         <AddUserModal
             isVisible={addModal}
             onClose={onCloseModal}
@@ -108,8 +113,8 @@ export default function TabAmigos() {
             }
             ListEmptyComponent={
                 <View style={styles.containerSemAmigos}>
-                    <Text style={styles.textoSemAmigos}>Parece que ainda não tem ninguém aqui... Adicione alguém agora! :) </Text>
-                    <AntDesign onPress={abrirModal} name="adduser" size={50} color="black" />
+                    <Text style={styles.textoSemAmigos}>Parece que ainda não tem ninguém aqui... Adicione alguém agora!</Text>
+                    <AntDesign onPress={abrirModal} name="adduser" size={50} color={colors.branco.padrao} />
                 </View>
             }
         />
@@ -121,31 +126,46 @@ export default function TabAmigos() {
             ListHeaderComponent={<>
                 <Text style={styles.titulo}>Pedidos de amizade</Text>
             </>}
-            renderItem={({item:pedido}) => <> 
-                <Text>{pedido.fullname}</Text>
-                <Button 
-                    title="Aceitar"
-                    onPress={() => aceitarAmizade(pedido.id)}
-                />
-            </>}
+            renderItem={({item:pedido}) => 
+                <View style={styles.cardAmigo}>
+                    <View>
+                        <Text style={styles.nickname}>{pedido.nickname}</Text>
+                        <Text style={styles.fullname}>{pedido.fullname}</Text>
+                    </View>
+
+                    <View style={{flexDirection: 'row'}}>
+                        <TouchableOpacity onPress={() => recusarAmizade(pedido.id)} style={[styles.botaoPedido, styles.botaoRecusar]}>
+                            <Text style={styles.txtBotao}>RECUSAR</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => aceitarAmizade(pedido.id)} style={[styles.botaoPedido, styles.botaoAceitar]}>
+                            <Text style={styles.txtBotao}>ACEITAR</Text>  
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            }
             ListEmptyComponent={<>
-            <Text>Você não tem pedidos pendentes.</Text>
+            <Text style={styles.textoSemPedidos}>Você não tem pedidos pendentes.</Text>
             </>}
         />
 
         <ActionButton acao={abrirModal}/>
-        </>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container:{
+        backgroundColor: colors.cinza.background,
+        flex:1
+    },
     containerAmigos:{
         flex:1,
         padding:14
     },
     titulo:{
         fontSize: 25,
-        fontWeight: "800"
+        fontWeight: "800",
+        color: colors.branco.padrao
     },
     cardAmigo:{
         backgroundColor: colors.cinza.medio,
@@ -169,7 +189,30 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     textoSemAmigos:{
-        fontSize: 18
+        fontSize: 18,
+        color: colors.branco.padrao,
+        textAlign: 'center'
+    },
+    botaoPedido:{
+        borderRadius: 15,
+        paddingHorizontal: 10,
+        paddingVertical: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 5
+    },
+    botaoRecusar:{
+        backgroundColor: colors.vermelho.erro
+    },
+    botaoAceitar:{
+        backgroundColor: colors.verde.padrao
+    },
+    txtBotao:{
+        color: colors.branco.padrao,
+        textAlignVertical: 'center',
+    },
+    textoSemPedidos:{
+        color: colors.branco.padrao
     },
     botaoConfirmaDeletar:{
         backgroundColor: colors.vermelho.padrao,

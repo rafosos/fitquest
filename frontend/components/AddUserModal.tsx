@@ -1,10 +1,10 @@
 import { useSession } from '@/app/ctx';
 import UserService from '@/services/user_service';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Button, Dimensions, TouchableOpacity } from 'react-native';
 import BaseModal from './base/modal';
 import { colors } from '@/constants/Colors';
-import { AutocompleteDropdown, AutocompleteDropdownItem, IAutocompleteDropdownRef } from 'react-native-autocomplete-dropdown';
+import { AutocompleteDropdown, AutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
 import { Feather } from '@expo/vector-icons';
 import { errorHandlerDebug } from '@/services/service_config';
 
@@ -87,25 +87,26 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
                 closeOnSubmit
                 EmptyResultComponent={<></>}
             />
-            <Button 
-                title='Adicionar'
-                onPress={addAmigo}    
-            />
+            <TouchableOpacity disabled={!amigoId} onPress={addAmigo} style={[styles.botaoAdicionar, !amigoId && {backgroundColor: colors.cinza.medio} ]}>
+                <Text style={styles.txtBotaoAdicionar}>Adicionar</Text>
+            </TouchableOpacity>    
         </BaseModal>
     );
 }
 
 const styles = StyleSheet.create({
     titleContainer: {
-      borderTopRightRadius: 10,
-      borderTopLeftRadius: 10,
-      paddingHorizontal: 20,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+        marginTop: 5,
+        borderTopRightRadius: 10,
+        borderTopLeftRadius: 10,
+        paddingHorizontal: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     title: {
-      fontSize: 16,
+        fontSize: 20,
+        fontWeight: '800'
     },
     input: {
         borderWidth: 1,
@@ -117,9 +118,20 @@ const styles = StyleSheet.create({
     inputAutocomplete:{
         borderWidth: 1,
         borderColor: colors.preto.padrao,
-        // padding: 10,
         margin: 10,
         borderRadius: 4,
     },
-  });
+    botaoAdicionar: {
+        padding: 8,
+        borderRadius:15,
+        marginHorizontal:15,
+        backgroundColor: colors.verde.padrao,
+        marginBottom: 5
+    },
+    txtBotaoAdicionar: {
+        textAlign: 'center',
+        fontSize: 20,
+        color: colors.branco.padrao,
+    }
+});
   
