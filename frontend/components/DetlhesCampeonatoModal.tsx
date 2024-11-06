@@ -78,7 +78,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         if(!data) return "...";
     
         data = new Date(data);
-        return `${data.getDate()}/${data.getMonth()}`;
+        return `${data.getDate()+1}/${data.getMonth()+1}/${data.getFullYear()}`;
     }
 
     const checkExercicio = (value: boolean, index: number) => {

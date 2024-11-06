@@ -1,6 +1,6 @@
 import { useSession } from '@/app/ctx';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, Modal, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Modal, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Exercicio from '@/classes/exercicio';
 import { AutocompleteDropdown, AutocompleteDropdownContextProvider, IAutocompleteDropdownRef, AutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
@@ -9,6 +9,7 @@ import ExercicioService from '@/services/exercicio_service';
 import { Feather } from '@expo/vector-icons';
 import { colors } from '@/constants/Colors';
 import { errorHandlerDebug } from '@/services/service_config';
+import ErroInput from './ErroInput';
 
 
 export default function AddRotinaModal({ isVisible = false, onClose = () => {} }) {
@@ -17,6 +18,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     const [exercicios, setExercicios] = useState<Exercicio[]>([]);
     const [resultados, setResultados] = useState<Exercicio[]>([]);
     const [loading, setLoading] = useState(false);
+    const [erros, setErros] = useState<any>({});
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const rotinaService = RotinaService();
@@ -73,6 +75,20 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     const submit = () => {
         if(!userId) return
 
+        let erroObj = {...erros};
+
+        // checagem de erros
+        erroObj = {...erros,
+            nome: !nome,
+            dias: !duracao,
+            exercicios: !exercicios.length,
+            seriesRepeticoes: exercicios.some(exec => exec.qtd_repeticoes <= 0 || exec.qtd_serie <= 0)
+        };
+        setErros(erroObj);        
+
+        // se algum erro existe, a função .some vai voltar true e não vai chamar submit
+        if(Object.values(erroObj).some(err => err)) return;
+
         rotinaService.addRotina(userId, {
             nome,
             dias: duracao,
@@ -89,13 +105,14 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
             onRequestClose={clearAndClose}
         >
             <AutocompleteDropdownContextProvider>
+            <View style={styles.container}>
                 <FlatList
                     removeClippedSubviews={false}
                     keyboardShouldPersistTaps="always"
                     automaticallyAdjustKeyboardInsets
                     ListHeaderComponent={<>
                         <View style={styles.titleContainer}>
-                            <AntDesign name="arrowleft" size={30} color={colors.preto.padrao} onPress={onClose}/>
+                            <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose}/>
                             <Text style={styles.title}>Adicionar rotina</Text>
                         </View>
 
@@ -103,16 +120,40 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             <TextInput
                                 placeholder='Nome da rotina'
                                 value={nome}
+                                placeholderTextColor={erros.nome ? colors.vermelho.erro : colors.branco.padrao}
                                 onChangeText={(txt) => setNome(txt)}
-                                style={styles.inputCard}
+                                style={[styles.input, erros.nome && styles.erroInput]}
+                                onBlur={() => setErros({...erros, "nome": !nome})}
+                                />
+
+                            <ErroInput 
+                                show={erros.nome}
+                                texto="O campo nome da rotina é obrigatório!"                            
                             />
 
-                            <TextInput
-                                placeholder='Dias por semana'
-                                keyboardType='numeric'
-                                value={duracao.toString() == "0" ? "" : duracao.toString()}
-                                onChangeText={(txt) => setDuracao(Number(txt))}
-                                style={styles.inputCard}
+                            <View style={{flexDirection:'row', alignItems: 'center'}}>
+                                <Text style={[styles.label, erros.dias && {color: colors.vermelho.erro}]}>Dias por semana:</Text>
+                                <TextInput
+                                    placeholderTextColor={erros.dias ? colors.vermelho.erro : colors.branco.padrao}
+                                    style={[styles.input, styles.inputDuracao, erros.dias && styles.erroInput]}
+                                    keyboardType='numeric'
+                                    value={duracao.toString() == "0" ? "" : duracao.toString()}
+                                    onChangeText={(txt) => { 
+                                        const parsedQty = Number.parseInt(txt)
+                                        if (Number.isNaN(parsedQty)) {
+                                            setDuracao(0);
+                                        } else if (parsedQty > 7) {
+                                            setDuracao(7);
+                                        } else 
+                                        setDuracao(parsedQty);
+                                    }}
+                                    onBlur={() => setErros({...erros, "dias": !duracao})}
+                                />
+                            </View>
+
+                            <ErroInput 
+                                show={erros.dias}
+                                texto="O campo duração é obrigatório e deve ser maior que 0!"                            
                             />
                         </View>
 
@@ -148,6 +189,15 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             closeOnSubmit
                             EmptyResultComponent={<></>}
                         />
+
+                        <ErroInput 
+                            show={erros.exercicios}
+                            texto='A lista de exercícios não pode estar vazia!'
+                        />
+                        <ErroInput 
+                            show={erros.seriesRepeticoes}
+                            texto='O número de séries/repetições deve ser maior que 0!'
+                        />
                     </>}
                     data={exercicios}
                     renderItem={({item, index}) => 
@@ -158,7 +208,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                                     <Text style={styles.tituloExercicio}>{item.nome}</Text>
                                     <Text style={styles.subTituloExercicio}>{item.grupo_muscular.nome}</Text>
                                 </View>
-                                <Feather name="trash-2" size={24} color="red" onPress={() => removerExercicio(index)}/>
+                                <Feather name="trash-2" size={22} color={colors.vermelho.padrao} onPress={() => removerExercicio(index)}/>
                             </View>
 
                             <View style={styles.containerCamposExec}>
@@ -184,63 +234,81 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             </View>
                         </View>
                     }
-                    ListEmptyComponent={
-                        <Text style={{textAlign: "center"}}>Não há exercícios.</Text>
+                    ListFooterComponent={
+                        <TouchableOpacity onPress={submit} style={styles.botaoAdicionar}>
+                            <Text style={styles.txtBotaoAdd}>ADICIONAR</Text>
+                        </TouchableOpacity>
                     }
                 />
-                <Button 
-                    title='Adicionar'
-                    onPress={submit}    
-                />
+            </View>
             </AutocompleteDropdownContextProvider>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        backgroundColor: colors.cinza.background, 
+        flex:1,
+        padding:10 
+    },
     titleContainer: {
-        paddingVertical:10,    
-        paddingHorizontal: 20,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        color: colors.branco.padrao
     },
     title: {
         marginLeft: 7,
         fontSize: 25,
-        fontWeight: "800"
+        fontWeight: "800",
+        color: colors.branco.padrao
     },
     inputAutocomplete:{
         borderWidth: 1,
-        borderColor: "#000",
-        // padding: 10,
-        margin: 10,
+        borderColor: colors.preto.padrao,
         borderRadius: 4,
     },
+    label:{
+        color: colors.branco.padrao,
+        fontSize: 16,
+        textAlignVertical: 'bottom'
+    },
     input: {
-        borderWidth: 1,
-        borderColor: "#000",
+        borderBottomWidth: 1,
+        borderColor: colors.branco.padrao,
         padding: 10,
-        margin: 10,
+        color: colors.branco.padrao,
+        marginBottom: 10,
         borderRadius: 4,
         fontWeight: "500"
     },
+    erroInput:{
+        borderColor: colors.vermelho.erro
+    },
+    inputDuracao:{
+        width: 40, 
+        textAlign: 'center'
+    },
     subTitulo:{
+        color: colors.branco.padrao,
         fontSize: 18,
         fontWeight: "800",
-        marginLeft: 10
+        marginTop: 10
     },
     inputCard: {
         borderBottomWidth: 1,
         borderColor: colors.preto.fade["3"],
         padding: 10,
-        margin: 10,
+        textAlign: 'center',
+        marginVertical: 10,
         fontWeight: "500"
     },
     cardExercicio:{
         borderWidth: 1,
         borderColor: colors.preto.padrao,
+        backgroundColor: colors.branco.padrao,
         padding: 10,
-        margin: 10,
+        marginVertical: 10,
         borderRadius: 4
     },
     headerCard:{
@@ -270,6 +338,17 @@ const styles = StyleSheet.create({
     containerCamposExec: {
         flex: 1,
         flexDirection: "row"
+    },
+    botaoAdicionar: {
+        backgroundColor: colors.verde.padrao,
+        borderRadius: 15,
+        marginVertical: 10,
+        padding: 5
+    },
+    txtBotaoAdd:{
+        color: colors.branco.padrao,
+        textAlign: 'center',
+        fontSize: 18
     }
-  });
+});
   

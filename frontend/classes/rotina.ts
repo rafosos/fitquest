@@ -15,7 +15,7 @@ export default class Rotina{
 
 export class RotinaDetalhes extends Rotina{    
     streak = 0;
-    ultimoTreino: Date | null = null;
+    ultimo_treino: string | null = null;
 }
 
 export class RotinaResumida{    

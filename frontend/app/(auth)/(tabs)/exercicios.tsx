@@ -32,7 +32,7 @@ export default function TabTreino() {
 
     const refresh = async () => {
         setAddRotina(false);
-        setDetahesModal({...detalhesModal, show:false});
+        setDetahesModal({rotina_id: 0, show:false});
         setRefreshing(true);
         await getRotinas();
         setRefreshing(false);

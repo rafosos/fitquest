@@ -185,7 +185,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                             onChangeText={(txt) => setNome(txt)}
                         />
                         <ErroInput
-                            show={erros.nome} 
+                            show={erros.inputNome} 
                             texto="O campo nome é obrigatório!"
                         />
                     </View>

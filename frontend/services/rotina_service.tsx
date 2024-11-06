@@ -19,8 +19,8 @@ export default function RotinaService(){
         return promise.then(res => res.data);    
     }
 
-    const getDetalhesRotina = (rotina_id: number) => {
-        const promise = get<RotinaDetalhes>(`${prefix}/detalhes/${rotina_id}`);
+    const getDetalhesRotina = (user_id: number, rotina_id: number) => {
+        const promise = get<RotinaDetalhes>(`${prefix}/detalhes/${user_id}/${rotina_id}`);
         return promise.then(res => res.data);
     }
 

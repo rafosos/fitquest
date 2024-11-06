@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response, status, HTTPException
 from typing import List
 from collections import defaultdict
 from db.db import Session
-from sqlalchemy import select
+from sqlalchemy import select, and_, literal_column
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
 from classes.user_exercicio import UserExercicio
@@ -32,8 +32,6 @@ def add_rotina(user_id, model: RotinaModel, res: Response):
     with Session() as sess:
             rotina = Rotina(user_id=user_id, nome=model.nome, dias=model.dias)
             sess.add(rotina)
-
-            exec_list = []
             
             for exec in model.exercicios:
                 exec_entidade = sess.scalar(select(Exercicio).where(Exercicio.id == exec.id))
@@ -88,13 +86,23 @@ def get_rotina(user_id: int):
 
     return [v for k,v in rotinas_dict.items()]
 
-@router.get("/detalhes/{rotina_id}")
-def get_rotina_detalhes(rotina_id: int):
+@router.get("/detalhes/{user_id}/{rotina_id}")
+def get_rotina_detalhes(user_id: int, rotina_id: int):
+    cte_ultimo_treino = select(Treino.data.label("ultimo_treino"), Treino.rotina_id)\
+        .where(
+            and_(
+                Treino.tipo == TipoTreino.rotina, 
+                Treino.user_id == user_id,
+                Treino.rotina_id == rotina_id
+            ))\
+        .limit(1).order_by(Treino.data.desc()).cte("cte_ultimo_treino")
+    
     stmt = (
         select(
             Rotina.id, 
             Rotina.nome, 
-            Rotina.dias, 
+            Rotina.dias,
+            literal_column("cte_ultimo_treino.ultimo_treino"),
             ExercicioRotina.id, 
             ExercicioRotina.qtd_serie, 
             ExercicioRotina.qtd_repeticoes, 
@@ -102,6 +110,8 @@ def get_rotina_detalhes(rotina_id: int):
             GrupoMuscular.id.label('grupo_muscular_id'), 
             GrupoMuscular.nome.label('grupo_muscular_nome')
         )
+        .select_from(Rotina)
+        .join(cte_ultimo_treino, literal_column("cte_ultimo_treino.rotina_id") == Rotina.id, isouter=True)
         .join(ExercicioRotina, Rotina.id == ExercicioRotina.rotina_id)
         .join(Exercicio, ExercicioRotina.exercicio_id == Exercicio.id)
         .join(GrupoMuscular, Exercicio.grupo_muscular_id == GrupoMuscular.id)
@@ -118,16 +128,17 @@ def get_rotina_detalhes(rotina_id: int):
                 "id": row[0],
                 "nome": row[1],
                 "dias": row[2],
+                "ultimo_treino": row[3],
                 "exercicios": []
             }
 
         exercicio_info = {
-            "id": row[3],
-            "qtd_serie": row[4],
-            "qtd_repeticoes": row[5],
-            "nome": row[6],
-            "grupo_muscular_id": row[7],
-            "grupo_muscular_nome": row[8],
+            "id": row[4],
+            "qtd_serie": row[5],
+            "qtd_repeticoes": row[6],
+            "nome": row[7],
+            "grupo_muscular_id": row[8],
+            "grupo_muscular_nome": row[9],
         }
 
         rotina["exercicios"].append(exercicio_info)

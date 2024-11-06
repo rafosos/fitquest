@@ -26,7 +26,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
     useEffect(() => refresh(), [rotinaId]);
     
     const refresh = () => {
-        rotinaService.getDetalhesRotina(rotinaId)
+        rotinaService.getDetalhesRotina(userId, rotinaId)
             .then(res => setRotina(res))
             .catch(err => errorHandlerDebug(err))
     }
@@ -56,7 +56,11 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
             .catch(err => errorHandlerDebug(err))
     }
 
-    const showDiaMes = (data:Date|null|undefined) => data ? `${data.getDate()}/${data.getMonth()}` : "";
+    const showDiaMes = (data:string |Date |null|undefined) => {
+        if (!data) return "..."
+        data = new Date(data);
+        return `${data.getDate()+1}/${data.getMonth()+1}/${data.getFullYear()}`;
+    } 
 
     const checkExercicio = (value: boolean, index:number) => {
         checkboxes[index] = value;
@@ -114,15 +118,10 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                                     <Text>Dias por semana</Text>
                                     <Text style={styles.title}>{rotina?.dias}</Text>
                                 </View>
-
-                                <View style={styles.itemInfo}>
-                                    <Text>Sequência</Text>
-                                    <Text style={styles.title}>{rotina?.streak}</Text>
-                                </View>
                                 
                                 <View style={styles.itemInfo}>
                                     <Text>Último treino</Text>
-                                    <Text style={styles.title}>{showDiaMes(rotina?.ultimoTreino)}</Text>
+                                    <Text style={styles.title}>{showDiaMes(rotina?.ultimo_treino)}</Text>
                                 </View>
                             </View>
                             </>}
@@ -178,12 +177,12 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                         }
                         ListFooterComponent={novoTreino ?
                             <View style={styles.footerTreino}>
-                                <TouchableOpacity style={styles.botaoFooter} onPress={cancelarTreino}>
+                                <TouchableOpacity style={[styles.botaoFooter, {backgroundColor: colors.vermelho.padrao}]} onPress={cancelarTreino}>
                                     <AntDesign name="close" style={styles.iconeBotaoTreino} />
                                     <Text style={styles.txtBotaoNovoTreino}>Cancelar</Text>
                                 </TouchableOpacity>
                             
-                                <TouchableOpacity style={styles.botaoFooter} onPress={finalizarTreino}>
+                                <TouchableOpacity style={[styles.botaoFooter, {backgroundColor: colors.verde.padrao}]} onPress={finalizarTreino}>
                                     <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
                                     <Text style={styles.txtBotaoNovoTreino}>Finalizar treino</Text>
                                 </TouchableOpacity>
@@ -263,8 +262,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.preto.padrao,
         padding: 10,
-        // marginVertical: 10,
-        // marginHorizontal: 5,
+        flex:1,
+        marginHorizontal:5,
+        alignItems: 'center',
         borderRadius: 4,
     },
     botaoTreino:{
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 15,
         flexDirection: "row",        
-        backgroundColor: colors.cinza.escuro,
+        backgroundColor: colors.verde.padrao,
         alignItems: "center",
         justifyContent: "center"
     },
@@ -280,7 +280,6 @@ const styles = StyleSheet.create({
         color: colors.branco.padrao,
         fontSize: 18,
         textAlignVertical: "center"
-        // textTransform: "uppercase"
     },
     iconeBotaoTreino:{
         color: colors.branco.padrao,
