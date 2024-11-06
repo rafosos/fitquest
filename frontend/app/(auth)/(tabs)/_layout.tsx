@@ -10,6 +10,7 @@ export default function TabLayout() {
             tabBarShowLabel: false,
             tabBarActiveTintColor: 'light',
             headerShown: false,
+            tabBarStyle: {overflow: 'visible'},
             tabBarItemStyle:{
                 marginVertical: 5
             }  
@@ -21,8 +22,8 @@ export default function TabLayout() {
             options={{
                 unmountOnBlur: true,
                 title: 'Competições',
-                tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'podium' : 'podium-outline'} color={color} />
+                tabBarIcon: ({ focused }) => (
+                    <TabBarIcon focused={focused} name='podium' />
                 ),
             }}
         />
@@ -30,8 +31,8 @@ export default function TabLayout() {
             name="amigos"
             options={{
                 title: 'Amigos',
-                tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'people' : 'people-outline'} color={color} />
+                tabBarIcon: ({ focused }) => (
+                    <TabBarIcon focused={focused} name='people' />
                 ),
             }}
         />
@@ -39,8 +40,8 @@ export default function TabLayout() {
             name="index"
             options={{
                 title: 'Avatar',
-                tabBarIcon: ({ color, focused }) => (
-                <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+                tabBarIcon: ({ focused }) => (
+                    <TabBarIcon focused={focused} name='home' />
                 ),
             }}
             />
@@ -57,8 +58,8 @@ export default function TabLayout() {
             name="loja"
             options={{
                 title: 'Loja',
-                tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'basket' : 'basket-outline'} color={color} />
+                tabBarIcon: ({ focused }) => (
+                    <TabBarIcon focused={focused} name='basket' />
                 ),
             }}
          />

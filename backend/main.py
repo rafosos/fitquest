@@ -29,7 +29,8 @@ async def lifespan(app_: FastAPI):
     log.info("Shutting down...")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
+# app = FastAPI(lifespan=lifespan)
 # app = FastAPI(dependencies=Depends[login.get_current_active_user])
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -44,5 +45,5 @@ app.include_router(rotina.router)
 def hello_world():
     return "hello world"
 
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

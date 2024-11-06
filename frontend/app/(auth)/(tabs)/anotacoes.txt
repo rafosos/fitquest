@@ -1,0 +1,9 @@
+oq fazer em campeonato:
+- feedback, estilos, etc
+
+amigos:
+- separa pedidos em aba separada
+
+streaks:
+- streak nao contabiliza dia de hj como dia final
+

@@ -14,24 +14,27 @@ export default function Configuracoes() {
       signOut();
     }
   
-    return (<View style={s.container}>
+    return (
+      <View style={s.container}>
         <View style={s.header}>
           <Link href="../">
-            <AntDesign name="arrowleft" size={24} color="black" />
+            <AntDesign name="arrowleft" size={24} color={colors.branco.padrao} />
           </Link>
           <Text style={s.txtHeader}>Configurações</Text>
         </View>
+        
         <Text style={s.tituloCard}>Dados pessoais</Text>
-        <View>
+
+        <View style={s.containerInfo}>
           <Text style={{...s.cardInfo, ...s.textTop}}>Nome completo: <Text style={s.valorCard}>{user.fullname}</Text></Text>
-          <Text style={{...s.cardInfo, ...s.textMiddle}}>Data de nascimento: <Text style={s.valorCard}>{user.nascimento}</Text></Text>
+          <Text style={{...s.cardInfo, ...s.textMiddle}}>Data de nascimento: <Text style={s.valorCard}>{`${user.nascimento}`}</Text></Text>
           <Text style={{...s.cardInfo, ...s.textBottom}}>Email: <Text style={s.valorCard}>{user.email}</Text></Text>
         </View>
 
         <TouchableOpacity style={{...s.cardInfo, ...s.containerBotao}} onPress={onPressLogOut}>
           <Text style={s.textoBotao}>SAIR</Text>
         </TouchableOpacity>
-    </View>
+      </View>
     );
   }
 
@@ -45,22 +48,28 @@ export default function Configuracoes() {
       marginBottom: 10
     },
     txtHeader:{
+      color: colors.branco.padrao,
       fontSize: 22,
       fontWeight: "800",
       marginLeft: 5,
       textAlignVertical: 'center'
     },
     tituloCard:{
+      color:colors.branco.padrao,
       fontSize: 19,
       fontWeight: "600",
       paddingLeft: 5
+    },
+    containerInfo:{
+      backgroundColor: colors.branco.padrao, 
+      borderRadius: 10
     },
     cardInfo:{
       borderWidth: 2, 
       borderColor: colors.cinza.escuro,
       padding:10,
       fontWeight: "600",
-      fontSize: 16
+      fontSize: 16,
     },
     textTop:{
       borderTopLeftRadius: 10,
@@ -78,7 +87,7 @@ export default function Configuracoes() {
       fontWeight: "400"
     },
     containerBotao:{
-      backgroundColor: colors.cinza.escuro,
+      backgroundColor: colors.vermelho.padrao,
       justifyContent: "center",
       borderRadius: 10,
       marginVertical: 10,

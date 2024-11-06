@@ -21,11 +21,10 @@ export default function TabTreino() {
         refresh()
     }, []);
 
-
     const getRotinas = () => {
         if(!userId) return;
         setRefreshing(true);
-        rotinaService.getRotinas(userId)
+        return rotinaService.getRotinas(userId)
             .then(res => setRotinas(res))
             .catch(err => errorHandlerDebug(err))
             .finally(() => setRefreshing(false))
@@ -40,7 +39,7 @@ export default function TabTreino() {
     }
 
     return (
-        <View style={{marginHorizontal: 15, marginVertical: 7, flex:1}}>
+        <View style={styles.container}>
             <AddRotinaModal 
                 isVisible={addRotina}
                 onClose={refresh}
@@ -80,6 +79,12 @@ export default function TabTreino() {
 }
 
 const styles = StyleSheet.create({
+    container:{
+        paddingHorizontal: 15, 
+        paddingVertical: 7, 
+        flex: 1,
+        backgroundColor: colors.cinza.background
+    },
     header:{
         flexDirection: "row",
         justifyContent: "space-between",
@@ -88,7 +93,8 @@ const styles = StyleSheet.create({
     },
     headerTitulo:{
         fontSize: 25,
-        fontWeight: "800"
+        fontWeight: "800",
+        color: colors.branco.padrao
     },
     botaoAddRotina: {
         backgroundColor: colors.cinza.medio,

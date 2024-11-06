@@ -5,7 +5,6 @@ import { TipoTreino, TreinoResumo } from '@/classes/user_exercicio';
 import { colors } from '@/constants/Colors';
 import ExercicioService from '@/services/exercicio_service';
 import { errorHandlerDebug } from '@/services/service_config';
-import UserService from '@/services/user_service';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -43,15 +42,16 @@ export default function TabAvatar() {
     }
 
     return (
+      <View style={s.container}>
         <FlatList
-            contentContainerStyle={s.container}
+            contentContainerStyle={s.containerFlatlist}
             data={atividades}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
             ListHeaderComponent={<>
                 <View style={s.containerNomes}>
                   <Text style={s.nickname}>{user.nickname}</Text>
-                  <Link href="/configuracoes" style={s.iconeConfigs}>
-                      <Feather name="settings" size={24} color="black" />
+                  <Link href="/configuracoes">
+                      <Feather name="settings" style={s.iconeConfigs} />
                   </Link>
                 </View>
 
@@ -91,27 +91,31 @@ export default function TabAvatar() {
             }
             ListEmptyComponent={<Text>Nenhuma atividade recente.</Text>}
         />
+        </View>
     );
 }
 
 const s = StyleSheet.create({
   container:{
-    flex:1,
+    // flex:1,
     flexDirection: 'column',
-    // justifyContent: 'space-between',
-    padding: 10
+    backgroundColor: colors.cinza.background
+  },
+  containerFlatlist:{
+    padding: 10,
   },
   containerNomes:{
     flexDirection: "row",
     justifyContent: "space-between"
   },
   nickname:{
-    color: colors.preto.padrao,
+    color: colors.branco.padrao,
     fontSize: 20,
     fontWeight: "800"
   },
   iconeConfigs:{
-
+    color: colors.branco.padrao,
+    fontSize: 24
   },
   containerImagem:{
     overflow: "hidden",
@@ -133,10 +137,12 @@ const s = StyleSheet.create({
   tituloUltimasAtividades:{
     fontSize: 20,
     fontWeight: "700",
+    color: colors.branco.padrao
   },
   card:{
     marginVertical: 5,
     borderColor: colors.cinza.escuro,
+    backgroundColor: colors.branco.padrao,
     borderWidth: 2,
     borderRadius: 10,
     padding: 10

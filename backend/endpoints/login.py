@@ -74,6 +74,8 @@ class CadastroModel(BaseModel):
     nickname: str 
     fullname: str
     email: str
+    peso: float
+    altura: float
     nascimento: datetime 
     # classe: int
     senha: str

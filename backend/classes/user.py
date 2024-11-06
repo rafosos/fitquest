@@ -17,6 +17,10 @@ class User(Base):
     fullname: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     level: Mapped[int] = mapped_column(Integer, default=0)
+    # peso: Mapped[float] = mapped_column(nullable=True)
+    # altura: Mapped[float] = mapped_column(nullable=True)
+    # status: Mapped[str] = mapped_column(nullable=True)
+    # objetivo: Mapped[str] = mapped_column(nullable=True)
     admin: Mapped[bool]
     senha: Mapped[str]
     nascimento: Mapped[datetime.date]
