@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = 'http://192.168.0.21:8000'; //casa
-// const API_URL = 'http://192.168.154.156:8000'; //cel
+const API_URL = 'http://192.168.0.12:8000'; //casa
+// const API_URL = 'http://192.168.154.82:8000'; //cel
 // const API_URL = 'http://172.17.110.49:8000'; //facul
 // const API_URL = 'http://192.168.162.156:8000'; //facul L
-// const API_URL = 'http://172.17.96.130:8000'; //facul biblio
+// const API_URL = 'http://172.17.106.70:8000'; //facul biblio
 // const API_URL = "https://fitquest-8s1c.onrender.com" //prod
 
 const axiosInstance = axios.create({
@@ -28,19 +28,22 @@ const deletar = <T extends unknown>(endpoint: string, params: any = {}) =>
 
 
 const errorHandlerDebug = (error: any) => {
+    console.log("\n\nerror.toJson:  ################################################################################")
     console.log(error.toJSON())
     if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
+        console.log("error.response:  #############################################################################")
         console.log(error.response.data);
         console.log(error.response.status);
         console.log(error.response.headers);
     } 
     if (error.request) {
+        console.log("error.request:   #########################################################################")
         console.log(error.request);
     }
-    console.log('Error', error.message);
-    console.log(error.config);
+    console.log('Error.message: ', error.message);
+    console.log("error.config: ", error.config);
 }
 
 

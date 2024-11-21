@@ -1,5 +1,6 @@
-import { Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { colors } from '@/constants/Colors';
+import StyledText from './base/styledText';
 
 interface PropsErroInput{
     texto: string,
@@ -8,7 +9,7 @@ interface PropsErroInput{
 
 export default function ErroInput({ texto, show }: PropsErroInput) {
     return (                        
-        show ? <Text style={styles.txtErroInput}>{texto}</Text> : <></>
+        show ? <StyledText style={styles.txtErroInput}>{texto}</StyledText> : <></>
     );
 }
 

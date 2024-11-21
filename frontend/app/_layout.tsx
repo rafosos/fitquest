@@ -7,6 +7,17 @@ import { StyleSheet, Platform, StatusBar } from "react-native";
 import { SessionProvider } from "./ctx";
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
 import { colors } from '@/constants/Colors';
+import {
+  Inter_100Thin,
+  Inter_200ExtraLight,
+  Inter_300Light,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+  Inter_900Black,
+} from '@expo-google-fonts/inter';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -17,6 +28,15 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
+    Inter_100Thin,
+    Inter_200ExtraLight,
+    Inter_300Light,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+    Inter_900Black,
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
   

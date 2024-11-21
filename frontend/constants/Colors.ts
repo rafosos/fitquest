@@ -22,6 +22,12 @@ export const Colors = {
 
 
 export const colors = {
+  gradiente: {
+    verdeClaro: "#3EBA52",
+    verdeEscuro: '#00821E',
+    cinzaClaro: '#757575',
+    cinzaEscuro: '#494949',
+  },
   verde:{
     padrao: '#3EBA52'
   },
