@@ -1,4 +1,4 @@
-import { Dimensions, Image, ImageBackground, Platform, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { useSession } from "./ctx";
 import StyledText from "@/components/base/styledText";
 import { router } from "expo-router";
@@ -8,9 +8,9 @@ import { colors } from "@/constants/Colors";
 import { fonts } from "@/constants/Fonts";
 import StyledTextInput from "@/components/base/styledTextInput";
 import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import ErroInput from "@/components/ErroInput";
 import { errorHandlerDebug } from "@/services/service_config";
+import GradienteInicio from "@/components/GradienteInicio";
 
 export default function Login() {
     const { signIn, setUser } = useSession();
@@ -58,30 +58,7 @@ export default function Login() {
 
     return (
         <View style={styles.container}>
-            <Image
-                source={require("@/assets/images/avatar-login.png")}
-                resizeMode="cover"
-                style={styles.imageBackground}
-            />
-            
-            <LinearGradient 
-                colors={[
-                    colors.gradiente.cinzaClaro,
-                    colors.gradiente.verdeClaro,
-                    colors.gradiente.cinzaClaro,
-                    colors.gradiente.verdeEscuro,
-                    colors.gradiente.cinzaClaro,
-                ]}
-                style={styles.gradiente}
-                start={{x:0.9, y:0}}
-                locations={[
-                    0,
-                    0.05,
-                    0.2,
-                    0.95,
-                    1
-                ]}
-            />
+            <GradienteInicio image={require("@/assets/images/avatar-login.png")} />
             <StyledText style={styles.title}>Login</StyledText>
             <View style={styles.separator} />
             
@@ -146,21 +123,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: colors.branco.padrao,
-    },
-    imageBackground:{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height
-    },
-    gradiente:{
-        opacity: 0.8, 
-        position: 'absolute', 
-        left: 0, 
-        right: 0, 
-        top:0, 
-        height: '100%'
     },
     title: {
         fontSize: 40,

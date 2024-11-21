@@ -1,27 +1,36 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, StyleSheet, TextInput,Text, View,TouchableOpacity, Platform } from "react-native";
-import { router } from "expo-router";
+import { StyleSheet, TextInput, View, TouchableOpacity, Platform } from "react-native";
+import { router, useNavigation } from "expo-router";
+import StyledText from "@/components/base/styledText";
+import StyledTextInput from "@/components/base/styledTextInput";
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
-import { useSession } from "./ctx";
 import UserService from "@/services/user_service";
 import ClasseService from "@/services/classe_service";
 import Classe from "@/classes/classe";
+import { errorHandlerDebug } from "@/services/service_config";
+import { fonts } from "@/constants/Fonts";
+import GradienteInicio from "@/components/GradienteInicio";
+import { colors } from "@/constants/Colors";
+import ErroInput from "@/components/ErroInput";
 
 export default function Cadastro() {    
-    const userService = UserService();
-    const classeService = ClasseService();
-    const [nickname, setNickname] = useState("");
+    const [username, setUsername] = useState("");
     const [fullname, setFullname] = useState("");
     const [email, setEmail] = useState("");
-    const [nascimento, setNascimento] = useState(new Date());
-    // const [classeId, setClasseId] = useState(0);
+    const [nascimento, setNascimento] = useState<Date>();
+    const [erros, setErros] = useState<any>({});
     const [senha, setSenha] = useState("");
     const [classes, setClasses] = useState<Classe[]>([]);
     const [datePicker, setDatePicker] = useState(false);
+    
+    const userService = UserService();
+    const classeService = ClasseService();
 
     const fullnameRef = useRef<TextInput>(null);
     const emailRef = useRef<TextInput>(null);
+    
+    const navigator = useNavigation();
 
     useEffect(() => {
         classeService.getAll()
@@ -33,15 +42,30 @@ export default function Cadastro() {
         if (Platform.OS == "android" && datePicker)
             DateTimePickerAndroid.open({
                 mode: "date",
-                value: nascimento,
+                value: nascimento ?? new Date(),
                 onChange: handleDatePickerChange
         })
-    }, [datePicker])
+    }, [datePicker]);
 
-    const handleCadastrar = () => {
-        // classe: classeId,
+    const handleCadastrar = () => {        
+        let erroObj = {...erros};
+        // checagem de erros
+        erroObj = {...erros,
+            geral: false,
+            username: !username,
+            fullname: !fullname,
+            email: !email,
+            nascimento: !nascimento,
+            senha: !senha
+        };
+        setErros(erroObj);
+        
+        // se algum erro existe, a função .some vai voltar true e não vai chamar submit
+        if(Object.values(erroObj).some(err => err)) return;
+        if (!nascimento) return
+
         userService.cadastrar({
-            nickname,
+            nickname: username,
             fullname,
             nascimento,
             email,
@@ -49,94 +73,113 @@ export default function Cadastro() {
         })
             .then(res => {
                 if (res){
-                    router.replace("/");
+                    router.back()
                 }
             })
-            .catch(err => console.log("Erro ao fazer login"));
+            .catch(err => errorHandlerDebug(err));
     };
 
     const handleDatePickerChange = (e: DateTimePickerEvent , data?: Date) => {
         if (e.type == "set" && data)
             setNascimento(data);
+        else if ((e.type == 'neutralButtonPressed' || e.type == 'dismissed') && !nascimento)
+            setErros({...erros, nascimento: !nascimento});
         setDatePicker(false);
     }
 
-  return (
-    <View style={styles.container}>
-        <Text style={styles.title}>Cadastro</Text>
-        <View style={styles.separator} />
-        <TextInput 
-            placeholder="Nickname"
-            value={nickname}
-            onChangeText={(txt) => setNickname(txt)} 
-            style={styles.input}
-            enterKeyHint="next"
-            blurOnSubmit={false}
-            onSubmitEditing={() => fullnameRef.current && fullnameRef.current.focus()}
-            />
+    return (
+        <View style={styles.container}>
+            <GradienteInicio image={require("@/assets/images/avatar-cadastro.png")} />
 
-        <TextInput 
-            placeholder="Nome completo"
-            value={fullname}
-            onChangeText={(txt) => setFullname(txt)} 
-            enterKeyHint="next"
-            style={styles.input}
-            blurOnSubmit={false}
-            ref={fullnameRef}
-            onSubmitEditing={() => emailRef.current && emailRef.current.focus()}
-        />
+            <StyledText style={styles.title}>Cadastro</StyledText>
+            <View style={styles.separator} />
+            
+            <StyledTextInput 
+                placeholder="Username"
+                value={username}
+                onChangeText={(txt) => setUsername(txt)} 
+                style={[styles.input, erros.username && styles.inputErro]}
+                enterKeyHint="next"
+                blurOnSubmit={false}
+                onBlur={() => setErros({...erros, username: !username})}
+                onSubmitEditing={() => fullnameRef.current && fullnameRef.current.focus()}
+                />
+            <ErroInput 
+                show={erros.username}
+                texto="O username é obrigatório!"
+                />
 
-        <TextInput
-            autoComplete="email"
-            keyboardType="email-address"
-            placeholder="Email"
-            value={email}
-            onChangeText={(txt) => setEmail(txt)} 
-            enterKeyHint="next"
-            ref={emailRef}
-            style={styles.input}
-        />
-
-        <TouchableOpacity
-            style={styles.input}
-            onPress={() => setDatePicker(true)}
-        >
             <TextInput 
-                placeholder="nascimento"
-                value={`${nascimento.getDate()}/${nascimento.getMonth()}/${nascimento.getFullYear()}`}
-                editable={false}
-                style={{color: "black"}}
+                placeholder="Nome completo"
+                value={fullname}
+                onChangeText={(txt) => setFullname(txt)} 
+                enterKeyHint="next"
+                style={[styles.input, erros.fullname && styles.inputErro]}
+                blurOnSubmit={false}
+                ref={fullnameRef}
+                onSubmitEditing={() => emailRef.current && emailRef.current.focus()}
+                onBlur={() => setErros({...erros, fullname: !fullname})}
             />
-        </TouchableOpacity>
-        {(datePicker && Platform.OS != "android") &&
-            <RNDateTimePicker 
-                mode="date"
-                onChange={handleDatePickerChange}
-                value={nascimento}
+            <ErroInput 
+                show={erros.fullname}
+                texto="O nome completo é obrigatório!"
             />
-        }
 
-        {/* <View style={{...styles.input, padding:0}}>
-        <Picker
-            selectedValue={classeId}
-            onValueChange={(itemValue) => itemValue != 0 && setClasseId(itemValue)}
-        >
-            <Picker.Item label="Selecione uma classe" value={0} key={0} style={{color: "rgba(0,0,0,0.6)"}}/>
-            {classes.map((c) => 
-                <Picker.Item label={c.nome} value={c.id} key={c.id}/>
-            )}
-        </Picker>
-        </View> */}
+            <TextInput
+                autoComplete="email"
+                keyboardType="email-address"
+                placeholder="Email"
+                value={email}
+                onChangeText={(txt) => setEmail(txt)} 
+                enterKeyHint="next"
+                ref={emailRef}
+                style={[styles.input, erros.email && styles.inputErro]}
+                onBlur={() => setErros({...erros, email: !email})}
+            />
+            <ErroInput 
+                show={erros.email}
+                texto="O email é obrigatório!"
+            />
 
-        <TextInput
-            placeholder="Password"
-            secureTextEntry
-            value={senha}
-            onChangeText={(txt) => setSenha(txt)} 
-            style={styles.input}
-        />
+            <TouchableOpacity
+                style={[styles.input, erros.nascimento && styles.inputErro]}
+                onPress={() => setDatePicker(true)}
+            >
+                <TextInput 
+                    placeholder="Data de nascimento"
+                    value={nascimento ? `${nascimento.getDate()}/${nascimento.getMonth()}/${nascimento.getFullYear()}`: undefined}
+                    editable={false}
+                    style={{color: colors.preto.padrao}}
+                />
+            </TouchableOpacity>
+            {(datePicker && Platform.OS != "android") &&
+                <RNDateTimePicker 
+                    mode="date"
+                    onChange={handleDatePickerChange}
+                    value={nascimento ?? new Date()}
+                />
+            }
+            <ErroInput 
+                show={erros.nascimento}
+                texto="O campo Data de nascimento é obrigatório."
+            />
 
-        <Button title="Cadastrar" onPress={handleCadastrar} />
+            <TextInput
+                placeholder="Senha"
+                secureTextEntry
+                value={senha}
+                onChangeText={(txt) => setSenha(txt)}
+                onBlur={() => setErros({...erros, senha: !senha})} 
+                style={[styles.input, erros.senha && styles.inputErro]}
+            />
+            <ErroInput
+                show={erros.senha}
+                texto="O campo senha é obrigatório."
+            />
+
+            <TouchableOpacity style={styles.botaoEnviar} onPress={handleCadastrar}>
+                <StyledText style={styles.textBotaoEnviar}>CADASTRAR</StyledText>
+            </TouchableOpacity>
     </View>
   );
 }
@@ -144,12 +187,13 @@ export default function Cadastro() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: colors.branco.padrao,
         alignItems: "center",
         justifyContent: "center",
     },
     title: {
-        fontSize: 20,
-        fontWeight: "bold",
+        fontSize: 40,
+        fontFamily: fonts.padrao.Medium500,
     },
     paragraph: {
         margin: 24,
@@ -164,9 +208,25 @@ const styles = StyleSheet.create({
     input: {
         width: "80%",
         borderWidth: 1,
-        borderColor: "#000",
+        backgroundColor: colors.branco.padrao,
+        borderColor: colors.preto.padrao,
         padding: 10,
         margin: 10,
-        borderRadius: 4,
+        borderRadius: 20,
     },
+    inputErro:{
+        borderColor: colors.vermelho.erro,
+        color: colors.vermelho.erro
+    },
+    botaoEnviar:{
+        backgroundColor: colors.cinza.escuro,
+        alignItems: 'center',
+        borderRadius: 20,
+        marginTop: 5,
+        padding: 10,
+        paddingHorizontal: 25
+    },
+    textBotaoEnviar:{
+        color: colors.branco.padrao
+    }
 });
