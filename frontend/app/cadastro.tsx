@@ -13,6 +13,7 @@ import { fonts } from "@/constants/Fonts";
 import GradienteInicio from "@/components/GradienteInicio";
 import { colors } from "@/constants/Colors";
 import ErroInput from "@/components/ErroInput";
+import { AntDesign } from "@expo/vector-icons";
 
 export default function Cadastro() {    
     const [username, setUsername] = useState("");
@@ -91,6 +92,8 @@ export default function Cadastro() {
         <View style={styles.container}>
             <GradienteInicio image={require("@/assets/images/avatar-cadastro.png")} />
 
+            <AntDesign name="arrowleft" onPress={() => navigator.goBack()} style={styles.iconeVoltar} />
+            
             <StyledText style={styles.title}>Cadastro</StyledText>
             <View style={styles.separator} />
             
@@ -190,6 +193,13 @@ const styles = StyleSheet.create({
         backgroundColor: colors.branco.padrao,
         alignItems: "center",
         justifyContent: "center",
+    },
+    iconeVoltar:{
+        fontSize: 30, 
+        color: colors.preto.padrao, 
+        position: 'absolute', 
+        top: 15, 
+        left: 15
     },
     title: {
         fontSize: 40,
