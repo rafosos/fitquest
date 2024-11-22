@@ -1,21 +1,35 @@
 import { useSession } from '@/app/ctx';
-import { Streaks } from '@/classes/streaks';
+import { InformacoesUsuario } from '@/classes/streaks';
 import User from '@/classes/user';
 import { TipoTreino, TreinoResumo } from '@/classes/user_exercicio';
+import StyledText from '@/components/base/styledText';
 import { colors } from '@/constants/Colors';
+import { fonts } from '@/constants/Fonts';
 import ExercicioService from '@/services/exercicio_service';
 import { errorHandlerDebug } from '@/services/service_config';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native';
+
+class DataFlatlist{
+  constructor(title:string, value: any, editable = true) {
+    this.title = title;
+    this.value = value;
+    this.editable = editable;
+  }
+
+  title: string;
+  value: any;
+  editable:boolean;
+}
 
 export default function TabAvatar() {
     const { user: userString } = useSession();
     const [atividades, setAtividades] = useState<TreinoResumo[]>([]);
-    const [streaks, setStreaks] = useState<Streaks>();
+    const [informacoesUsuario, setInformacoesUsuario] = useState<InformacoesUsuario>();
     const [refreshing, setRefreshing] = useState(false);
-    const user:User = useRef(JSON.parse(userString ?? "{}")).current;
+    const user: User = useRef(JSON.parse(userString ?? "{}")).current;
     const exercicioService = ExercicioService();
 
     useEffect(() => {
@@ -29,7 +43,7 @@ export default function TabAvatar() {
 
     const getStreaks = () => {
         exercicioService.getStreaks(user.id)
-            .then(res => setStreaks(res))
+            .then(res => setInformacoesUsuario(res))
             .catch(err => errorHandlerDebug(err));
     }
     
@@ -41,6 +55,15 @@ export default function TabAvatar() {
         .finally(() => setRefreshing(false))
     }
 
+    const getData = () => {
+      return [
+        new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
+        new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false),
+        new DataFlatlist('Peso', informacoesUsuario?.peso ?? "..."),
+        new DataFlatlist('Altura', informacoesUsuario?.altura ?? "..."),
+      ];
+    }
+
     return (
       <View style={s.container}>
         <FlatList
@@ -49,47 +72,47 @@ export default function TabAvatar() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
             ListHeaderComponent={<>
                 <View style={s.containerNomes}>
-                  <Text style={s.nickname}>{user.nickname}</Text>
-                  <Link href="/configuracoes">
-                      <Feather name="settings" style={s.iconeConfigs} />
-                  </Link>
+                    <StyledText style={s.nickname}>{user.nickname}</StyledText>
+                    <Link href="/configuracoes">
+                        <Feather name="settings" style={s.iconeConfigs} />
+                    </Link>
                 </View>
 
                 <View style={s.containerImagem}>
-                <Image style={s.gifAvatar} source={require('@/assets/images/avatar.gif')} />
+                    <Image style={s.gifAvatar} source={require('@/assets/images/avatar-home.png')} />
                 </View>
 
-                <View style={s.streaksContainer}>
-                    <View style={s.card}>
-                        <Text>Streak semanal</Text>
-                        <Text style={s.txtStreak}>{streaks?.streak_semanal?.streak_length}</Text>
-                    </View>
+                <FlatList
+                    data={getData()}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({item}) =>
+                        <View style={[s.card, s.cardInformacoesPessoais]}>
+                            <StyledText>{item.title}: <StyledText style={s.txtStreak}>{item.value}</StyledText></StyledText> 
+                            {item.editable && <MaterialIcons name="edit" style={s.iconeEditar} />}
+                        </View>
+                    }
+                />
 
-                    <View style={s.card}>
-                        <Text>Streak diário</Text>
-                        <Text style={s.txtStreak}>{streaks?.streak_diario?.streak_length}</Text>
-                    </View>
-                </View>
-
-                <Text style={s.tituloUltimasAtividades}>Últimas atividades</Text>
+                <StyledText style={s.tituloUltimasAtividades}>Últimas atividades</StyledText>
             </>}
             renderItem={({item}) => 
                 <View style={s.card}>
                     <View style={s.headerCard}>
                         <View>
-                            <Text>{item.nome ?? "Treino"}</Text>
+                            <StyledText>{item.nome ?? "Treino"}</StyledText>
                             <View style={s.chip}>
-                                <Text style={s.txtChip}>{item.tipo && TipoTreino[item.tipo]}</Text>
+                                <StyledText style={s.txtChip}>{item.tipo && TipoTreino[item.tipo]}</StyledText>
                             </View>
                         </View>
 
-                        <Text>{`${item.data}`}</Text>
+                        <StyledText>{`${item.data}`}</StyledText>
                     </View>
 
-                <Text>{item.exercicios}</Text>
+                <StyledText>{item.exercicios}</StyledText>
                 </View>
             }
-            ListEmptyComponent={<Text>Nenhuma atividade recente.</Text>}
+            ListEmptyComponent={<StyledText>Nenhuma atividade recente.</StyledText>}
         />
         </View>
     );
@@ -106,12 +129,13 @@ const s = StyleSheet.create({
   },
   containerNomes:{
     flexDirection: "row",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    alignItems: 'center'
   },
   nickname:{
     color: colors.branco.padrao,
-    fontSize: 20,
-    fontWeight: "800"
+    fontSize: 30,
+    fontFamily: fonts.padrao.Regular400
   },
   iconeConfigs:{
     color: colors.branco.padrao,
@@ -120,7 +144,7 @@ const s = StyleSheet.create({
   containerImagem:{
     overflow: "hidden",
     justifyContent: "center",
-    height: 250
+    height: Dimensions.get('window').height * 0.5
   },
   gifAvatar:{
     resizeMode: "contain",
@@ -134,9 +158,15 @@ const s = StyleSheet.create({
   txtStreak:{
     textAlign: 'center'
   },
+  iconeEditar:{
+    fontSize: 18, 
+    color: colors.verde.padrao,
+    marginLeft: 5
+  },
   tituloUltimasAtividades:{
     fontSize: 20,
-    fontWeight: "700",
+    fontFamily: fonts.padrao.Medium500,
+    textAlign: 'center',
     color: colors.branco.padrao
   },
   card:{
@@ -146,6 +176,12 @@ const s = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 10,
     padding: 10
+  },
+  cardInformacoesPessoais:{
+    flexDirection: 'row',
+    justifyContent: "space-between",
+    borderRadius: 20,
+    paddingHorizontal: 15
   },
   headerCard:{
     flexDirection:"row",

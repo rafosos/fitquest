@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
 export default function TabLayout() {
@@ -23,7 +22,7 @@ export default function TabLayout() {
                 unmountOnBlur: true,
                 title: 'Competições',
                 tabBarIcon: ({ focused }) => (
-                    <TabBarIcon focused={focused} name='podium' />
+                    <TabBarIcon focused={focused} name='competicoes' />
                 ),
             }}
         />
@@ -32,7 +31,7 @@ export default function TabLayout() {
             options={{
                 title: 'Amigos',
                 tabBarIcon: ({ focused }) => (
-                    <TabBarIcon focused={focused} name='people' />
+                    <TabBarIcon focused={focused} name='amigos' />
                 ),
             }}
         />
@@ -41,7 +40,7 @@ export default function TabLayout() {
             options={{
                 title: 'Avatar',
                 tabBarIcon: ({ focused }) => (
-                    <TabBarIcon focused={focused} name='home' />
+                    <TabBarIcon focused={focused} name='index' />
                 ),
             }}
             />
@@ -49,8 +48,8 @@ export default function TabLayout() {
             name="exercicios"
             options={{
                 title: 'Treino',
-                tabBarIcon: ({ color, focused }) => (
-                    <FontAwesome6 name="dumbbell" size={24} color={color} />
+                tabBarIcon: ({ focused }) => (
+                    <TabBarIcon focused={focused} name='exercicios' />
                 ),
             }}
          />
@@ -59,7 +58,7 @@ export default function TabLayout() {
             options={{
                 title: 'Loja',
                 tabBarIcon: ({ focused }) => (
-                    <TabBarIcon focused={focused} name='basket' />
+                    <TabBarIcon focused={focused} name='loja' />
                 ),
             }}
          />

@@ -52,7 +52,8 @@ export const colors = {
   cinza :{
     background: "#494949",
     medio: "#ccc",
-    escuro: "#444"
+    medio2: '#757575',
+    escuro: "#444",
   },
   branco: {
     padrao: "#fff"

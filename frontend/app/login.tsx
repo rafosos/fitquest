@@ -75,7 +75,7 @@ export default function Login() {
                     style={[styles.input, erros.inputLogin && styles.inputErro]}
                     enterKeyHint="next"
                     blurOnSubmit={false}
-                    onBlur={() => {console.log("oi"); setErros({...erros, "inputLogin": !login})}}
+                    onBlur={() => setErros({...erros, "inputLogin": !login})}
                     onSubmitEditing={() => passRef.current && passRef.current.focus()}
                 />
             </View>
