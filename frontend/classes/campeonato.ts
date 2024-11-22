@@ -15,6 +15,7 @@ export default class Campeonato{
     participantes_ids: Array<number>;
     participantes: string | undefined;
     nickname_criador: string | undefined;
+    data_criacao: Date | undefined;
 }
 
 export class ExercicioCampeonato{

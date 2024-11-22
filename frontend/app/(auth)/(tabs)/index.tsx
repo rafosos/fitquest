@@ -10,7 +10,7 @@ import { errorHandlerDebug } from '@/services/service_config';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, FlatList, Image, RefreshControl, StyleSheet, View } from 'react-native';
 
 class DataFlatlist{
   constructor(title:string, value: any, editable = true) {
@@ -112,7 +112,7 @@ export default function TabAvatar() {
                 <StyledText>{item.exercicios}</StyledText>
                 </View>
             }
-            ListEmptyComponent={<StyledText>Nenhuma atividade recente.</StyledText>}
+            ListEmptyComponent={<StyledText style={s.txtNenhumaAtividade}>Nenhuma atividade recente.</StyledText>}
         />
         </View>
     );
@@ -192,5 +192,9 @@ const s = StyleSheet.create({
   },
   txtChip:{
 
+  },
+  txtNenhumaAtividade:{
+    color: colors.branco.padrao,
+    textAlign: 'center'
   }
 })

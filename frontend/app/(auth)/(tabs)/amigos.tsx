@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
@@ -10,6 +10,8 @@ import { colors } from '@/constants/Colors';
 import ModalConfirmacao from '@/components/ModalConfirmacao';
 import { Feather } from '@expo/vector-icons';
 import { errorHandlerDebug } from '@/services/service_config';
+import StyledText from '@/components/base/styledText';
+import { fonts } from '@/constants/Fonts';
 
 export default function TabAmigos() {
     const [addModal, setAddModal] = useState(false);
@@ -91,7 +93,7 @@ export default function TabAmigos() {
             botaoConfirmar={
             <TouchableOpacity onPress={deletarAmizade} style={styles.botaoConfirmaDeletar}>
                 <Feather name="trash-2" size={18} color={colors.branco.padrao}/>
-                <Text style={styles.txtConfirmaDeletar}>DESFAZER</Text>
+                <StyledText style={styles.txtConfirmaDeletar}>DESFAZER</StyledText>
             </TouchableOpacity>}
         />
 
@@ -100,21 +102,21 @@ export default function TabAmigos() {
             contentContainerStyle={styles.containerAmigos}
             refreshControl={<RefreshControl refreshing={loadingAmigos} onRefresh={refreshAmigos}/>}
             ListHeaderComponent={<>
-                <Text style={styles.titulo}>Amigos</Text>
+                <StyledText style={styles.titulo}>Amigos</StyledText>
             </>}
             renderItem={({item:amigo}) => 
                 <View style={styles.cardAmigo}>
                     <View>
-                        <Text style={styles.nickname}>{amigo.nickname}</Text>
-                        <Text style={styles.fullname}>{amigo.fullname}</Text>
+                        <StyledText style={styles.nickname}>{amigo.nickname}</StyledText>
+                        <StyledText style={styles.fullname}>{amigo.fullname}</StyledText>
                     </View>
                     <Feather name="trash-2" size={24} color={colors.vermelho.padrao} onPress={() => setModalConfirma({show:true, user: amigo})}/>
                 </View>
             }
             ListEmptyComponent={
                 <View style={styles.containerSemAmigos}>
-                    <Text style={styles.textoSemAmigos}>Parece que ainda não tem ninguém aqui... Adicione alguém agora!</Text>
-                    <AntDesign onPress={abrirModal} name="adduser" size={50} color={colors.branco.padrao} />
+                    <StyledText style={styles.textoSemAmigos}>Parece que ainda não tem ninguém aqui... {"\n"}Adicione alguém agora!</StyledText>
+                    <AntDesign onPress={abrirModal} name="adduser" style={styles.iconeAddAmigo} />
                 </View>
             }
         />
@@ -124,27 +126,27 @@ export default function TabAmigos() {
             refreshControl={<RefreshControl refreshing={loadingRequests} onRefresh={refreshRequests}/>}
             contentContainerStyle={styles.containerAmigos}
             ListHeaderComponent={<>
-                <Text style={styles.titulo}>Pedidos de amizade</Text>
+                <StyledText style={styles.subTitulo}>Pedidos de amizade</StyledText>
             </>}
             renderItem={({item:pedido}) => 
                 <View style={styles.cardAmigo}>
                     <View>
-                        <Text style={styles.nickname}>{pedido.nickname}</Text>
-                        <Text style={styles.fullname}>{pedido.fullname}</Text>
+                        <StyledText style={styles.nickname}>{pedido.nickname}</StyledText>
+                        <StyledText style={styles.fullname}>{pedido.fullname}</StyledText>
                     </View>
 
                     <View style={{flexDirection: 'row'}}>
                         <TouchableOpacity onPress={() => recusarAmizade(pedido.id)} style={[styles.botaoPedido, styles.botaoRecusar]}>
-                            <Text style={styles.txtBotao}>RECUSAR</Text>
+                            <StyledText style={styles.txtBotao}>RECUSAR</StyledText>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => aceitarAmizade(pedido.id)} style={[styles.botaoPedido, styles.botaoAceitar]}>
-                            <Text style={styles.txtBotao}>ACEITAR</Text>  
+                            <StyledText style={styles.txtBotao}>ACEITAR</StyledText>  
                         </TouchableOpacity>
                     </View>
                 </View>
             }
             ListEmptyComponent={<>
-            <Text style={styles.textoSemPedidos}>Você não tem pedidos pendentes.</Text>
+            <StyledText style={styles.textoSemPedidos}>Você não tem pedidos pendentes.</StyledText>
             </>}
         />
 
@@ -164,22 +166,22 @@ const styles = StyleSheet.create({
     },
     titulo:{
         fontSize: 25,
-        fontWeight: "800",
+        fontFamily: fonts.padrao.Bold700,
         color: colors.branco.padrao
     },
     cardAmigo:{
-        backgroundColor: colors.cinza.medio,
+        backgroundColor: colors.branco.padrao,
         borderColor: colors.cinza.escuro,
         borderWidth: 2,
         borderRadius: 25,
-        padding: 10,
+        padding: 13,
         marginVertical: 2,
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
     nickname:{
         fontSize: 17,
-        fontWeight: "700"
+        fontFamily: fonts.padrao.Bold700
     },
     fullname:{
     },
@@ -189,9 +191,16 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     textoSemAmigos:{
-        fontSize: 18,
         color: colors.branco.padrao,
-        textAlign: 'center'
+        textAlign: 'center',
+    },
+    iconeAddAmigo:{
+        backgroundColor: colors.cinza.claro,
+        padding: 10,
+        borderRadius: 25,
+        color: colors.branco.padrao,
+        marginTop: 10,
+        fontSize: 30
     },
     botaoPedido:{
         borderRadius: 15,
@@ -211,8 +220,15 @@ const styles = StyleSheet.create({
         color: colors.branco.padrao,
         textAlignVertical: 'center',
     },
+    subTitulo:{
+        fontSize: 25,
+        fontFamily: fonts.padrao.Bold700,
+        color: colors.branco.padrao,
+        textAlign: 'center'
+    },
     textoSemPedidos:{
-        color: colors.branco.padrao
+        color: colors.branco.padrao,
+        textAlign: 'center'
     },
     botaoConfirmaDeletar:{
         backgroundColor: colors.vermelho.padrao,

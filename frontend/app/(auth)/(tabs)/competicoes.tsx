@@ -1,5 +1,6 @@
-import { Text, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import * as Progress from 'react-native-progress';
 import { AntDesign } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';
 import Campeonato from '@/classes/campeonato';
@@ -8,6 +9,8 @@ import CampeonatoService from '@/services/campeonato_service';
 import ActionButton from '@/components/ActionButton';
 import { colors } from '@/constants/Colors';
 import DetalhesCampeonatoModal from '@/components/DetlhesCampeonatoModal';
+import StyledText from '@/components/base/styledText';
+import { fonts } from '@/constants/Fonts';
 
 export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
@@ -40,6 +43,17 @@ export default function TabEventos() {
 
     const abrirModal = () => setAddModal(true);
 
+    const getProgres = (dataInicial:Date, dataFinal:Date) => {
+        const totalDias = datediff(dataInicial, dataFinal);
+        const diasAteFinal = datediff(dataFinal, new Date());
+
+        return 1 - (((diasAteFinal * 100) / totalDias) / 100);
+    }
+
+    const datediff = (first: Date, second: Date) => {        
+        return Math.abs(Math.round((second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24)));
+    }
+
 
     return (<>
         <AddCampeonatoModal
@@ -58,19 +72,20 @@ export default function TabEventos() {
             data={campeonatos}
             contentContainerStyle={styles.containerCampeonatos}
             ListHeaderComponent={
-                <Text style={styles.titulo}>Campeonatos</Text>
+                <StyledText style={styles.titulo}>Campeonatos</StyledText>
             }
             renderItem={({item:campeonato}) =>
                 <TouchableOpacity style={styles.card} onPress={() => setDetahesModal({show: true, campeonato_id: campeonato.id})}>
-                    <Text style={styles.nomeCampeonato}>{campeonato.nome}</Text>
-                    <Text>Participantes: {campeonato.participantes}</Text>
-                    <Text>Criador: {campeonato.nickname_criador}</Text>
+                    <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
+                    <StyledText>Participantes: {campeonato.participantes}</StyledText>
+                    <StyledText>Criador: {campeonato.nickname_criador}</StyledText>
+                    <Progress.Bar progress={getProgres(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} />
                 </TouchableOpacity>
             }
             ListEmptyComponent={
                 <TouchableOpacity onPress={abrirModal} style={styles.containerSemCampeonatos}>
-                    <Text style={styles.textoSemCampeonatos}>Nenhum campeonato encontrado, clique para adicionar um novo!</Text>
-                    <AntDesign name="plus" size={30} color={colors.branco.padrao} />
+                    <StyledText style={styles.textoSemCampeonatos}>Nenhum campeonato encontrado, clique para adicionar um novo!</StyledText>
+                    <AntDesign name="plus" style={styles.iconeAddCampeonato} />
                 </TouchableOpacity>
             }
         />
@@ -88,7 +103,7 @@ const styles = StyleSheet.create({
     titulo:{
         color: colors.branco.padrao,
         fontSize: 25,
-        fontWeight: "800"
+        fontFamily: fonts.padrao.Bold700
     },
     card:{
         backgroundColor: colors.branco.padrao,
@@ -112,6 +127,14 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: colors.branco.padrao,
         textAlign: 'center'
+    },
+    iconeAddCampeonato:{
+        fontSize: 30,
+        color: colors.branco.padrao,
+        backgroundColor: colors.cinza.claro,
+        padding: 10,
+        borderRadius: 25,
+        marginTop: 5
     }
 })
   

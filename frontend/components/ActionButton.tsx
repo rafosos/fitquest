@@ -1,3 +1,4 @@
+import { colors } from "@/constants/Colors";
 import { Text, TouchableOpacity } from "react-native";
 
 export default function ActionButton({acao = () => {}}){
@@ -12,13 +13,13 @@ export default function ActionButton({acao = () => {}}){
                 bottom: 10,
                 right: 10,
                 flex:1,
-                backgroundColor: "#aaa",
+                backgroundColor: colors.cinza.claro,
                 width: 60,
                 height: 60,
                 alignSelf: 'flex-end'
         }}>
             <Text
-                style={{color: "#fff", fontSize: 35}}
+                style={{color: colors.branco.padrao, fontSize: 35}}
             >+</Text>
         </TouchableOpacity>
     )
