@@ -112,7 +112,7 @@ export default function Cadastro() {
                 texto="O username é obrigatório!"
                 />
 
-            <TextInput 
+            <StyledTextInput 
                 placeholder="Nome completo"
                 value={fullname}
                 onChangeText={(txt) => setFullname(txt)} 
@@ -128,7 +128,7 @@ export default function Cadastro() {
                 texto="O nome completo é obrigatório!"
             />
 
-            <TextInput
+            <StyledTextInput
                 autoComplete="email"
                 keyboardType="email-address"
                 placeholder="Email"
@@ -148,7 +148,7 @@ export default function Cadastro() {
                 style={[styles.input, erros.nascimento && styles.inputErro]}
                 onPress={() => setDatePicker(true)}
             >
-                <TextInput 
+                <StyledTextInput 
                     placeholder="Data de nascimento"
                     value={nascimento ? `${nascimento.getDate()}/${nascimento.getMonth()}/${nascimento.getFullYear()}`: undefined}
                     editable={false}
@@ -167,7 +167,7 @@ export default function Cadastro() {
                 texto="O campo Data de nascimento é obrigatório."
             />
 
-            <TextInput
+            <StyledTextInput
                 placeholder="Senha"
                 secureTextEntry
                 value={senha}

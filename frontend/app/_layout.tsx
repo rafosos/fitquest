@@ -23,7 +23,7 @@ import {
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  initialRouteName: "login",
+  initialRouteName: "bemvindo",
 };
 
 export default function RootLayout() {
@@ -55,6 +55,7 @@ export default function RootLayout() {
       <SessionProvider>
         <Stack screenOptions={{contentStyle: styles.AndroidSafeArea}}>
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="bemvindo" options={{ headerShown: false }} />
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="cadastro" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
