@@ -5,7 +5,7 @@ import { ExercicioCampeonato } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
 import UserService from '@/services/user_service';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Dimensions, FlatList, TouchableOpacity, Platform, Modal } from 'react-native';
+import { View, StyleSheet, Dimensions, FlatList, TouchableOpacity, Platform, Modal } from 'react-native';
 import { AutocompleteDropdown, AutocompleteDropdownContextProvider, IAutocompleteDropdownRef, AutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
 import { Feather } from "@expo/vector-icons";
 import { colors } from "@/constants/Colors";
@@ -14,6 +14,9 @@ import Exercicio from "@/classes/exercicio";
 import ExercicioService from "@/services/exercicio_service";
 import { errorHandlerDebug } from "@/services/service_config";
 import ErroInput from "./ErroInput";
+import StyledText from "./base/styledText";
+import { fonts } from "@/constants/Fonts";
+import StyledTextInput from "./base/styledTextInput";
 
 const DUAS_SEMANAS = 12096e5;
 
@@ -172,12 +175,12 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                 ListHeaderComponent={<>
                     <View style={styles.titleContainer}>
                         <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose}/>
-                        <Text style={styles.title}>Novo campeonato</Text>
+                        <StyledText style={styles.title}>Novo campeonato</StyledText>
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Nome</Text>
-                        <TextInput
+                        <StyledText style={styles.label}>Nome</StyledText>
+                        <StyledTextInput
                             placeholder='Nome'
                             value={nome}
                             onBlur={() => setErros({...erros, "inputNome": !nome})}
@@ -192,12 +195,12 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
 
                     <View style={styles.linhaInput}>
                         <View style={{...styles.inputContainer, flex:3}}>
-                            <Text style={styles.label}>Data final</Text>
+                            <StyledText style={styles.label}>Data final</StyledText>
                             <TouchableOpacity
                                 style={[styles.input, erros.inputData && styles.inputErro]}
                                 onPress={() => setDatePicker(true)}
                             >
-                                <TextInput
+                                <StyledTextInput
                                     placeholder="Data final"
                                     value={`${dataFinal.getDate()}/${dataFinal.getMonth()+1}/${dataFinal.getFullYear()}`}
                                     editable={false}
@@ -219,8 +222,8 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                         </View>
 
                         <View style={{...styles.inputContainer, flex:1}}>
-                            <Text style={styles.label}>Dias até final</Text>
-                            <TextInput 
+                            <StyledText style={styles.label}>Dias até final</StyledText>
+                            <StyledTextInput 
                                 style={styles.input}
                                 value={datediff(dataFinal, hoje)}
                                 editable={false}
@@ -253,10 +256,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                                 color: colors.preto.padrao
                             }
                         }}
-                        inputContainerStyle={{
-                            ...styles.inputAutocomplete,
-                            backgroundColor: colors.branco.padrao
-                        }}
+                        inputContainerStyle={styles.inputAutocomplete}
                         suggestionsListContainerStyle={{
                             backgroundColor: colors.branco.padrao
                         }}
@@ -275,11 +275,13 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                     <View style={styles.containerChips}>
                         {participantes.map((user) => 
                             <TouchableOpacity style={styles.chip} key={user.id} onPress={() => removerParticipante(user)}>
-                                <Text>{user.title}</Text>
+                                <StyledText>{user.title}</StyledText>
                                 <AntDesign name="closecircle" size={15} color="black" style={{marginLeft: 5}}/>
                             </TouchableOpacity>
                         )}
                     </View>
+
+                    <StyledText style={styles.tituloSecaoExercicio}>Exercicios</StyledText>
             
                     <AutocompleteDropdown
                         controller={controller => dropdownExecController.current = controller}
@@ -307,7 +309,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                         }}
                         inputContainerStyle={[
                             styles.inputAutocomplete,
-                            {backgroundColor: colors.branco.padrao},
+                            { marginTop: 0 },
                             (erros.exercicios || erros.seriesRepeticoes) && styles.inputErro
                         ]}
                         ClearIconComponent={<Feather name="x-circle" size={18} color={colors.preto.padrao} />}
@@ -334,16 +336,16 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                         
                         <View style={styles.headerCard}>
                             <View style={styles.containerTituloExercicio}>
-                                <Text style={styles.tituloExercicio}>{item.nome}</Text>
-                                <Text style={styles.subTituloExercicio}>{item.grupo_muscular.nome}</Text>
+                                <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
+                                <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular.nome}</StyledText>
                             </View>
                             <Feather name="trash-2" size={24} color="red" onPress={() => removerExercicio(index)}/>
                         </View>
 
                         <View style={styles.containerCamposExec}>
                             <View style={styles.containerTxtCard}>
-                                <Text style={styles.txtCard}>Séries:</Text>
-                                <TextInput
+                                <StyledText style={styles.txtCard}>Séries:</StyledText>
+                                <StyledTextInput
                                     value={item.qtd_serie.toString()}
                                     keyboardType='numeric'
                                     onChangeText={(txt) => updateSerie(index, Number(txt))}
@@ -352,8 +354,8 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                             </View>
 
                             <View style={styles.containerTxtCard}>
-                                <Text style={styles.txtCard}>Repetições:</Text>
-                                <TextInput
+                                <StyledText style={styles.txtCard}>Repetições:</StyledText>
+                                <StyledTextInput
                                     keyboardType='numeric'
                                     value={item.qtd_repeticoes.toString()}
                                     onChangeText={(txt) => updateRepeticao(index, Number(txt))}
@@ -365,7 +367,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                 }
                 ListFooterComponent={
                     <TouchableOpacity onPress={submit} style={styles.botaoSubmit}>
-                        <Text style={styles.txtBotaoSubmit}>CRIAR CAMPEONATO</Text>
+                        <StyledText style={styles.txtBotaoSubmit}>CRIAR CAMPEONATO</StyledText>
                     </TouchableOpacity>
                 }
             />
@@ -390,7 +392,7 @@ const styles = StyleSheet.create({
     title: {
         margin: 10,
         fontSize: 20,
-        fontWeight: "800",
+        fontFamily: fonts.padrao.Bold700,
         color: colors.branco.padrao
     },
     linhaInput:{
@@ -407,7 +409,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.branco.padrao,
         padding: 10,
-        borderRadius: 4,
+        borderRadius: 15,
         backgroundColor: colors.branco.padrao
     },
     inputErro:{
@@ -420,9 +422,10 @@ const styles = StyleSheet.create({
     },
     inputAutocomplete:{
         borderWidth: 1,
+        backgroundColor: colors.branco.padrao,
         borderColor: colors.preto.padrao,
         margin: 10,
-        borderRadius: 4,
+        borderRadius: 15,
     },
     chip:{
         backgroundColor: colors.cinza.medio,
@@ -432,6 +435,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         textAlignVertical: "center"
+    },
+    tituloSecaoExercicio:{
+        marginLeft: 10,
+        marginTop: 10,
+        color: colors.branco.padrao,
+        fontSize: 20,
+        fontFamily: fonts.padrao.Medium500
     },
     cardExercicio:{
         borderWidth: 1,
@@ -450,18 +460,18 @@ const styles = StyleSheet.create({
         borderColor: colors.preto.fade["3"],
         padding: 10,
         margin: 10,
-        fontWeight: "500"
+        fontFamily: fonts.padrao.Medium500
     },
     containerTituloExercicio:{
         flexDirection: "column"
     },
     tituloExercicio:{
         fontSize: 18,
-        fontWeight: "800"
+        fontFamily: fonts.padrao.Bold700
     },
     subTituloExercicio:{
         fontSize: 14,
-        fontWeight: "300",
+        fontFamily: fonts.padrao.Light300,
         color: colors.cinza.escuro
     },
     containerTxtCard:{

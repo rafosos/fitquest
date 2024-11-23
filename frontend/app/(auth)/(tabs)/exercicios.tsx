@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '@/constants/Colors';
 import { RotinaResumida } from '@/classes/rotina';
@@ -8,6 +8,8 @@ import RotinaService from '@/services/rotina_service';
 import { useSession } from '@/app/ctx';
 import { errorHandlerDebug } from '@/services/service_config';
 import DetalhesRotinaModal from '@/components/DetalhesRotinaModal';
+import StyledText from '@/components/base/styledText';
+import { fonts } from '@/constants/Fonts';
 
 export default function TabTreino() {
     const [refreshing, setRefreshing] = useState(false);
@@ -54,10 +56,10 @@ export default function TabTreino() {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
                 ListHeaderComponent={
                     <View style={styles.header}>
-                        <Text style={styles.headerTitulo}>Treinos</Text>
+                        <StyledText style={styles.headerTitulo}>Treinos</StyledText>
 
                         <TouchableOpacity style={styles.botaoAddRotina} onPress={() => setAddRotina(true)}>
-                            <Text style={styles.textoAdd}>Adicionar rotina de treino</Text>
+                            <StyledText style={styles.textoAdd}>Adicionar rotina de treino</StyledText>
                             <Ionicons name="add-circle" style={styles.iconeAdd} />
                         </TouchableOpacity>
                     </View>
@@ -65,13 +67,13 @@ export default function TabTreino() {
                 data={rotinas}
                 renderItem={({item}) => <>
                     <TouchableOpacity style={styles.cardTreino} onPress={() => setDetahesModal({show: true, rotina_id: item.id})}>
-                        <Text style={styles.nomeRotina}>{item.nome}</Text>
-                        <Text style={styles.diasRotina}>Dias na semana: {item.dias}</Text>
-                        <Text style={styles.exercicios}>{item.exercicios}</Text>
+                        <StyledText style={styles.nomeRotina}>{item.nome}</StyledText>
+                        <StyledText style={styles.diasRotina}>Dias na semana: {item.dias}</StyledText>
+                        <StyledText style={styles.exercicios}>{item.exercicios}</StyledText>
                     </TouchableOpacity>
                 </>}
                 ListEmptyComponent={<View style={styles.listEmptyContainer}>
-                    <Text>Nenhuma rotina de treino encontrada.</Text>
+                    <StyledText style={styles.txtListEmpty}>Nenhuma rotina de treino encontrada.</StyledText>
                 </View>}
             />
         </View>
@@ -93,7 +95,7 @@ const styles = StyleSheet.create({
     },
     headerTitulo:{
         fontSize: 25,
-        fontWeight: "800",
+        fontFamily: fonts.padrao.Bold700,
         color: colors.branco.padrao
     },
     botaoAddRotina: {
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
     },
     textoAdd:{
         fontSize: 15,
-        fontWeight: "500"
+        fontFamily: fonts.padrao.Regular400
     },
     iconeAdd:{
         fontSize: 24,
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
     },
     nomeRotina:{
         fontSize: 20,
-        fontWeight: "800"
+        fontFamily: fonts.padrao.Bold700
     },
     diasRotina:{
         
@@ -136,5 +138,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center"
     },
+    txtListEmpty:{
+        color: colors.branco.padrao
+    }
 });
   

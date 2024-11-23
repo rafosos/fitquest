@@ -54,7 +54,6 @@ export default function TabEventos() {
         return Math.abs(Math.round((second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24)));
     }
 
-
     return (<>
         <AddCampeonatoModal
             isVisible={addModal}
@@ -79,7 +78,7 @@ export default function TabEventos() {
                     <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
                     <StyledText>Participantes: {campeonato.participantes}</StyledText>
                     <StyledText>Criador: {campeonato.nickname_criador}</StyledText>
-                    <Progress.Bar progress={getProgres(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} />
+                    <Progress.Bar color={colors.verde.padrao} width={null} progress={getProgres(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} />
                 </TouchableOpacity>
             }
             ListEmptyComponent={

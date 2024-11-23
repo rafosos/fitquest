@@ -1,6 +1,6 @@
 import { useSession } from '@/app/ctx';
 import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Modal, FlatList, Dimensions, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Modal, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Exercicio from '@/classes/exercicio';
 import { AutocompleteDropdown, AutocompleteDropdownContextProvider, IAutocompleteDropdownRef, AutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
@@ -10,7 +10,9 @@ import { Feather } from '@expo/vector-icons';
 import { colors } from '@/constants/Colors';
 import { errorHandlerDebug } from '@/services/service_config';
 import ErroInput from './ErroInput';
-
+import StyledText from './base/styledText';
+import StyledTextInput from './base/styledTextInput';
+import { fonts } from '@/constants/Fonts';
 
 export default function AddRotinaModal({ isVisible = false, onClose = () => {} }) {
     const [nome, setNome] = useState("");
@@ -68,7 +70,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     }
 
     const removerExercicio = (index: number) => {
-        const e = exercicios.splice(index,1);
+        exercicios.splice(index,1);
         setExercicios([...exercicios]);
     }
 
@@ -113,27 +115,28 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                     ListHeaderComponent={<>
                         <View style={styles.titleContainer}>
                             <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose}/>
-                            <Text style={styles.title}>Adicionar rotina</Text>
+                            <StyledText style={styles.title}>Adicionar rotina</StyledText>
                         </View>
 
                         <View>
-                            <TextInput
+                            <StyledText style={[styles.label, erros.nome && styles.erroInput]}>Nome da rotina</StyledText>
+                            <StyledTextInput
                                 placeholder='Nome da rotina'
                                 value={nome}
                                 placeholderTextColor={erros.nome ? colors.vermelho.erro : colors.branco.padrao}
                                 onChangeText={(txt) => setNome(txt)}
                                 style={[styles.input, erros.nome && styles.erroInput]}
                                 onBlur={() => setErros({...erros, "nome": !nome})}
-                                />
+                            />
 
                             <ErroInput 
                                 show={erros.nome}
                                 texto="O campo nome da rotina é obrigatório!"                            
                             />
 
-                            <View style={{flexDirection:'row', alignItems: 'center'}}>
-                                <Text style={[styles.label, erros.dias && {color: colors.vermelho.erro}]}>Dias por semana:</Text>
-                                <TextInput
+                            <View style={{flexDirection:'row', marginTop: 5}}>
+                                <StyledText style={[styles.label, {paddingBottom: 15, marginRight: 5}, erros.dias && styles.erroInput]}>Dias por semana:</StyledText>
+                                <StyledTextInput
                                     placeholderTextColor={erros.dias ? colors.vermelho.erro : colors.branco.padrao}
                                     style={[styles.input, styles.inputDuracao, erros.dias && styles.erroInput]}
                                     keyboardType='numeric'
@@ -157,7 +160,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             />
                         </View>
 
-                        <Text style={styles.subTitulo}>Exercicios</Text>
+                        <StyledText style={styles.subTitulo}>Exercicios</StyledText>
 
                         <AutocompleteDropdown
                             controller={controller => {
@@ -165,24 +168,21 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             }}
                             direction={"down"}
                             dataSet={resultados.map(res => {return {...res, id: res.id.toString(), title: res.nome}})}
-                            onChangeText={getExerciciosDropdown}
                             onSelectItem={(item) => item && onSelectItem(item)}
                             debounce={600}
                             suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
                             loading={loading}
                             useFilter={false}
+                            onChangeText={(txt) => getExerciciosDropdown(txt)}
                             textInputProps={{
                                 placeholder: 'Pesquisar exercício',
                                 autoCorrect: false,
                                 autoCapitalize: 'none',
-                                style: {color: colors.preto.padrao}  
-                            }}                            
-                            inputContainerStyle={{
-                                ...styles.inputAutocomplete,
-                                backgroundColor: colors.branco.padrao
+                                style: {color: colors.preto.padrao}
                             }}
+                            InputComponent={StyledTextInput}
+                            inputContainerStyle={styles.inputAutocomplete}
                             ClearIconComponent={<Feather name="x-circle" size={18} color={colors.preto.padrao} />}
-                            inputHeight={50}
                             closeOnBlur={true}
                             showChevron={false}
                             clearOnFocus={false}
@@ -205,16 +205,16 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                             
                             <View style={styles.headerCard}>
                                 <View style={styles.containerTituloExercicio}>
-                                    <Text style={styles.tituloExercicio}>{item.nome}</Text>
-                                    <Text style={styles.subTituloExercicio}>{item.grupo_muscular.nome}</Text>
+                                    <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
+                                    <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular.nome}</StyledText>
                                 </View>
                                 <Feather name="trash-2" size={22} color={colors.vermelho.padrao} onPress={() => removerExercicio(index)}/>
                             </View>
 
                             <View style={styles.containerCamposExec}>
                                 <View style={styles.containerTxtCard}>
-                                    <Text style={styles.txtCard}>Séries:</Text>
-                                    <TextInput
+                                    <StyledText style={styles.txtCard}>Séries:</StyledText>
+                                    <StyledTextInput
                                         value={item.qtd_serie.toString()}
                                         keyboardType='numeric'
                                         onChangeText={(txt) => updateSerie(index, Number(txt))}
@@ -223,8 +223,8 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                                 </View>
 
                                 <View style={styles.containerTxtCard}>
-                                    <Text style={styles.txtCard}>Repetições:</Text>
-                                    <TextInput
+                                    <StyledText style={styles.txtCard}>Repetições:</StyledText>
+                                    <StyledTextInput
                                         keyboardType='numeric'
                                         value={item.qtd_repeticoes.toString()}
                                         onChangeText={(txt) => updateRepeticao(index, Number(txt))}
@@ -236,7 +236,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                     }
                     ListFooterComponent={
                         <TouchableOpacity onPress={submit} style={styles.botaoAdicionar}>
-                            <Text style={styles.txtBotaoAdd}>ADICIONAR</Text>
+                            <StyledText style={styles.txtBotaoAdd}>ADICIONAR</StyledText>
                         </TouchableOpacity>
                     }
                 />
@@ -260,30 +260,38 @@ const styles = StyleSheet.create({
     title: {
         marginLeft: 7,
         fontSize: 25,
-        fontWeight: "800",
+        fontFamily: fonts.padrao.Bold700,
         color: colors.branco.padrao
     },
     inputAutocomplete:{
+        borderBottomWidth: 1,
+        borderColor: colors.branco.padrao,
+        borderRadius: 15,
         borderWidth: 1,
-        borderColor: colors.preto.padrao,
-        borderRadius: 4,
+        backgroundColor: colors.branco.padrao,
     },
     label:{
+        marginTop: 10,
+        marginBottom: 5, 
         color: colors.branco.padrao,
-        fontSize: 16,
-        textAlignVertical: 'bottom'
+        fontSize: 14,
+        textAlignVertical: 'center',
+        // textAlign: 'center'
     },
     input: {
         borderBottomWidth: 1,
         borderColor: colors.branco.padrao,
-        padding: 10,
-        color: colors.branco.padrao,
+        padding: 5,
+        paddingHorizontal: 10,
+        color: colors.preto.padrao,
         marginBottom: 10,
-        borderRadius: 4,
-        fontWeight: "500"
+        borderRadius: 15,
+        borderWidth: 1,
+        backgroundColor: colors.branco.padrao
     },
     erroInput:{
-        borderColor: colors.vermelho.erro
+        borderColor: colors.vermelho.erro,
+        color: colors.vermelho.erro
     },
     inputDuracao:{
         width: 40, 
@@ -292,7 +300,7 @@ const styles = StyleSheet.create({
     subTitulo:{
         color: colors.branco.padrao,
         fontSize: 18,
-        fontWeight: "800",
+        fontFamily: fonts.padrao.Bold700,
         marginTop: 10
     },
     inputCard: {
@@ -301,7 +309,7 @@ const styles = StyleSheet.create({
         padding: 10,
         textAlign: 'center',
         marginVertical: 10,
-        fontWeight: "500"
+        fontFamily: fonts.padrao.Medium500
     },
     cardExercicio:{
         borderWidth: 1,
@@ -320,11 +328,11 @@ const styles = StyleSheet.create({
     },
     tituloExercicio:{
         fontSize: 18,
-        fontWeight: "800"
+        fontFamily: fonts.padrao.Bold700
     },
     subTituloExercicio:{
         fontSize: 14,
-        fontWeight: "300",
+        fontFamily: fonts.padrao.Light300,
         color: colors.cinza.escuro
     },
     containerTxtCard:{
@@ -348,7 +356,7 @@ const styles = StyleSheet.create({
     txtBotaoAdd:{
         color: colors.branco.padrao,
         textAlign: 'center',
-        fontSize: 18
+        fontSize: 16
     }
 });
   
