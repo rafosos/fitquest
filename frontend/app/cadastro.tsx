@@ -66,7 +66,7 @@ export default function Cadastro() {
         if (!nascimento) return
 
         userService.cadastrar({
-            nickname: username,
+            username: username,
             fullname,
             nascimento,
             email,

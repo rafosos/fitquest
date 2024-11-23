@@ -54,7 +54,7 @@ def upgrade() -> None:
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('nickname', sa.String(length=20), nullable=False),
+    sa.Column('username', sa.String(length=20), nullable=False),
     sa.Column('fullname', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('level', sa.Integer(), nullable=False),
@@ -63,7 +63,7 @@ def upgrade() -> None:
     sa.Column('nascimento', sa.Date(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('nickname')
+    sa.UniqueConstraint('username')
     )
     op.create_table('amizade',
     sa.Column('user1_id', sa.Integer(), nullable=False),

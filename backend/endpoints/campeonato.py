@@ -57,12 +57,12 @@ def get_campeonato(user_id: int):
                 Campeonato.duracao,
                 Campeonato.data_criacao,
                 criador.id.label("id_criador"),
-                criador.nickname.label("nickname_criador"),
-                func.string_agg(case((participantes.id != user_id, participantes.nickname), else_=None), ', ').label("participantes"),
+                criador.username.label("username_criador"),
+                func.string_agg(case((participantes.id != user_id, participantes.username), else_=None), ', ').label("participantes"),
             )
             .join(criador, Campeonato.criador)
             .join(participantes, Campeonato.users)
-            .group_by(Campeonato.id, Campeonato.nome, Campeonato.duracao, criador.id, criador.nickname)
+            .group_by(Campeonato.id, Campeonato.nome, Campeonato.duracao, criador.id, criador.username)
             .where(or_(criador.id == user_id, participantes.id == user_id)) #check this with a 3rd user
             ).mappings().all()
         return campeonatos
@@ -129,14 +129,14 @@ def get_progresso(campeonato_id: int):
     with Session() as sess:
         stmt = select(
             user_campeonato.c.user_id,
-            User.nickname,
+            User.username,
             User.fullname,
             func.count(Treino.user_id).label("dias")
         ).select_from(user_campeonato)\
         .join(User, User.id == user_campeonato.c.user_id)\
         .join(Treino, and_(User.id == Treino.user_id, user_campeonato.c.campeonato_id == Treino.campeonato_id), isouter=True)\
         .where(and_(Treino.tipo == TipoTreino.campeonato, user_campeonato.c.campeonato_id == campeonato_id))\
-        .group_by(user_campeonato.c.user_id, User.nickname, User.fullname)\
+        .group_by(user_campeonato.c.user_id, User.username, User.fullname)\
         .order_by(func.count(Treino.user_id).desc())
     
         return sess.execute(stmt).mappings().all()

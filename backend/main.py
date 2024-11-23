@@ -28,10 +28,13 @@ async def lifespan(app_: FastAPI):
     yield
     log.info("Shutting down...")
 
-
-app = FastAPI()
-# app = FastAPI(lifespan=lifespan)
 # app = FastAPI(dependencies=Depends[login.get_current_active_user])
+
+# dev
+app = FastAPI() 
+
+# prod
+# app = FastAPI(lifespan=lifespan)
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 app.include_router(user.router)

@@ -73,7 +73,7 @@ export default function TabAvatar() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
             ListHeaderComponent={<>
                 <View style={s.containerNomes}>
-                    <StyledText style={s.nickname}>{user.nickname}</StyledText>
+                    <StyledText style={s.username}>{user.username}</StyledText>
                     <Link href="/configuracoes">
                         <Feather name="settings" style={s.iconeConfigs} />
                     </Link>
@@ -133,7 +133,7 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: 'center'
   },
-  nickname:{
+  username:{
     color: colors.branco.padrao,
     fontSize: 30,
     fontFamily: fonts.padrao.Regular400

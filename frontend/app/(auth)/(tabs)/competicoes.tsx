@@ -83,7 +83,7 @@ export default function TabEventos() {
                 <TouchableOpacity style={styles.card} onPress={() => setDetalhesModal({show: true, campeonato_id: campeonato.id})}>
                     <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
                     <View style={styles.containerCriadoCampeonato}>
-                        <StyledText style={styles.itemCompeticao}>Criado por: <StyledText>{campeonato.id_criador == userId ? "você" : campeonato.nickname_criador}</StyledText></StyledText>
+                        <StyledText style={styles.itemCompeticao}>Criado por: <StyledText>{campeonato.id_criador == userId ? "você" : campeonato.username_criador}</StyledText></StyledText>
                         <StyledText style={styles.itemCompeticao}>Criado em: <StyledText>{showDiaMes(campeonato.data_criacao)}</StyledText></StyledText>
                     </View>
                     <StyledText style={styles.itemCompeticao}>Participantes: <StyledText>você, {campeonato.participantes}</StyledText></StyledText>

@@ -74,7 +74,7 @@ def get_amigos(user_id, filtro):
     with Session() as sess:
         cte = select(Status.id).where(Status.descricao == statuses[0]).cte("status_ativo") 
 
-        stmt = select(User.id, User.nickname, User.fullname).where(User.id.in_(
+        stmt = select(User.id, User.username, User.fullname).where(User.id.in_(
             select(
                 case(
                     (Amizade.user1_id == user_id, 
@@ -86,13 +86,13 @@ def get_amigos(user_id, filtro):
             .where(
                 and_(
                     or_(Amizade.user1_id == user_id, Amizade.user2_id == user_id), 
-                    or_(User.nickname.ilike(filtro_string), User.fullname.ilike(filtro_string))
+                    or_(User.username.ilike(filtro_string), User.fullname.ilike(filtro_string))
                     )
                 )
             )
         )
         
-        amigos = [{"id": r[0], "nickname": r[1], "fullname": r[2]} for r in sess.execute(stmt).all()]
+        amigos = [{"id": r[0], "username": r[1], "fullname": r[2]} for r in sess.execute(stmt).all()]
         return amigos
     
 @router.get("/get-nao-amigos/{user_id}/{filtro}")
@@ -102,7 +102,7 @@ def get_amigos(user_id, filtro):
     with Session() as sess:
         cte = select(Status.id).where(Status.descricao == statuses[0]).cte("status_ativo") 
 
-        stmt = select(User.id, User.nickname, User.fullname).where(
+        stmt = select(User.id, User.username, User.fullname).where(
             and_(
                 User.id.not_in(
                     select(
@@ -115,7 +115,7 @@ def get_amigos(user_id, filtro):
                     .where(or_(Amizade.user1_id == user_id, Amizade.user2_id == user_id))
                 ),
                 User.id != user_id,
-                or_(User.nickname.ilike(filtro_string), User.fullname.ilike(filtro_string)),
+                or_(User.username.ilike(filtro_string), User.fullname.ilike(filtro_string)),
             )
         )
         

@@ -26,7 +26,7 @@ router = APIRouter(
 #     token_type: str
 
 # class TokenData(BaseModel):
-#     nickname: str | None = None
+#     username: str | None = None
 #     fullname: str | None = None
 #     id: str | None = None
 
@@ -55,23 +55,23 @@ def get_password_hash(password):
 
 #     try:
 #         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         nickname: str = payload.get("nickname")
-#         if nickname is None:
+#         username: str = payload.get("username")
+#         if username is None:
 #             raise credentials_exception
         
-#         token_data = TokenData(nickname=nickname)
+#         token_data = TokenData(username=username)
 #     except InvalidTokenError:
 #         raise credentials_exception
     
 #     with Session() as sess:
-#         user = sess.scalar(select(User).where(User.nickname == token_data.nickname))
+#         user = sess.scalar(select(User).where(User.username == token_data.username))
 
 #     if user is None:
 #         raise credentials_exception
 #     return user
 
 class CadastroModel(BaseModel):
-    nickname: str 
+    username: str 
     fullname: str
     email: str
     # peso: float
@@ -83,7 +83,7 @@ class CadastroModel(BaseModel):
 @router.post("/cadastro")
 def cadastro(form: CadastroModel):
     user = User(
-        nickname=form.nickname,
+        username=form.username,
         fullname=form.fullname,
         email=form.email,
         level=0,
@@ -99,7 +99,7 @@ def cadastro(form: CadastroModel):
 def login(login: Annotated[str, Body()], senha: Annotated[str, Body()], res: Response):
     print("POST: login", flush=True)
     with Session() as sess:
-        stmt = select(User).where(or_(User.nickname == login, User.email == login))
+        stmt = select(User).where(or_(User.username == login, User.email == login))
         user = sess.scalar(stmt)
         if (not user):
             res.status_code = status.HTTP_401_UNAUTHORIZED

@@ -89,7 +89,7 @@ export default function TabAmigos() {
             show={modalConfirma.show}
             onClose={() => setModalConfirma({show: false, user: null})}
             onConfirma={deletarAmizade}
-            titulo={`Deseja realmente desfazer a amizade com ${modalConfirma.user?.nickname}?`}
+            titulo={`Deseja realmente desfazer a amizade com ${modalConfirma.user?.username}?`}
             botaoConfirmar={
             <TouchableOpacity onPress={deletarAmizade} style={styles.botaoConfirmaDeletar}>
                 <Feather name="trash-2" size={18} color={colors.branco.padrao}/>
@@ -107,7 +107,7 @@ export default function TabAmigos() {
             renderItem={({item:amigo}) => 
                 <View style={styles.cardAmigo}>
                     <View>
-                        <StyledText style={styles.nickname}>{amigo.nickname}</StyledText>
+                        <StyledText style={styles.username}>{amigo.username}</StyledText>
                         <StyledText style={styles.fullname}>{amigo.fullname}</StyledText>
                     </View>
                     <Feather name="trash-2" size={24} color={colors.vermelho.padrao} onPress={() => setModalConfirma({show:true, user: amigo})}/>
@@ -131,7 +131,7 @@ export default function TabAmigos() {
             renderItem={({item:pedido}) => 
                 <View style={styles.cardAmigo}>
                     <View>
-                        <StyledText style={styles.nickname}>{pedido.nickname}</StyledText>
+                        <StyledText style={styles.username}>{pedido.username}</StyledText>
                         <StyledText style={styles.fullname}>{pedido.fullname}</StyledText>
                     </View>
 
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
-    nickname:{
+    username:{
         fontSize: 17,
         fontFamily: fonts.padrao.Bold700
     },

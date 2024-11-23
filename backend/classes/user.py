@@ -13,7 +13,7 @@ class User(Base):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    nickname: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
     fullname: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     level: Mapped[int] = mapped_column(Integer, default=0)
@@ -37,7 +37,7 @@ class User(Base):
     amizades_received: Mapped[List["Amizade"]] = relationship("Amizade", foreign_keys=[Amizade.user2_id], back_populates="user2")
 
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, nickname={self.nickname!r}, fullname={self.fullname!r})"
+        return f"User(id={self.id!r}, username={self.username!r}, fullname={self.fullname!r})"
 
     def add_user(self):
         with Session() as sess:

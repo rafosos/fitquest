@@ -15,7 +15,7 @@ export default class Campeonato{
     participantes_ids: Array<number>;
     participantes: string | undefined;
     id_criador: number | undefined;
-    nickname_criador: string | undefined;
+    username_criador: string | undefined;
     data_criacao: Date | undefined;
 }
 
@@ -50,7 +50,7 @@ export class CampeonatoDetalhes{
 
 export class UserProgresso{
     user_id: number | undefined;
-    nickname: string | undefined;
+    username: string | undefined;
     fullname: string | undefined;
     dias: number | undefined;
 }

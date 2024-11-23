@@ -4,7 +4,7 @@ import { deletar, get, post, put } from "./service_config";
 export default function UserService(){
 
     const cadastrar = (params: {
-        nickname: string,
+        username: string,
         fullname: string,
         email: string,
         nascimento: Date,

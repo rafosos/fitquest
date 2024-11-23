@@ -246,7 +246,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
 
                                                 <View style={[styles.card, styles.headerCard]}>
                                                     <View style={styles.containerColumn}>
-                                                        <StyledText style={styles.tituloExercicio}>{item.nickname}</StyledText>
+                                                        <StyledText style={styles.tituloExercicio}>{item.username}</StyledText>
                                                         <StyledText style={styles.subTituloExercicio}>{item.fullname}</StyledText>
                                                     </View>
 
