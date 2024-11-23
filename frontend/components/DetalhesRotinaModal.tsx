@@ -10,6 +10,7 @@ import Checkbox from 'expo-checkbox';
 import ModalConfirmacao from './ModalConfirmacao';
 import StyledText from './base/styledText';
 import { fonts } from '@/constants/Fonts';
+import { showDiaMes } from '@/utils/functions';
 
 interface Props {
     isVisible: boolean;
@@ -56,12 +57,6 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
         })
             .then(res => clearAndClose())
             .catch(err => errorHandlerDebug(err))
-    }
-
-    const showDiaMes = (data:string |Date |null|undefined) => {
-        if (!data) return "..."
-        data = new Date(data);
-        return `${data.getDate()+1}/${data.getMonth()+1}/${data.getFullYear()}`;
     } 
 
     const checkExercicio = (value: boolean, index:number) => {

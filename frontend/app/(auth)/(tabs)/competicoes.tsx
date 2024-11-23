@@ -10,6 +10,7 @@ import { colors } from '@/constants/Colors';
 import DetalhesCampeonatoModal from '@/components/DetlhesCampeonatoModal';
 import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
+import { showDiaMes } from '@/utils/functions';
 
 export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
@@ -53,13 +54,6 @@ export default function TabEventos() {
         return Math.abs(Math.round((second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24)));
     }
 
-    const showDiaMes = (data: Date |undefined) => {
-        if(!data) return "...";
-    
-        data = new Date(data);
-        return `${data.getDate()+1}/${data.getMonth()+1}/${data.getFullYear()}`;
-    }
-
     return (<>
         <AddCampeonatoModal
             isVisible={addModal}
@@ -88,15 +82,15 @@ export default function TabEventos() {
             renderItem={({item:campeonato}) =>
                 <TouchableOpacity style={styles.card} onPress={() => setDetalhesModal({show: true, campeonato_id: campeonato.id})}>
                     <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <StyledText style={{fontFamily: fonts.padrao.Medium500}}>Criado por: <StyledText>{campeonato.id_criador == userId ? "você" : campeonato.nickname_criador}</StyledText></StyledText>
-                        <StyledText style={{fontFamily: fonts.padrao.Medium500}}>Criado em: <StyledText>{showDiaMes(campeonato.data_criacao)}</StyledText></StyledText>
+                    <View style={styles.containerCriadoCampeonato}>
+                        <StyledText style={styles.itemCompeticao}>Criado por: <StyledText>{campeonato.id_criador == userId ? "você" : campeonato.nickname_criador}</StyledText></StyledText>
+                        <StyledText style={styles.itemCompeticao}>Criado em: <StyledText>{showDiaMes(campeonato.data_criacao)}</StyledText></StyledText>
                     </View>
-                    <StyledText style={{fontFamily: fonts.padrao.Medium500}}>Participantes: <StyledText>você, {campeonato.participantes}</StyledText></StyledText>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <StyledText style={{fontFamily: fonts.padrao.ExtraLight200}}>Progresso: </StyledText>
+                    <StyledText style={styles.itemCompeticao}>Participantes: <StyledText>você, {campeonato.participantes}</StyledText></StyledText>
+                    <View style={styles.containerCriadoCampeonato}>
+                        <StyledText style={styles.txtProgresso}>Progresso: </StyledText>
                         <Progress.Bar
-                            style={{marginTop:5, flex:1, height: 8}}
+                            style={styles.progressBar}
                             color={colors.verde.padrao} 
                             width={null} 
                             progress={getProgres(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} 
@@ -158,6 +152,21 @@ const styles = StyleSheet.create({
     nomeCampeonato:{
         fontSize: 17,
         fontFamily: fonts.padrao.Bold700
+    },
+    containerCriadoCampeonato:{
+        flexDirection: 'row', 
+        justifyContent: 'space-between'
+    },
+    txtProgresso: {
+        fontFamily: fonts.padrao.Light300
+    },
+    progressBar:{
+        marginTop: 8, 
+        flex: 1, 
+        height: 8
+    },
+    itemCompeticao:{
+        fontFamily: fonts.padrao.Medium500
     },
     containerSemCampeonatos:{
         flex: 1,

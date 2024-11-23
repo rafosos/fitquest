@@ -7,6 +7,7 @@ import { colors } from '@/constants/Colors';
 import { fonts } from '@/constants/Fonts';
 import ExercicioService from '@/services/exercicio_service';
 import { errorHandlerDebug } from '@/services/service_config';
+import { showDiaMes } from '@/utils/functions';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -33,12 +34,12 @@ export default function TabAvatar() {
     const exercicioService = ExercicioService();
 
     useEffect(() => {
-      refresh();
+         refresh();
     }, []);
     
     const refresh = () => {
-      getAtividades();
-      getStreaks();  
+        getAtividades();
+        getStreaks();  
     }
 
     const getStreaks = () => {
@@ -56,12 +57,12 @@ export default function TabAvatar() {
     }
 
     const getData = () => {
-      return [
-        new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
-        new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false),
-        new DataFlatlist('Peso', informacoesUsuario?.peso ?? "..."),
-        new DataFlatlist('Altura', informacoesUsuario?.altura ?? "..."),
-      ];
+        return [
+            new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
+            new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false),
+            new DataFlatlist('Peso', informacoesUsuario?.peso ?? "..."),
+            new DataFlatlist('Altura', informacoesUsuario?.altura ?? "..."),
+        ];
     }
 
     return (
@@ -100,13 +101,13 @@ export default function TabAvatar() {
                 <View style={s.card}>
                     <View style={s.headerCard}>
                         <View>
-                            <StyledText>{item.nome ?? "Treino"}</StyledText>
+                            <StyledText style={s.nomeTreino}>{item.nome ?? "Treino"}</StyledText>
                             <View style={s.chip}>
                                 <StyledText style={s.txtChip}>{item.tipo && TipoTreino[item.tipo]}</StyledText>
                             </View>
                         </View>
 
-                        <StyledText>{`${item.data}`}</StyledText>
+                        <StyledText>{showDiaMes(item.data)}</StyledText>
                     </View>
 
                 <StyledText>{item.exercicios}</StyledText>
@@ -187,11 +188,14 @@ const s = StyleSheet.create({
     flexDirection:"row",
     justifyContent: "space-between"
   },
+  nomeTreino:{
+    fontFamily: fonts.padrao.SemiBold600
+  },
   chip:{
 
   },
   txtChip:{
-
+    fontFamily: fonts.padrao.Light300
   },
   txtNenhumaAtividade:{
     color: colors.branco.padrao,

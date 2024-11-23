@@ -56,12 +56,13 @@ def get_campeonato(user_id: int):
                 Campeonato.nome, 
                 Campeonato.duracao,
                 Campeonato.data_criacao,
+                criador.id.label("id_criador"),
                 criador.nickname.label("nickname_criador"),
                 func.string_agg(case((participantes.id != user_id, participantes.nickname), else_=None), ', ').label("participantes"),
             )
             .join(criador, Campeonato.criador)
             .join(participantes, Campeonato.users)
-            .group_by(Campeonato.id, Campeonato.nome, Campeonato.duracao, criador.nickname)
+            .group_by(Campeonato.id, Campeonato.nome, Campeonato.duracao, criador.id, criador.nickname)
             .where(or_(criador.id == user_id, participantes.id == user_id)) #check this with a 3rd user
             ).mappings().all()
         return campeonatos
