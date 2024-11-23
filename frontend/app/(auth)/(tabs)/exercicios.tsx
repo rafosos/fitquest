@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
         marginLeft: 5
     },
     cardTreino:{
-        backgroundColor: colors.cinza.medio,
+        backgroundColor: colors.branco.padrao,
         borderWidth:2,
         borderColor: colors.cinza.escuro,
         borderRadius: 15,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     },
     nomeRotina:{
         fontSize: 20,
-        fontFamily: fonts.padrao.Bold700
+        fontFamily: fonts.padrao.Medium500
     },
     diasRotina:{
         

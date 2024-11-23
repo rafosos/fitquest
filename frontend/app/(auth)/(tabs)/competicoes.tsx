@@ -1,12 +1,11 @@
-import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import * as Progress from 'react-native-progress';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';
 import Campeonato from '@/classes/campeonato';
 import AddCampeonatoModal from '@/components/AddCampeonatoModal';
 import CampeonatoService from '@/services/campeonato_service';
-import ActionButton from '@/components/ActionButton';
 import { colors } from '@/constants/Colors';
 import DetalhesCampeonatoModal from '@/components/DetlhesCampeonatoModal';
 import StyledText from '@/components/base/styledText';
@@ -16,7 +15,7 @@ export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
     const [campeonatos, setCampeonatos] = useState<Campeonato[]>([]);
     const [refreshing, setRefreshing] = useState(false);
-    const [detalhesModal, setDetahesModal] = useState({show: false, campeonato_id:0});
+    const [detalhesModal, setDetalhesModal] = useState({show: false, campeonato_id:0});
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const campeonatoService = CampeonatoService();
@@ -36,7 +35,7 @@ export default function TabEventos() {
   
     const onCloseModal = () => {
         setAddModal(false);
-        setDetahesModal({show:false, campeonato_id: 0})
+        setDetalhesModal({show:false, campeonato_id: 0});
         refreshCampeonatos();
         // show smth for user, some feedback
     }
@@ -52,6 +51,13 @@ export default function TabEventos() {
 
     const datediff = (first: Date, second: Date) => {        
         return Math.abs(Math.round((second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24)));
+    }
+
+    const showDiaMes = (data: Date |undefined) => {
+        if(!data) return "...";
+    
+        data = new Date(data);
+        return `${data.getDate()+1}/${data.getMonth()+1}/${data.getFullYear()}`;
     }
 
     return (<>
@@ -71,14 +77,31 @@ export default function TabEventos() {
             data={campeonatos}
             contentContainerStyle={styles.containerCampeonatos}
             ListHeaderComponent={
-                <StyledText style={styles.titulo}>Campeonatos</StyledText>
+                <View style={styles.header}>
+                    <StyledText style={styles.titulo}>Campeonatos</StyledText>
+                    <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
+                        <StyledText style={styles.textoAdd}>Adicionar campeonato</StyledText>
+                        <Ionicons name="add-circle" style={styles.iconeAdd} />
+                    </TouchableOpacity>
+                </View>
             }
             renderItem={({item:campeonato}) =>
-                <TouchableOpacity style={styles.card} onPress={() => setDetahesModal({show: true, campeonato_id: campeonato.id})}>
+                <TouchableOpacity style={styles.card} onPress={() => setDetalhesModal({show: true, campeonato_id: campeonato.id})}>
                     <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
-                    <StyledText>Participantes: {campeonato.participantes}</StyledText>
-                    <StyledText>Criador: {campeonato.nickname_criador}</StyledText>
-                    <Progress.Bar color={colors.verde.padrao} width={null} progress={getProgres(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} />
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <StyledText style={{fontFamily: fonts.padrao.Medium500}}>Criado por: <StyledText>{campeonato.id_criador == userId ? "você" : campeonato.nickname_criador}</StyledText></StyledText>
+                        <StyledText style={{fontFamily: fonts.padrao.Medium500}}>Criado em: <StyledText>{showDiaMes(campeonato.data_criacao)}</StyledText></StyledText>
+                    </View>
+                    <StyledText style={{fontFamily: fonts.padrao.Medium500}}>Participantes: <StyledText>você, {campeonato.participantes}</StyledText></StyledText>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <StyledText style={{fontFamily: fonts.padrao.ExtraLight200}}>Progresso: </StyledText>
+                        <Progress.Bar
+                            style={{marginTop:5, flex:1, height: 8}}
+                            color={colors.verde.padrao} 
+                            width={null} 
+                            progress={getProgres(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} 
+                        />
+                    </View>
                 </TouchableOpacity>
             }
             ListEmptyComponent={
@@ -88,8 +111,6 @@ export default function TabEventos() {
                 </TouchableOpacity>
             }
         />
-
-        <ActionButton acao={abrirModal}/>
     </>);
 }
 
@@ -99,10 +120,32 @@ const styles = StyleSheet.create({
         padding:14,
         backgroundColor: colors.cinza.background
     },
+    header:{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 20,
+        marginTop: 5
+    },
     titulo:{
         color: colors.branco.padrao,
         fontSize: 25,
         fontFamily: fonts.padrao.Bold700
+    },
+    botaoAdd: {
+        backgroundColor: colors.cinza.medio,
+        borderRadius: 25,
+        flexDirection: "row",
+        paddingHorizontal: 5,
+        paddingLeft: 7,
+        alignItems: "center"
+    },
+    textoAdd:{
+        fontFamily: fonts.padrao.Regular400
+    },
+    iconeAdd:{
+        fontSize: 24,
+        color: colors.preto.padrao,
+        marginLeft: 2
     },
     card:{
         backgroundColor: colors.branco.padrao,
@@ -114,7 +157,7 @@ const styles = StyleSheet.create({
     },
     nomeCampeonato:{
         fontSize: 17,
-        fontWeight: "700"
+        fontFamily: fonts.padrao.Bold700
     },
     containerSemCampeonatos:{
         flex: 1,

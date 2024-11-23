@@ -14,6 +14,7 @@ export default class Campeonato{
     duracao: Date;
     participantes_ids: Array<number>;
     participantes: string | undefined;
+    id_criador: number | undefined;
     nickname_criador: string | undefined;
     data_criacao: Date | undefined;
 }

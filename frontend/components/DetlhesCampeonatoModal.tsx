@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
@@ -9,6 +9,8 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { CampeonatoDetalhes, UserProgresso } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
 import ModalConfirmacao from './ModalConfirmacao';
+import StyledText from './base/styledText';
+import { fonts } from '@/constants/Fonts';
 
 interface Props {
     isVisible: boolean;
@@ -120,7 +122,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                 botaoConfirmar={
                     <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
                         <Feather name="trash-2" style={styles.iconeDeletar} />
-                        <Text style={styles.txtBotaoDeletar}>EXCLUIR</Text>
+                        <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
                     </TouchableOpacity>
                 }
             />
@@ -133,30 +135,30 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                 <TouchableWithoutFeedback>
                     <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
                         <View style={styles.titleContainer}>
-                            <Text style={styles.title}>{campeonato?.nome}</Text>
+                            <StyledText style={styles.title}>{campeonato?.nome}</StyledText>
                             <Feather name="trash-2" style={styles.botaoApagar} onPress={() => setModalConfirma(true)}/>
                         </View>
                         
                         {!novoTreino && <> 
                             <View style={styles.infoContainer}>
                                 <View style={styles.itemInfo}>
-                                    <Text>Dia final</Text>
-                                    <Text style={styles.title}>{showDiaMes(campeonato?.duracao)}</Text>
+                                    <StyledText>Dia final</StyledText>
+                                    <StyledText style={styles.title}>{showDiaMes(campeonato?.duracao)}</StyledText>
                                 </View>
                                 <View style={styles.itemInfo}>
-                                    <Text>Dias restantes</Text>
-                                    <Text style={styles.title}>{getDiasRestantes()}</Text>
+                                    <StyledText>Dias restantes</StyledText>
+                                    <StyledText style={styles.title}>{getDiasRestantes()}</StyledText>
                                 </View>
                             </View>
                             <View style={styles.infoContainer}>
                                 <View style={styles.itemInfo}>
-                                    <Text>Treinos</Text>
-                                    <Text style={styles.title}>{progresso.find(u => u.user_id == userId)?.dias ?? "..."}</Text>
+                                    <StyledText>Treinos</StyledText>
+                                    <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.dias ?? "..."}</StyledText>
                                 </View>
                                 
                                 <View style={styles.itemInfo}>
-                                    <Text>Último treino</Text>
-                                    <Text style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</Text> 
+                                    <StyledText>Último treino</StyledText>
+                                    <StyledText style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</StyledText> 
                                 </View>
                             </View>
                         </>}
@@ -164,12 +166,12 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                         {novoTreino ? 
                             <TouchableOpacity style={styles.botaoTreino} onPress={finalizarTreino}>
                                 <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                                <Text style={styles.txtBotaoNovoTreino}>Finalizar treino</Text>
+                                <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
                             </TouchableOpacity>
                         :
                             <TouchableOpacity style={styles.botaoTreino} onPress={iniciarNovoTreino}>
                                 <Entypo name="controller-play" style={styles.iconeBotaoTreino} />
-                                <Text style={styles.txtBotaoNovoTreino}>Iniciar treino</Text>
+                                <StyledText style={styles.txtBotaoNovoTreino}>INICIAR TREINO</StyledText>
                             </TouchableOpacity>
                         }
 
@@ -213,20 +215,20 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                                                 <View style={styles.card}>
                                                     <View style={styles.headerCard}>
                                                         <View style={styles.containerColumn}>
-                                                            <Text style={styles.tituloExercicio}>{item.nome}</Text>
-                                                            <Text style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</Text>
+                                                            <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
+                                                            <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</StyledText>
                                                         </View>
                                                     </View>
 
                                                     <View style={styles.containerCamposExec}>
                                                         <View style={styles.containerTxtCard}>
-                                                            <Text style={styles.txtCard}>Séries: </Text>
-                                                            <Text>{item.qtd_serie.toString()}</Text>
+                                                            <StyledText style={styles.txtCard}>Séries: </StyledText>
+                                                            <StyledText>{item.qtd_serie.toString()}</StyledText>
                                                         </View>
 
                                                         <View style={styles.containerTxtCard}>
-                                                            <Text style={styles.txtCard}>Repetições: </Text>
-                                                            <Text>{item.qtd_repeticoes.toString()}</Text>
+                                                            <StyledText style={styles.txtCard}>Repetições: </StyledText>
+                                                            <StyledText>{item.qtd_repeticoes.toString()}</StyledText>
                                                         </View>
                                                     </View>
                                                 </View>
@@ -245,18 +247,18 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                                                 onPress={() => null}
                                             >
                                                 <View>
-                                                    <Text>{index+1}</Text>
+                                                    <StyledText>{index+1}</StyledText>
                                                 </View>
 
                                                 <View style={[styles.card, styles.headerCard]}>
                                                     <View style={styles.containerColumn}>
-                                                        <Text style={styles.tituloExercicio}>{item.nickname}</Text>
-                                                        <Text style={styles.subTituloExercicio}>{item.fullname}</Text>
+                                                        <StyledText style={styles.tituloExercicio}>{item.nickname}</StyledText>
+                                                        <StyledText style={styles.subTituloExercicio}>{item.fullname}</StyledText>
                                                     </View>
 
                                                     <View style={styles.containerColumn}>
-                                                        <Text style={styles.numeroTreinos}>{item.dias}</Text>
-                                                        <Text>treinos</Text>
+                                                        <StyledText style={styles.numeroTreinos}>{item.dias}</StyledText>
+                                                        <StyledText>treinos</StyledText>
                                                     </View>
                                                 </View>
                                             </TouchableOpacity>
@@ -270,12 +272,12 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                         <View style={styles.footerTreino}>
                             <TouchableOpacity style={[styles.botaoFooter, styles.botaoFooterCancelar]} onPress={cancelarTreino}>
                                 <AntDesign name="close" style={styles.iconeBotaoTreino} />
-                                <Text style={styles.txtBotaoNovoTreino}>Cancelar</Text>
+                                <StyledText style={styles.txtBotaoNovoTreino}>CANCELAR</StyledText>
                             </TouchableOpacity>
                         
                             <TouchableOpacity style={styles.botaoFooter} onPress={finalizarTreino}>
                                 <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                                <Text style={styles.txtBotaoNovoTreino}>Finalizar treino</Text>
+                                <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
                             </TouchableOpacity>
                         </View>}
                   </View>
@@ -317,8 +319,7 @@ const styles = StyleSheet.create({
         width: "90%"
     },
     container:{
-        paddingHorizontal: 5,
-        // flex:1
+        paddingHorizontal: 5
     },
     containerNovoTreino:{
         paddingHorizontal: 5
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 16,
-        fontWeight: "700",
+        fontFamily: fonts.padrao.Bold700,
         textAlign: "center"
     },
     botaoApagar:{
@@ -366,10 +367,8 @@ const styles = StyleSheet.create({
     },
     txtBotaoNovoTreino:{
         color: colors.branco.padrao,
-        fontSize: 18,
+        fontSize: 15,
         textAlignVertical: "center",
-
-        // textTransform: "uppercase"
     },
     iconeBotaoTreino:{
         color: colors.branco.padrao,
@@ -406,11 +405,11 @@ const styles = StyleSheet.create({
     },
     tituloExercicio:{
         fontSize: 18,
-        fontWeight: "800"
+        fontFamily: fonts.padrao.Bold700
     },
     subTituloExercicio:{
         fontSize: 14,
-        fontWeight: "300",
+        fontFamily: fonts.padrao.Regular400,
         color: colors.cinza.escuro
     },
     containerTxtCard:{
@@ -430,7 +429,7 @@ const styles = StyleSheet.create({
     numeroTreinos: {
         textAlign: "center", 
         fontSize: 20, 
-        fontWeight: '800'
+        fontFamily: fonts.padrao.Bold700
     },
     footerTreino:{
         flexDirection: "row",
@@ -441,6 +440,7 @@ const styles = StyleSheet.create({
         marginVertical: 15,
         marginHorizontal: 5,
         padding: 5,
+        paddingHorizontal: 20,
         borderRadius: 15,
         flexDirection: "row",        
         backgroundColor: colors.verde.padrao,

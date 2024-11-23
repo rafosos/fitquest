@@ -1,6 +1,6 @@
 import { useSession } from '@/app/ctx';
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import RotinaService from '@/services/rotina_service';
 import { RotinaDetalhes } from '@/classes/rotina';
 import { errorHandlerDebug } from '@/services/service_config';
@@ -8,6 +8,8 @@ import { colors } from '@/constants/Colors';
 import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
 import ModalConfirmacao from './ModalConfirmacao';
+import StyledText from './base/styledText';
+import { fonts } from '@/constants/Fonts';
 
 interface Props {
     isVisible: boolean;
@@ -90,7 +92,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                 botaoConfirmar={
                     <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
                         <Feather name="trash-2" style={styles.iconeDeletar} />
-                        <Text style={styles.txtBotaoDeletar}>EXCLUIR</Text>
+                        <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
                     </TouchableOpacity>
                 }
             />
@@ -108,20 +110,20 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                         contentContainerStyle={novoTreino ? styles.containerNovoTreino : styles.container}
                         ListHeaderComponent={<>
                             <View style={styles.titleContainer}>
-                                <Text style={styles.title}>{rotina?.nome}</Text>
-                                <Feather name="trash-2" style={styles.botaoApagar} onPress={() => setModalConfirma(true)}/>
+                                <StyledText style={styles.title}>{rotina?.nome}</StyledText>
+                                {!novoTreino && <Feather name="trash-2" style={styles.botaoApagar} onPress={() => setModalConfirma(true)}/>}
                             </View>
                             
                             {!novoTreino && <> 
                             <View style={styles.infoContainer}>
                                 <View style={styles.itemInfo}>
-                                    <Text>Dias por semana</Text>
-                                    <Text style={styles.title}>{rotina?.dias}</Text>
+                                    <StyledText>Dias por semana</StyledText>
+                                    <StyledText style={styles.title}>{rotina?.dias}</StyledText>
                                 </View>
                                 
                                 <View style={styles.itemInfo}>
-                                    <Text>Último treino</Text>
-                                    <Text style={styles.title}>{showDiaMes(rotina?.ultimo_treino)}</Text>
+                                    <StyledText>Último treino</StyledText>
+                                    <StyledText style={styles.title}>{showDiaMes(rotina?.ultimo_treino)}</StyledText>
                                 </View>
                             </View>
                             </>}
@@ -129,12 +131,12 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                             {novoTreino ? 
                                 <TouchableOpacity style={styles.botaoTreino} onPress={finalizarTreino}>
                                     <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                                    <Text style={styles.txtBotaoNovoTreino}>Finalizar treino</Text>
+                                    <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
                                 </TouchableOpacity>
                             :
                                 <TouchableOpacity style={styles.botaoTreino} onPress={iniciarNovoTreino}>
                                     <Entypo name="controller-play" style={styles.iconeBotaoTreino} />
-                                    <Text style={styles.txtBotaoNovoTreino}>Iniciar treino</Text>
+                                    <StyledText style={styles.txtBotaoNovoTreino}>INICIAR TREINO</StyledText>
                                 </TouchableOpacity>
                             }
                         </>}
@@ -156,20 +158,20 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                                 <View style={styles.cardExercicio}>
                                     <View style={styles.headerCard}>
                                         <View style={styles.containerTituloExercicio}>
-                                            <Text style={styles.tituloExercicio}>{item.nome}</Text>
-                                            <Text style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</Text>
+                                            <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
+                                            <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</StyledText>
                                         </View>
                                     </View>
 
                                     <View style={styles.containerCamposExec}>
                                         <View style={styles.containerTxtCard}>
-                                            <Text style={styles.txtCard}>Séries: </Text>
-                                            <Text>{item.qtd_serie.toString()}</Text>
+                                            <StyledText style={styles.txtCard}>Séries: </StyledText>
+                                            <StyledText>{item.qtd_serie.toString()}</StyledText>
                                         </View>
 
                                         <View style={styles.containerTxtCard}>
-                                            <Text style={styles.txtCard}>Repetições: </Text>
-                                            <Text>{item.qtd_repeticoes.toString()}</Text>
+                                            <StyledText style={styles.txtCard}>Repetições: </StyledText>
+                                            <StyledText>{item.qtd_repeticoes.toString()}</StyledText>
                                         </View>
                                     </View>
                                 </View>
@@ -177,14 +179,14 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                         }
                         ListFooterComponent={novoTreino ?
                             <View style={styles.footerTreino}>
-                                <TouchableOpacity style={[styles.botaoFooter, {backgroundColor: colors.vermelho.padrao}]} onPress={cancelarTreino}>
+                                <TouchableOpacity style={[styles.botaoFooter, {backgroundColor: colors.cinza.escuro}]} onPress={cancelarTreino}>
                                     <AntDesign name="close" style={styles.iconeBotaoTreino} />
-                                    <Text style={styles.txtBotaoNovoTreino}>Cancelar</Text>
+                                    <StyledText style={styles.txtBotaoNovoTreino}>CANCELAR</StyledText>
                                 </TouchableOpacity>
                             
                                 <TouchableOpacity style={[styles.botaoFooter, {backgroundColor: colors.verde.padrao}]} onPress={finalizarTreino}>
                                     <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                                    <Text style={styles.txtBotaoNovoTreino}>Finalizar treino</Text>
+                                    <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
                                 </TouchableOpacity>
                             </View>
                         :<></>}
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 16,
-        fontWeight: "700",
+        fontFamily: fonts.padrao.Bold700,
         textAlign: "center"
     },
     botaoApagar:{
@@ -270,6 +272,7 @@ const styles = StyleSheet.create({
     botaoTreino:{
         marginVertical: 15,
         padding: 5,
+        paddingHorizontal: 15,
         borderRadius: 15,
         flexDirection: "row",        
         backgroundColor: colors.verde.padrao,
@@ -278,7 +281,6 @@ const styles = StyleSheet.create({
     },
     txtBotaoNovoTreino:{
         color: colors.branco.padrao,
-        fontSize: 18,
         textAlignVertical: "center"
     },
     iconeBotaoTreino:{
@@ -308,11 +310,11 @@ const styles = StyleSheet.create({
     },
     tituloExercicio:{
         fontSize: 18,
-        fontWeight: "800"
+        fontFamily: fonts.padrao.Bold700
     },
     subTituloExercicio:{
         fontSize: 14,
-        fontWeight: "300",
+        fontFamily: fonts.padrao.Regular400,
         color: colors.cinza.escuro
     },
     containerTxtCard:{
@@ -335,6 +337,7 @@ const styles = StyleSheet.create({
         marginVertical: 15,
         marginHorizontal: 5,
         padding: 5,
+        paddingHorizontal: 20,
         borderRadius: 15,
         flexDirection: "row",        
         backgroundColor: colors.cinza.escuro,
