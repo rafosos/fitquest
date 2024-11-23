@@ -81,7 +81,16 @@ class CadastroModel(BaseModel):
     senha: str
     
 @router.post("/cadastro")
-def cadastro(form: CadastroModel):
+def cadastro(form: CadastroModel, res: Response):
+    with Session() as sess:
+        email_ja_existe = sess.execute(select(User).where(User.email == form.email)).first()
+        if (email_ja_existe is not None):
+            raise HTTPException(status_code=400, detail="Email já está em uso")
+        
+        username_ja_existe = sess.execute(select(User).where(User.username == form.username)).first()
+        if (username_ja_existe is not None):
+            raise HTTPException(status_code=400, detail="Username já está em uso")
+
     user = User(
         username=form.username,
         fullname=form.fullname,

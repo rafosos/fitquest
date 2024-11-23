@@ -8,12 +8,12 @@ import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@r
 import UserService from "@/services/user_service";
 import ClasseService from "@/services/classe_service";
 import Classe from "@/classes/classe";
-import { errorHandlerDebug } from "@/services/service_config";
 import { fonts } from "@/constants/Fonts";
 import GradienteInicio from "@/components/GradienteInicio";
 import { colors } from "@/constants/Colors";
 import ErroInput from "@/components/ErroInput";
 import { AntDesign } from "@expo/vector-icons";
+import { showDiaMes } from "@/utils/functions";
 
 export default function Cadastro() {    
     const [username, setUsername] = useState("");
@@ -66,18 +66,27 @@ export default function Cadastro() {
         if (!nascimento) return
 
         userService.cadastrar({
-            username: username,
+            username,
             fullname,
             nascimento,
             email,
             senha
         })
             .then(res => {
+                console.log(res)
                 if (res){
                     router.back()
                 }
             })
-            .catch(err => errorHandlerDebug(err));
+            .catch(err => {
+                if (err.response){
+                    setErros({...erros, 
+                        geral: err.response.data.detail,
+                        username: err.response.data.detail.includes("Username"),
+                        email: err.response.data.detail.includes("Email"),
+                    });
+                }
+            });
     };
 
     const handleDatePickerChange = (e: DateTimePickerEvent , data?: Date) => {
@@ -96,6 +105,11 @@ export default function Cadastro() {
             
             <StyledText style={styles.title}>Cadastro</StyledText>
             <View style={styles.separator} />
+
+            <ErroInput
+                show={erros.geral} 
+                texto={erros.geral}
+            />
             
             <StyledTextInput 
                 placeholder="Username"
@@ -106,11 +120,11 @@ export default function Cadastro() {
                 blurOnSubmit={false}
                 onBlur={() => setErros({...erros, username: !username})}
                 onSubmitEditing={() => fullnameRef.current && fullnameRef.current.focus()}
-                />
+            />
             <ErroInput 
-                show={erros.username}
+                show={erros.username && !erros.geral}
                 texto="O username é obrigatório!"
-                />
+            />
 
             <StyledTextInput 
                 placeholder="Nome completo"
@@ -140,7 +154,7 @@ export default function Cadastro() {
                 onBlur={() => setErros({...erros, email: !email})}
             />
             <ErroInput 
-                show={erros.email}
+                show={erros.email && !erros.geral}
                 texto="O email é obrigatório!"
             />
 
@@ -150,7 +164,7 @@ export default function Cadastro() {
             >
                 <StyledTextInput 
                     placeholder="Data de nascimento"
-                    value={nascimento ? `${nascimento.getDate()}/${nascimento.getMonth()}/${nascimento.getFullYear()}`: undefined}
+                    value={showDiaMes(nascimento)}
                     editable={false}
                     style={{color: colors.preto.padrao}}
                 />

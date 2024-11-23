@@ -17,22 +17,21 @@ class User(Base):
     fullname: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     level: Mapped[int] = mapped_column(Integer, default=0)
-    # peso: Mapped[float] = mapped_column(nullable=True)
-    # altura: Mapped[float] = mapped_column(nullable=True)
-    # status: Mapped[str] = mapped_column(nullable=True)
-    # objetivo: Mapped[str] = mapped_column(nullable=True)
+    peso: Mapped[float] = mapped_column(nullable=True)
+    altura: Mapped[float] = mapped_column(nullable=True)
+    status: Mapped[str] = mapped_column(nullable=True)
     admin: Mapped[bool]
     senha: Mapped[str]
     nascimento: Mapped[datetime.date]
+    # objetivo: Mapped[str] = mapped_column(nullable=True)
     # classe_id = mapped_column(ForeignKey("classe.id"))
-
 
     # classe: Mapped["Classe"] = relationship(back_populates="users")
     treinos: Mapped[List["Treino"]] = relationship(back_populates="user")
     exercicios_custom: Mapped[List["Exercicio"]] = relationship(back_populates="user")
     skills: Mapped[List["Skill"]] = relationship(secondary=user_skill)
     campeonatos: Mapped[List["Campeonato"]] = relationship(secondary=user_campeonato)
-    
+
     amizades_sent: Mapped[List["Amizade"]] = relationship("Amizade", foreign_keys=[Amizade.user1_id], back_populates="user1")
     amizades_received: Mapped[List["Amizade"]] = relationship("Amizade", foreign_keys=[Amizade.user2_id], back_populates="user2")
 
