@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { useSession } from "./ctx";
 import StyledText from "@/components/base/styledText";
 import { router } from "expo-router";
@@ -18,6 +18,7 @@ export default function Login() {
     const [erros, setErros] = useState<any>({});
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
+    const [loading, setLoading] = useState(false);
   
     const passRef = useRef<TextInput>(null);
 
@@ -35,6 +36,7 @@ export default function Login() {
         // se algum erro existe, a função .some vai voltar true e não vai chamar submit
         if(Object.values(erroObj).some(err => err)) return;
 
+        setLoading(true);
         userService.login(login, senha)
             .then(res => {
                 if (res){
@@ -53,7 +55,8 @@ export default function Login() {
                     setErros({...erroObj, geral: `Erro: ${err.message}`});
                 else
                     setErros({...erroObj, geral: `Erro: ${err.message}`});
-                });
+            })
+            .finally(() => setLoading(false));
     };
 
     return (
@@ -103,7 +106,8 @@ export default function Login() {
             />
 
             <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
-                <StyledText style={styles.txtBotaoEntrar}>ENTRAR</StyledText>
+            {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
+                <StyledText style={styles.txtBotaoEntrar}>ENTRAR</StyledText>}
             </TouchableOpacity>
 
             <View style={styles.separator} />

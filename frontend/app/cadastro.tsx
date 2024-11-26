@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, TextInput, View, TouchableOpacity, Platform } from "react-native";
+import { StyleSheet, TextInput, View, TouchableOpacity, Platform, ActivityIndicator } from "react-native";
 import { router, useNavigation } from "expo-router";
 import StyledText from "@/components/base/styledText";
 import StyledTextInput from "@/components/base/styledTextInput";
@@ -22,22 +22,23 @@ export default function Cadastro() {
     const [nascimento, setNascimento] = useState<Date>();
     const [erros, setErros] = useState<any>({});
     const [senha, setSenha] = useState("");
-    const [classes, setClasses] = useState<Classe[]>([]);
+    const [loading, setLoading] = useState(false);
+    // const [classes, setClasses] = useState<Classe[]>([]);
     const [datePicker, setDatePicker] = useState(false);
     
     const userService = UserService();
-    const classeService = ClasseService();
+    // const classeService = ClasseService();
 
     const fullnameRef = useRef<TextInput>(null);
     const emailRef = useRef<TextInput>(null);
     
     const navigator = useNavigation();
 
-    useEffect(() => {
-        classeService.getAll()
-            .then(res => setClasses(res))
-            .catch(err => console.log(err));
-    }, []);
+    // useEffect(() => {
+    //     classeService.getAll()
+    //         .then(res => setClasses(res))
+    //         .catch(err => console.log(err));
+    // }, []);
 
     useEffect(() => {
         if (Platform.OS == "android" && datePicker)
@@ -65,6 +66,7 @@ export default function Cadastro() {
         if(Object.values(erroObj).some(err => err)) return;
         if (!nascimento) return
 
+        setLoading(true);
         userService.cadastrar({
             username,
             fullname,
@@ -73,7 +75,6 @@ export default function Cadastro() {
             senha
         })
             .then(res => {
-                console.log(res)
                 if (res){
                     router.back()
                 }
@@ -86,7 +87,8 @@ export default function Cadastro() {
                         email: err.response.data.detail.includes("Email"),
                     });
                 }
-            });
+            })
+            .finally(()=>setLoading(false));
     };
 
     const handleDatePickerChange = (e: DateTimePickerEvent , data?: Date) => {
@@ -164,7 +166,7 @@ export default function Cadastro() {
             >
                 <StyledTextInput 
                     placeholder="Data de nascimento"
-                    value={showDiaMes(nascimento)}
+                    value={showDiaMes(nascimento) == "..." ? undefined : showDiaMes(nascimento)}
                     editable={false}
                     style={{color: colors.preto.padrao}}
                 />
@@ -195,7 +197,9 @@ export default function Cadastro() {
             />
 
             <TouchableOpacity style={styles.botaoEnviar} onPress={handleCadastrar}>
-                <StyledText style={styles.textBotaoEnviar}>CADASTRAR</StyledText>
+                {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
+                    <StyledText style={styles.textBotaoEnviar}>CADASTRAR</StyledText>
+                }
             </TouchableOpacity>
     </View>
   );
