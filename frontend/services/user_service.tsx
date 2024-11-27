@@ -1,5 +1,6 @@
 import User from "@/classes/user";
-import { deletar, get, post, put } from "./service_config";
+import { deletar, get, patch, post, put } from "./service_config";
+import { InformacoesUsuario } from "@/classes/streaks";
 
 export default function UserService(){
 
@@ -42,6 +43,11 @@ export default function UserService(){
         const promise = get<User[]>(`/get-pedidos-amizade/${user_id}`);
         return promise.then(res => res.data);
     }
+    
+    const getInformacoesUsuario = (user_id: number) => {
+        const promise = get<InformacoesUsuario>(`/informacoes/${user_id}`);
+        return promise.then(res => res.data);
+    }
 
     const aceitarAmizade = (user_id: string, id: number) =>{
         const promise = put<boolean>(`/status-pedido-amizade/${user_id}`, {id, status: 1});
@@ -58,5 +64,15 @@ export default function UserService(){
         return promise.then(res => res.data);
     }
 
-    return {cadastrar, login, addAmigo, getAmigos, getAmigosFilter, getPedidosAmizade, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade}
+    const editarPeso = (user_id: string, valor: number) => {
+        const promise = patch<boolean>(`/${user_id}/peso`, {valor});
+        return promise.then(res => res.data);
+    }
+
+    const editarAltura = (user_id: string, valor: number) => {
+        const promise = patch<boolean>(`/${user_id}/altura`, {valor});
+        return promise.then(res => res.data);
+    }
+
+    return {cadastrar, login, addAmigo, getAmigos, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
 }

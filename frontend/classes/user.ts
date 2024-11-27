@@ -12,4 +12,6 @@ export default class User{
     level: number = 0;
     admin = false;
     nascimento: Date = new Date();
+    peso: number | undefined;
+    altura: number | undefined;
 }

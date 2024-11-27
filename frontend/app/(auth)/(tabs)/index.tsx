@@ -3,10 +3,13 @@ import { InformacoesUsuario } from '@/classes/streaks';
 import User from '@/classes/user';
 import { TipoTreino, TreinoResumo } from '@/classes/user_exercicio';
 import StyledText from '@/components/base/styledText';
+import ErroInput from '@/components/ErroInput';
+import { ModalEditarPesoAltura, TipoModalPesoAltura } from '@/components/ModalEditarPesoAltura';
 import { colors } from '@/constants/Colors';
 import { fonts } from '@/constants/Fonts';
 import ExercicioService from '@/services/exercicio_service';
 import { errorHandlerDebug } from '@/services/service_config';
+import UserService from '@/services/user_service';
 import { showDiaMes } from '@/utils/functions';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
@@ -14,15 +17,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, RefreshControl, StyleSheet, View } from 'react-native';
 
 class DataFlatlist{
-  constructor(title:string, value: any, editable = true) {
+  constructor(title:string, value: any, editable = true, tipo: TipoModalPesoAltura | undefined = undefined) {
     this.title = title;
     this.value = value;
     this.editable = editable;
+    this.tipo = tipo;
   }
 
   title: string;
   value: any;
-  editable:boolean;
+  editable: boolean;
+  tipo: TipoModalPesoAltura | undefined;
 }
 
 export default function TabAvatar() {
@@ -30,22 +35,34 @@ export default function TabAvatar() {
     const [atividades, setAtividades] = useState<TreinoResumo[]>([]);
     const [informacoesUsuario, setInformacoesUsuario] = useState<InformacoesUsuario>();
     const [refreshing, setRefreshing] = useState(false);
+    const [erro, setErro] = useState<string>();
+    const [modalPesoAltura, setModalPesoAltura] = useState<{tipo: TipoModalPesoAltura, valorOriginal: number, visible: boolean}>();
     const user: User = useRef(JSON.parse(userString ?? "{}")).current;
     const exercicioService = ExercicioService();
+    const userService = UserService();
 
     useEffect(() => {
-         refresh();
+        refresh();
     }, []);
     
     const refresh = () => {
+        setModalPesoAltura({...modalPesoAltura, visible: false});
+        getInformacoesUsuario();
         getAtividades();
-        getStreaks();  
     }
 
-    const getStreaks = () => {
-        exercicioService.getStreaks(user.id)
-            .then(res => setInformacoesUsuario(res))
-            .catch(err => errorHandlerDebug(err));
+    const getInformacoesUsuario = () => {
+        userService.getInformacoesUsuario(user.id)
+            .then(res => {
+                setInformacoesUsuario(res);
+                setErro("");
+            })
+            .catch(err => {
+                if (err.response){
+                    setErro(err.response.data.detail)}
+                else
+                    setErro(err.message)
+            });
     }
     
     const getAtividades = () => {
@@ -60,13 +77,21 @@ export default function TabAvatar() {
         return [
             new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
             new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false),
-            new DataFlatlist('Peso', informacoesUsuario?.peso ?? "..."),
-            new DataFlatlist('Altura', informacoesUsuario?.altura ?? "..."),
+            new DataFlatlist('Peso', informacoesUsuario?.peso ?? "...", true, TipoModalPesoAltura.peso),
+            new DataFlatlist('Altura', informacoesUsuario?.altura ?? "...", true, TipoModalPesoAltura.altura),
         ];
     }
 
     return (
       <View style={s.container}>
+        {modalPesoAltura && 
+          <ModalEditarPesoAltura 
+            visible={modalPesoAltura.visible}
+            valorOriginal={modalPesoAltura.valorOriginal}
+            onClose={refresh}
+            tipo={modalPesoAltura.tipo}
+          />
+        }
         <FlatList
             contentContainerStyle={s.containerFlatlist}
             data={atividades}
@@ -83,6 +108,12 @@ export default function TabAvatar() {
                     <Image style={s.gifAvatar} source={require('@/assets/images/avatar-home.png')} />
                 </View>
 
+                <ErroInput 
+                    show={!!erro}
+                    texto={erro}
+                    setShow={setErro}
+                />
+
                 <FlatList
                     data={getData()}
                     horizontal
@@ -90,7 +121,17 @@ export default function TabAvatar() {
                     renderItem={({item}) =>
                         <View style={[s.card, s.cardInformacoesPessoais]}>
                             <StyledText>{item.title}: <StyledText style={s.txtStreak}>{item.value}</StyledText></StyledText> 
-                            {item.editable && <MaterialIcons name="edit" style={s.iconeEditar} />}
+                            {(item.editable && item.tipo != undefined) &&
+                              <MaterialIcons 
+                                name="edit" 
+                                style={s.iconeEditar} 
+                                onPress={() => setModalPesoAltura({
+                                  tipo: item.tipo,
+                                  valorOriginal: item.value == "..." || !item.value ? "0" : item.value, 
+                                  visible: true
+                                })}
+                              />
+                            }
                         </View>
                     }
                 />

@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Body, Response, status
+from fastapi import APIRouter, Body, Response, status, HTTPException
 from typing import Annotated
 from db.db import Session
 from sqlalchemy import select, or_, case, and_
 from datetime import date
-
+from .exercicio import get_streaks_geral
 from classes.amizade import Amizade
 from classes.user import User
 from classes.status import Status, statuses
@@ -20,14 +20,14 @@ def add_amigo(user_id: int, res: Response, amigoId: int = Body(..., embed=True))
         amigo = sess.execute(stmt).first()
         if (amigo is None):
             res.status_code = status.HTTP_400_BAD_REQUEST
-            return f"Usuário com id {amigoId} não encontrado."
+            raise HTTPException(status_code=400, detail=f"Usuário com id {amigoId} não encontrado.")
         amigo = amigo[0]
 
         stmt = select(User).where(User.id == user_id)
         user = sess.execute(stmt).first()
         if (user is None):
             res.status_code = status.HTTP_400_BAD_REQUEST
-            return f"Usuário com id {user_id} não encontrado."
+            raise HTTPException(status_code=400, detail=f"Usuário com id {user_id} não encontrado.")
         
         user = user[0]
         friendship_exists = sess.query(Amizade).filter(
@@ -36,7 +36,7 @@ def add_amigo(user_id: int, res: Response, amigoId: int = Body(..., embed=True))
         ).first()
         if friendship_exists:
             res.status_code = status.HTTP_400_BAD_REQUEST
-            return "A amizade já existe."
+            raise HTTPException(status_code=400, detail="A amizade já existe.")
         
         amizade = Amizade(status_id=2, data=date.today())
         amizade.user2 = amigo
@@ -134,6 +134,19 @@ def get_pedidos_amizade(user_id: int):
         amigos = sess.scalars(stmt).all()
         return amigos
     
+@router.get("/informacoes/{user_id}")
+def get_informacoes_usuario(user_id:int):
+    with Session() as sess:
+        infos = sess.execute(select(User.id, User.altura, User.peso).where(User.id == user_id)).mappings().first()
+        if not infos:
+            raise HTTPException(status_code=400, detail="Usuário não encontrado.")
+
+        streaks = get_streaks_geral(user_id)
+        res = dict()
+        res.update(infos)
+        res.update(streaks)
+        return res
+    
 @router.put("/status-pedido-amizade/{user_id}")
 def change_status_pedido_amizade(user_id: int, id: Annotated[int, Body()], status: Annotated[int, Body()], res: Response):
     with Session() as sess:
@@ -179,3 +192,25 @@ def delete_amizade(user_id: int, id: int):
             return err
 
         return f"Amizade deletada com sucesso"
+    
+@router.patch("/{user_id}/peso")
+def editar_peso(user_id:int, valor: float = Body(..., embed=True)):
+    with Session() as sess:
+        user = sess.scalar(select(User).where(User.id == user_id))
+        if not user:
+            raise HTTPException(status_code=400, detail=f"Usuário com id {user_id} não encontrado")
+        
+        user.peso = valor
+        sess.commit()
+        return "Valor atualizado com sucesso"
+    
+@router.patch("/{user_id}/altura")
+def editar_altura(user_id:int, valor: float = Body(..., embed=True)):
+    with Session() as sess:
+        user = sess.scalar(select(User).where(User.id == user_id))
+        if not user:
+            raise HTTPException(status_code=400, detail=f"Usuário com id {user_id} não encontrado")
+        
+        user.altura = valor
+        sess.commit()
+        return "Valor atualizado com sucesso"

@@ -26,6 +26,9 @@ const put = <T extends unknown>(endpoint: string, params: any = {}) =>
 const deletar = <T extends unknown>(endpoint: string, params: any = {}) => 
     axios.delete<T>(API_URL + endpoint, {params})
 
+const patch = <T extends unknown>(endpoint: string, params: any = {}) => 
+    axios.patch<T>(API_URL + endpoint, params)
+
 
 const errorHandlerDebug = (error: any) => {
     console.log("\n\nerror.toJson:  ################################################################################")
@@ -47,4 +50,4 @@ const errorHandlerDebug = (error: any) => {
 }
 
 
-export {get, post, put, deletar, errorHandlerDebug}
+export {get, post, put, deletar, errorHandlerDebug, patch}
