@@ -214,3 +214,33 @@ def editar_altura(user_id:int, valor: float = Body(..., embed=True)):
         user.altura = valor
         sess.commit()
         return "Valor atualizado com sucesso"
+    
+@router.get("/perfil/{user_id}/{amigo_id}")
+def get_user_perfil(user_id: int, amigo_id: int):
+    with Session() as sess:
+        user = sess.execute(select(
+            User.fullname,
+            User.username,
+            User.peso,
+            User.altura,
+            Amizade.status_id.label("status_amizade")
+        )
+        .join(Amizade, 
+                or_(
+                    and_(User.id == Amizade.user1_id, Amizade.user2_id == user_id), 
+                    and_(User.id == Amizade.user2_id, Amizade.user1_id == user_id) 
+                ),
+                isouter=True
+            )
+        .where(User.id == amigo_id)).mappings().first()
+
+        if not user:
+            raise HTTPException(status_code=400, detail="Usuário não encontrado")
+
+        streaks = {}
+        try:
+            streaks = get_streaks_geral(amigo_id)
+        except:
+            print("deu ruim nos streaks")
+
+        return {**user, **streaks}

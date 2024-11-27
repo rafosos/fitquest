@@ -31,12 +31,12 @@ class DataFlatlist{
 }
 
 export default function TabAvatar() {
-    const { user: userString } = useSession();
     const [atividades, setAtividades] = useState<TreinoResumo[]>([]);
     const [informacoesUsuario, setInformacoesUsuario] = useState<InformacoesUsuario>();
     const [refreshing, setRefreshing] = useState(false);
     const [erro, setErro] = useState<string>();
     const [modalPesoAltura, setModalPesoAltura] = useState<{tipo: TipoModalPesoAltura, valorOriginal: number, visible: boolean}>();
+    const { user: userString } = useSession();
     const user: User = useRef(JSON.parse(userString ?? "{}")).current;
     const exercicioService = ExercicioService();
     const userService = UserService();
@@ -209,7 +209,8 @@ const s = StyleSheet.create({
     fontSize: 20,
     fontFamily: fonts.padrao.Medium500,
     textAlign: 'center',
-    color: colors.branco.padrao
+    color: colors.branco.padrao,
+    marginTop: 10
   },
   card:{
     marginVertical: 5,

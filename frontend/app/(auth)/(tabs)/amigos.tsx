@@ -5,13 +5,13 @@ import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
 import AddUserModal from '@/components/AddUserModal';
 import UserService from '@/services/user_service';
-import ActionButton from '@/components/ActionButton';
 import { colors } from '@/constants/Colors';
 import ModalConfirmacao from '@/components/ModalConfirmacao';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { errorHandlerDebug } from '@/services/service_config';
 import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
+import { router } from 'expo-router';
 
 export default function TabAmigos() {
     const [addModal, setAddModal] = useState(false);
@@ -79,6 +79,8 @@ export default function TabAmigos() {
             .catch(err => errorHandlerDebug(err));
     }
 
+    const abrirTelaAmigo = (amigoId:number) => router.navigate({pathname: '/(auth)/perfil', params:{userId: amigoId}});
+
     return (<View style={styles.container}>
         <AddUserModal
             isVisible={addModal}
@@ -101,17 +103,21 @@ export default function TabAmigos() {
             data={amigos}
             contentContainerStyle={styles.containerAmigos}
             refreshControl={<RefreshControl refreshing={loadingAmigos} onRefresh={refreshAmigos}/>}
-            ListHeaderComponent={<>
+            ListHeaderComponent={<View style={styles.containerHeader}>
                 <StyledText style={styles.titulo}>Amigos</StyledText>
-            </>}
-            renderItem={({item:amigo}) => 
-                <View style={styles.cardAmigo}>
+                <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
+                        <StyledText style={styles.textoAdd}>Adicionar amigo</StyledText>
+                        <Ionicons name="add-circle" style={styles.iconeAdd} />
+                    </TouchableOpacity>
+            </View>}
+            renderItem={({item:amigo}) =>
+                <TouchableOpacity style={styles.cardAmigo} onPress={() => abrirTelaAmigo(amigo.id)}>
                     <View>
                         <StyledText style={styles.username}>{amigo.username}</StyledText>
                         <StyledText style={styles.fullname}>{amigo.fullname}</StyledText>
                     </View>
                     <Feather name="trash-2" size={24} color={colors.vermelho.padrao} onPress={() => setModalConfirma({show:true, user: amigo})}/>
-                </View>
+                </TouchableOpacity>
             }
             ListEmptyComponent={
                 <View style={styles.containerSemAmigos}>
@@ -128,8 +134,8 @@ export default function TabAmigos() {
             ListHeaderComponent={<>
                 <StyledText style={styles.subTitulo}>Pedidos de amizade</StyledText>
             </>}
-            renderItem={({item:pedido}) => 
-                <View style={styles.cardAmigo}>
+            renderItem={({item:pedido}) =>
+                <TouchableOpacity style={styles.cardAmigo} onPress={() => abrirTelaAmigo(pedido.id)}>
                     <View>
                         <StyledText style={styles.username}>{pedido.username}</StyledText>
                         <StyledText style={styles.fullname}>{pedido.fullname}</StyledText>
@@ -143,14 +149,13 @@ export default function TabAmigos() {
                             <StyledText style={styles.txtBotao}>ACEITAR</StyledText>  
                         </TouchableOpacity>
                     </View>
-                </View>
+                </TouchableOpacity>
             }
             ListEmptyComponent={<>
-            <StyledText style={styles.textoSemPedidos}>Você não tem pedidos pendentes.</StyledText>
+                <StyledText style={styles.textoSemPedidos}>Você não tem pedidos pendentes.</StyledText>
             </>}
         />
 
-        <ActionButton acao={abrirModal}/>
         </View>
     );
 }
@@ -164,10 +169,30 @@ const styles = StyleSheet.create({
         flex:1,
         padding:14
     },
+    containerHeader:{
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
     titulo:{
         fontSize: 25,
         fontFamily: fonts.padrao.Bold700,
         color: colors.branco.padrao
+    },
+    botaoAdd: {
+        backgroundColor: colors.cinza.medio,
+        borderRadius: 25,
+        flexDirection: "row",
+        paddingHorizontal: 5,
+        paddingLeft: 7,
+        alignItems: "center"
+    },
+    textoAdd:{
+        fontFamily: fonts.padrao.Regular400
+    },
+    iconeAdd:{
+        fontSize: 24,
+        color: colors.preto.padrao,
+        marginLeft: 2
     },
     cardAmigo:{
         backgroundColor: colors.branco.padrao,

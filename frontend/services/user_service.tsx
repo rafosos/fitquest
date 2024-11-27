@@ -1,4 +1,4 @@
-import User from "@/classes/user";
+import User, { UserPerfil } from "@/classes/user";
 import { deletar, get, patch, post, put } from "./service_config";
 import { InformacoesUsuario } from "@/classes/streaks";
 
@@ -73,6 +73,11 @@ export default function UserService(){
         const promise = patch<boolean>(`/${user_id}/altura`, {valor});
         return promise.then(res => res.data);
     }
+    
+    const getPerfilUsuario = (user_id:number, amigo_id: number) => {
+        const promise = get<UserPerfil>(`/perfil/${user_id}/${amigo_id}`);
+        return promise.then(res => res.data);
+    }
 
-    return {cadastrar, login, addAmigo, getAmigos, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
+    return {cadastrar, login, addAmigo, getAmigos, getPerfilUsuario, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
 }
