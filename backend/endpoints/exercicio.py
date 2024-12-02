@@ -82,13 +82,13 @@ def query_streak_dia(user_id):
           f"select \
                 min(lag_data) streak_start, \
                 max(data) streak_end, \
-                count(*) + 1 streak_length \
+                count(*) streak_length \
             from ( \
                 select \
                     t.*, \
                     sum( \
                         case \
-                            when data = lag_data + INTERVAL '1 day' \
+                            when lag_data is null or data = lag_data + INTERVAL '1 day' \
                             then 0 \
                             else 1 \
                         end \
@@ -124,8 +124,10 @@ def query_streak_semana(user_id):
         t,
         case(
             (literal_column("t.semana") == literal_column("t.semana_passada"), 2),
-            (literal_column("t.semana") != literal_column("t.semana_passada") 
-                and literal_column("t.semana") == func.date_part('week', literal_column("t.data_passada") + bindparam("semana_prox", timedelta(weeks=1), Interval())), 0),
+            (literal_column("t.semana_passada").is_(None), 0),
+            (literal_column("t.semana") != literal_column("t.semana_passada")
+            and literal_column("t.semana") == func.date_part('week', literal_column("t.data_passada") + bindparam("semana_prox", timedelta(weeks=1), Interval()))
+            , 0),
             else_=1
         ).label('grp')
     ).select_from(t) \
@@ -134,7 +136,7 @@ def query_streak_semana(user_id):
     stmt = select(
         func.min(literal_column("cte1.semana_passada")).label("streak_start"),
         func.max(literal_column("cte1.semana")).label("streak_end"),
-        (func.count() + 1).label("streak_length")
+        (func.count()).label("streak_length")
     ).select_from(cte1)\
     .where(literal_column("cte1.grp") == 0)
     
