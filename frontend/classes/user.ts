@@ -37,4 +37,19 @@ export class UserPerfil{
     status_amizade: StatusAmizade | undefined;
     streak_semanal: Streak | undefined;
     streak_diario: Streak | undefined;
-} 
+    autor_pedido: boolean | undefined;
+}
+
+export class PedidoAmizade{
+    constructor(id: number, nome: string, username: string, status: StatusAmizade) {
+        this.id = id;
+        this.fullname = nome;
+        this.username = username;
+        this.status = status;
+    }
+
+    id: number;
+    username: string;
+    fullname: string;
+    status: StatusAmizade
+}

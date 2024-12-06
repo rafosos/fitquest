@@ -10,6 +10,7 @@ from classes.status import Status, statuses
 
 router = APIRouter(
     tags=["user"],
+    prefix='/user',
     responses={404: {"description": "Not found"}}
 )
 
@@ -192,28 +193,17 @@ def delete_amizade(user_id: int, id: int):
             return err
 
         return f"Amizade deletada com sucesso"
-    
-@router.patch("/{user_id}/peso")
-def editar_peso(user_id:int, valor: float = Body(..., embed=True)):
+        
+@router.patch("/{user_id}/{campo}")
+def editar_altura(user_id:int, campo: str, valor: str = Body(..., embed=True)):
     with Session() as sess:
         user = sess.scalar(select(User).where(User.id == user_id))
         if not user:
             raise HTTPException(status_code=400, detail=f"Usuário com id {user_id} não encontrado")
         
-        user.peso = valor
+        setattr(user, campo, valor)
         sess.commit()
-        return "Valor atualizado com sucesso"
-    
-@router.patch("/{user_id}/altura")
-def editar_altura(user_id:int, valor: float = Body(..., embed=True)):
-    with Session() as sess:
-        user = sess.scalar(select(User).where(User.id == user_id))
-        if not user:
-            raise HTTPException(status_code=400, detail=f"Usuário com id {user_id} não encontrado")
-        
-        user.altura = valor
-        sess.commit()
-        return "Valor atualizado com sucesso"
+        return user
     
 @router.get("/perfil/{user_id}/{amigo_id}")
 def get_user_perfil(user_id: int, amigo_id: int):
@@ -223,7 +213,8 @@ def get_user_perfil(user_id: int, amigo_id: int):
             User.username,
             User.peso,
             User.altura,
-            Amizade.status_id.label("status_amizade")
+            Amizade.status_id.label("status_amizade"),
+            case((Amizade.user1_id == user_id, True), else_=False).label("autor_pedido")
         )
         .join(Amizade, 
                 or_(

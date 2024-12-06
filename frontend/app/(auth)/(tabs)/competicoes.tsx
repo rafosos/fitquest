@@ -74,7 +74,6 @@ export default function TabEventos() {
                 <View style={styles.header}>
                     <StyledText style={styles.titulo}>Campeonatos</StyledText>
                     <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
-                        <StyledText style={styles.textoAdd}>Adicionar campeonato</StyledText>
                         <Ionicons name="add-circle" style={styles.iconeAdd} />
                     </TouchableOpacity>
                 </View>
@@ -86,7 +85,7 @@ export default function TabEventos() {
                         <StyledText style={styles.itemCompeticao}>Criado por: <StyledText>{campeonato.id_criador == userId ? "você" : campeonato.username_criador}</StyledText></StyledText>
                         <StyledText style={styles.itemCompeticao}>Criado em: <StyledText>{showDiaMes(campeonato.data_criacao)}</StyledText></StyledText>
                     </View>
-                    <StyledText style={styles.itemCompeticao}>Participantes: <StyledText>você, {campeonato.participantes}</StyledText></StyledText>
+                    <StyledText style={styles.itemCompeticao}>Participantes: <StyledText>você{!!campeonato.participantes ? `,${campeonato.participantes}` : ""}</StyledText></StyledText>
                     <View style={styles.containerCriadoCampeonato}>
                         <StyledText style={styles.txtProgresso}>Progresso: </StyledText>
                         <Progress.Bar
@@ -118,7 +117,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 20,
-        marginTop: 5
     },
     titulo:{
         color: colors.branco.padrao,
@@ -130,7 +128,6 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         flexDirection: "row",
         paddingHorizontal: 5,
-        paddingLeft: 7,
         alignItems: "center"
     },
     textoAdd:{
@@ -139,7 +136,6 @@ const styles = StyleSheet.create({
     iconeAdd:{
         fontSize: 24,
         color: colors.preto.padrao,
-        marginLeft: 2
     },
     card:{
         backgroundColor: colors.branco.padrao,

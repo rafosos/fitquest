@@ -35,6 +35,11 @@ export enum TipoTreino{
     Campeonato = 2
 }
 
+export enum StatusTreino{
+    ativo = 1,
+    deletado
+}
+
 export class TreinoResumo{
     constructor(id:number, data: Date, exercicios: string) {
         this.id = id;

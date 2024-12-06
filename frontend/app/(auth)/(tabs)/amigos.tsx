@@ -12,13 +12,13 @@ import { errorHandlerDebug } from '@/services/service_config';
 import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
 import { router } from 'expo-router';
+import { ModalPedidosAmizade } from '@/components/ModalPedidosAmizade';
 
 export default function TabAmigos() {
     const [addModal, setAddModal] = useState(false);
     const [amigos, setAmigos] = useState<User[]>([]);
+    const [modalPedidos, setModalPedidos] = useState(false);
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, user: User | null}>({show: false, user: null});
-    const [pedidosAmizade, setPedidosAmizade] = useState<User[]>([]);
-    const [loadingRequests, setLoadingRequests] = useState(false);
     const [loadingAmigos, setLoadingAmigos] = useState(false);
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
@@ -31,7 +31,6 @@ export default function TabAmigos() {
         if(!userId) return;
 
         refreshAmigos();
-        refreshRequests();
     }
         
     const refreshAmigos = () => {
@@ -41,30 +40,13 @@ export default function TabAmigos() {
             .catch(err => console.log(err))
             .finally(() => setLoadingAmigos(false));          
     }
-    
-    const refreshRequests = () => {
-        setLoadingRequests(true);
-        userService.getPedidosAmizade(userId)
-            .then(res => setPedidosAmizade(res))
-            .catch(err => console.log(err))
-            .finally(() => setLoadingRequests(false))
-    }
-    
+        
     const onCloseModal = () => {
         setAddModal(false);
+        setModalPedidos(false);
         refreshFriendList();
         // show smth for user, some feedback
     }
-
-    const aceitarAmizade = (id: number) =>
-        userId && userService.aceitarAmizade(userId, id)
-            .then(res => refreshFriendList())
-            .catch(err => console.log(err));
-    
-    const recusarAmizade = (id: number) => 
-        userId && userService.recusarAmizade(userId, id)
-                .then(res => refreshFriendList())
-                .catch(err => console.log(err));
 
     const abrirModal = () => setAddModal(true);
 
@@ -87,16 +69,18 @@ export default function TabAmigos() {
             onClose={onCloseModal}
         />
 
+        <ModalPedidosAmizade 
+            visible={modalPedidos}
+            onClose={onCloseModal}
+            setVisible={setModalPedidos}
+        />
+
         <ModalConfirmacao
             show={modalConfirma.show}
-            onClose={() => setModalConfirma({show: false, user: null})}
+            onClose={onCloseModal}
             onConfirma={deletarAmizade}
-            titulo={`Deseja realmente desfazer a amizade com ${modalConfirma.user?.username}?`}
-            botaoConfirmar={
-            <TouchableOpacity onPress={deletarAmizade} style={styles.botaoConfirmaDeletar}>
-                <Feather name="trash-2" size={18} color={colors.branco.padrao}/>
-                <StyledText style={styles.txtConfirmaDeletar}>DESFAZER</StyledText>
-            </TouchableOpacity>}
+            titulo="Desfazer amizade"
+            subtitulo={`Deseja mesmo desfazer a amizade com ${modalConfirma.user?.username}?`}
         />
 
         <FlatList
@@ -105,10 +89,14 @@ export default function TabAmigos() {
             refreshControl={<RefreshControl refreshing={loadingAmigos} onRefresh={refreshAmigos}/>}
             ListHeaderComponent={<View style={styles.containerHeader}>
                 <StyledText style={styles.titulo}>Amigos</StyledText>
-                <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
-                        <StyledText style={styles.textoAdd}>Adicionar amigo</StyledText>
+                <View style={styles.botoesHeaderContainer}>
+                    <TouchableOpacity style={styles.botaoPedidos} onPress={() => setModalPedidos(true)}>
+                        <Ionicons name="notifications-circle" style={styles.iconeAdd} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
                         <Ionicons name="add-circle" style={styles.iconeAdd} />
                     </TouchableOpacity>
+                </View>
             </View>}
             renderItem={({item:amigo}) =>
                 <TouchableOpacity style={styles.cardAmigo} onPress={() => abrirTelaAmigo(amigo.id)}>
@@ -127,35 +115,6 @@ export default function TabAmigos() {
             }
         />
 
-        <FlatList
-            data={pedidosAmizade}
-            refreshControl={<RefreshControl refreshing={loadingRequests} onRefresh={refreshRequests}/>}
-            contentContainerStyle={styles.containerAmigos}
-            ListHeaderComponent={<>
-                <StyledText style={styles.subTitulo}>Pedidos de amizade</StyledText>
-            </>}
-            renderItem={({item:pedido}) =>
-                <TouchableOpacity style={styles.cardAmigo} onPress={() => abrirTelaAmigo(pedido.id)}>
-                    <View>
-                        <StyledText style={styles.username}>{pedido.username}</StyledText>
-                        <StyledText style={styles.fullname}>{pedido.fullname}</StyledText>
-                    </View>
-
-                    <View style={{flexDirection: 'row'}}>
-                        <TouchableOpacity onPress={() => recusarAmizade(pedido.id)} style={[styles.botaoPedido, styles.botaoRecusar]}>
-                            <StyledText style={styles.txtBotao}>RECUSAR</StyledText>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => aceitarAmizade(pedido.id)} style={[styles.botaoPedido, styles.botaoAceitar]}>
-                            <StyledText style={styles.txtBotao}>ACEITAR</StyledText>  
-                        </TouchableOpacity>
-                    </View>
-                </TouchableOpacity>
-            }
-            ListEmptyComponent={<>
-                <StyledText style={styles.textoSemPedidos}>Você não tem pedidos pendentes.</StyledText>
-            </>}
-        />
-
         </View>
     );
 }
@@ -170,6 +129,7 @@ const styles = StyleSheet.create({
         padding:14
     },
     containerHeader:{
+        marginBottom: 20,
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
@@ -178,21 +138,26 @@ const styles = StyleSheet.create({
         fontFamily: fonts.padrao.Bold700,
         color: colors.branco.padrao
     },
-    botaoAdd: {
+    botoesHeaderContainer:{
         backgroundColor: colors.cinza.medio,
         borderRadius: 25,
         flexDirection: "row",
         paddingHorizontal: 5,
-        paddingLeft: 7,
         alignItems: "center"
+    },
+    botaoPedidos:{
+        marginRight: 5
+    },
+    botaoAdd: {
+        // paddingLeft: 7,
     },
     textoAdd:{
         fontFamily: fonts.padrao.Regular400
+        // marginRight: 2
     },
     iconeAdd:{
         fontSize: 24,
         color: colors.preto.padrao,
-        marginLeft: 2
     },
     cardAmigo:{
         backgroundColor: colors.branco.padrao,

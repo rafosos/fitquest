@@ -1,17 +1,19 @@
 import { useSession } from '@/app/ctx';
 import UserService from '@/services/user_service';
-import { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, Dimensions, TouchableOpacity } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import BaseModal from './base/modal';
 import { colors } from '@/constants/Colors';
 import { AutocompleteDropdown, AutocompleteDropdownItem } from 'react-native-autocomplete-dropdown';
 import { Feather } from '@expo/vector-icons';
 import { errorHandlerDebug } from '@/services/service_config';
+import ErroInput from './ErroInput';
 
 export default function AddUserModal({ isVisible = false, onClose = () => {} }) {
     const [loading, setLoading] = useState(false);
     const [amigoId, setAmigoId] = useState<number | null>(null);
     const [resultados, setResultados] = useState<AutocompleteDropdownItem[]>([]);
+    const [erro, setErro] = useState<string>("");
     const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const userService = UserService();
@@ -43,7 +45,13 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
         userId && amigoId &&
         userService.addAmigo(userId, amigoId)
             .then(res => clearAndClose())
-            .catch(err => console.log(err));
+            .catch(err => {
+                errorHandlerDebug(err);
+                if (err.response)
+                    setErro(err.response.data.detail);
+                else
+                    setErro(err.message);
+            });
 
     return (
         <BaseModal
@@ -53,6 +61,12 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Adicionar amigo</Text>
             </View>
+
+            <ErroInput
+                show={!!erro}
+                texto={erro}
+            />
+
             <AutocompleteDropdown
                 dataSet={resultados}
                 onChangeText={getUsersDropdown}

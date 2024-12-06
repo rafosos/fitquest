@@ -1,16 +1,18 @@
 import React, { ReactNode } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import BaseModal from "./base/modal";
 import { AntDesign } from "@expo/vector-icons";
 import { colors } from "@/constants/Colors";
+import StyledText from "./base/styledText";
+import { fonts } from "@/constants/Fonts";
 
-interface PropsModalConfirmacao{
+export interface PropsModalConfirmacao{
     show: boolean;
     onClose: () => void;
     onConfirma: () => void;
     titulo: string;
     subtitulo?: string;
-    botaoConfirmar: ReactNode;
+    botaoConfirmar?: ReactNode;
 }
 
 export default function ModalConfirmacao({
@@ -29,25 +31,25 @@ export default function ModalConfirmacao({
         >
             <View style={styles.container}>
                 <View style={styles.containerTitulo}>
-                    <Text style={styles.titulo}>{titulo}</Text>
+                    <StyledText style={styles.titulo}>{titulo}</StyledText>
                 </View>
 
                 {subtitulo && 
                     <View style={styles.containerSubtitulo}>
-                        <Text style={styles.subtitulo}>{subtitulo}</Text>
+                        <StyledText style={styles.subtitulo}>{subtitulo}</StyledText>
                     </View>
                 }
 
                 <View style={styles.containerBotoes}>
                     <TouchableOpacity style={{...styles.botao, ...styles.botaoCancelar}} onPress={onClose}>
                         <AntDesign name="close" style={styles.icone} />
-                        <Text style={styles.txtBotao}>CANCELAR</Text>
+                        <StyledText style={styles.txtBotao}>CANCELAR</StyledText>
                     </TouchableOpacity>
 
                     {botaoConfirmar ?? 
                         <TouchableOpacity style={{...styles.botao, ...styles.botaoConfirmar}} onPress={onConfirma}>
                             <AntDesign name="check" style={styles.icone} />
-                            <Text style={styles.txtBotao}>CONFIRMAR</Text>
+                            <StyledText style={styles.txtBotao}>CONFIRMAR</StyledText>
                         </TouchableOpacity>
                     }
                 </View>
@@ -65,7 +67,7 @@ const styles = StyleSheet.create({
     },
     titulo:{
         fontSize: 20,
-        fontWeight: "800",
+        fontFamily: fonts.padrao.Bold700,
         textAlign: "center"
     },
     containerSubtitulo:{
