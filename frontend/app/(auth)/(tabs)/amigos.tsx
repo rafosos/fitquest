@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
@@ -100,11 +100,17 @@ export default function TabAmigos() {
             </View>}
             renderItem={({item:amigo}) =>
                 <TouchableOpacity style={styles.cardAmigo} onPress={() => abrirTelaAmigo(amigo.id)}>
-                    <View>
-                        <StyledText style={styles.username}>{amigo.username}</StyledText>
-                        <StyledText style={styles.fullname}>{amigo.fullname}</StyledText>
+                    <View style={styles.conteudoCardRow}>
+                        <View style={styles.containerImgNome}>
+                            <Image source={require('@/assets/images/avatar-amigo.png')} style={styles.imgAvatar}/>
+                            <View>
+                                <StyledText style={styles.username}>{amigo.username}</StyledText>
+                                <StyledText style={styles.fullname}>{amigo.fullname}</StyledText>
+                            </View>
+                        </View>
+                        <Feather name="trash-2" size={24} color={colors.vermelho.padrao} onPress={() => setModalConfirma({show:true, user: amigo})}/>
                     </View>
-                    <Feather name="trash-2" size={24} color={colors.vermelho.padrao} onPress={() => setModalConfirma({show:true, user: amigo})}/>
+                    {amigo.status && <StyledText>{amigo.status}</StyledText>}
                 </TouchableOpacity>
             }
             ListEmptyComponent={
@@ -166,14 +172,28 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         padding: 13,
         marginVertical: 2,
+    },
+    conteudoCardRow:{
         flexDirection: 'row',
         justifyContent: 'space-between'
+
+    },
+    containerImgNome:{
+        flexDirection: 'row', 
+        alignItems: 'center'
+    },
+    imgAvatar:{
+        height: 40,
+        width: 40,
+        marginRight: 10
     },
     username:{
         fontSize: 17,
         fontFamily: fonts.padrao.Bold700
     },
     fullname:{
+        fontFamily: fonts.padrao.ExtraLight200,
+        lineHeight: 15
     },
     containerSemAmigos:{
         flex: 1,

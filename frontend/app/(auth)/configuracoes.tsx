@@ -17,7 +17,8 @@ enum campos {
     nascimento,
     peso,
     altura,
-    email
+    email,
+    status
 }
 
 export default function Configuracoes() {
@@ -125,7 +126,8 @@ export default function Configuracoes() {
                 {campoConfiguracao(s.textMiddle, "Data de nascimento", showDiaMes(userRef.current.nascimento), campos.nascimento)}
                 {campoConfiguracao(s.textMiddle, "Peso", userRef.current.peso, campos.peso, 'decimal-pad')}
                 {campoConfiguracao(s.textMiddle, "Altura", userRef.current.altura, campos.altura, 'decimal-pad')}
-                {campoConfiguracao(s.textBottom, "Email", userRef.current.email, campos.email)}
+                {campoConfiguracao(s.textMiddle, "Email", userRef.current.email, campos.email)}
+                {campoConfiguracao(s.textBottom, "Status", userRef.current.status, campos.status)}
             </View>
 
             <StyledText style={s.tituloCard}>Atividades</StyledText>

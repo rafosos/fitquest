@@ -12,7 +12,7 @@ export default class User{
     username: string;
     email: string = "";
     level: number = 0;
-    admin = false;
+    status: string = "";
     nascimento: Date = new Date();
     peso: number | undefined;
     altura: number | undefined;
@@ -34,6 +34,7 @@ export class UserPerfil{
     username: string;
     peso: number | undefined;
     altura: number | undefined;
+    status: string = "";
     status_amizade: StatusAmizade | undefined;
     streak_semanal: Streak | undefined;
     streak_diario: Streak | undefined;

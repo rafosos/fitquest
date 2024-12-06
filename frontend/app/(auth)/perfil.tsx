@@ -152,6 +152,8 @@ export default function Perfil() {
                     </TouchableOpacity>
                 }
 
+                {user?.status && <StyledText style={s.status}>{user?.status}</StyledText>}
+
                 <FlatList
                     data={getData()}
                     horizontal
@@ -241,6 +243,12 @@ const s = StyleSheet.create({
         textAlign: 'center',
         color: colors.branco.padrao
     },
+    status:{
+        backgroundColor: colors.branco.padrao,
+        borderRadius: 10,
+        padding: 10,
+        marginTop: 10
+    },
     streaksContainer:{
         flexDirection: 'row',
         justifyContent: 'space-between'
@@ -248,46 +256,46 @@ const s = StyleSheet.create({
     txtStreak:{
         textAlign: 'center'
     },
-  iconeEditar:{
-    fontSize: 18, 
-    color: colors.verde.padrao,
-    marginLeft: 5
-  },
-  tituloUltimasAtividades:{
-    fontSize: 20,
-    fontFamily: fonts.padrao.Medium500,
-    textAlign: 'center',
-    color: colors.branco.padrao
-  },
-  card:{
-    marginVertical: 5,
-    borderColor: colors.cinza.escuro,
-    backgroundColor: colors.branco.padrao,
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 10
-  },
-  cardInformacoesPessoais:{
-    flexDirection: 'row',
-    justifyContent: "space-between",
-    borderRadius: 20,
-    paddingHorizontal: 15
-  },
-  headerCard:{
-    flexDirection:"row",
-    justifyContent: "space-between"
-  },
-  nomeTreino:{
-    fontFamily: fonts.padrao.SemiBold600
-  },
-  chip:{
+    iconeEditar:{
+        fontSize: 18, 
+        color: colors.verde.padrao,
+        marginLeft: 5
+    },
+    tituloUltimasAtividades:{
+        fontSize: 20,
+        fontFamily: fonts.padrao.Medium500,
+        textAlign: 'center',
+        color: colors.branco.padrao
+    },
+    card:{
+        marginVertical: 5,
+        borderColor: colors.cinza.escuro,
+        backgroundColor: colors.branco.padrao,
+        borderWidth: 2,
+        borderRadius: 10,
+        padding: 10
+    },
+    cardInformacoesPessoais:{
+        flexDirection: 'row',
+        justifyContent: "space-between",
+        borderRadius: 20,
+        paddingHorizontal: 15
+    },
+    headerCard:{
+        flexDirection:"row",
+        justifyContent: "space-between"
+    },
+    nomeTreino:{
+        fontFamily: fonts.padrao.SemiBold600
+    },
+    chip:{
 
-  },
-  txtChip:{
-    fontFamily: fonts.padrao.Light300
-  },
-  txtNenhumaAtividade:{
-    color: colors.branco.padrao,
-    textAlign: 'center'
-  }
+    },
+    txtChip:{
+        fontFamily: fonts.padrao.Light300
+    },
+    txtNenhumaAtividade:{
+        color: colors.branco.padrao,
+        textAlign: 'center'
+    }
 })

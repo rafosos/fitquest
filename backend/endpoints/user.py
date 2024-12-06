@@ -138,7 +138,13 @@ def get_pedidos_amizade(user_id: int):
 @router.get("/informacoes/{user_id}")
 def get_informacoes_usuario(user_id:int):
     with Session() as sess:
-        infos = sess.execute(select(User.id, User.altura, User.peso).where(User.id == user_id)).mappings().first()
+        infos = sess.execute(
+            select(
+                User.id, 
+                User.altura, 
+                User.peso,
+                User.status
+            ).where(User.id == user_id)).mappings().first()
         if not infos:
             raise HTTPException(status_code=400, detail="Usuário não encontrado.")
 
@@ -213,6 +219,7 @@ def get_user_perfil(user_id: int, amigo_id: int):
             User.username,
             User.peso,
             User.altura,
+            User.status,
             Amizade.status_id.label("status_amizade"),
             case((Amizade.user1_id == user_id, True), else_=False).label("autor_pedido")
         )

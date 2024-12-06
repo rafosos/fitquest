@@ -140,6 +140,8 @@ export default function TabAvatar() {
                     setShow={setErro}
                 />
 
+                {informacoesUsuario?.status && <StyledText style={s.status}>{informacoesUsuario?.status}</StyledText>}
+
                 <FlatList
                     data={getData()}
                     horizontal
@@ -226,6 +228,11 @@ const s = StyleSheet.create({
     height: '100%',
     alignSelf: "center"
   },
+    status:{
+        backgroundColor: colors.branco.padrao,
+        borderRadius: 10,
+        padding:10
+    },
   streaksContainer:{
     flexDirection: 'row',
     justifyContent: 'space-between'

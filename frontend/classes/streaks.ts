@@ -8,5 +8,6 @@ export class InformacoesUsuario{
     streak_semanal: Streak | undefined;
     streak_diario: Streak | undefined;
     peso: number | undefined;
-    altura: number | undefined
+    altura: number | undefined;
+    status: string = "";
 }
