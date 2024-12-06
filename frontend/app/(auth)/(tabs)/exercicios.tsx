@@ -59,7 +59,6 @@ export default function TabTreino() {
                         <StyledText style={styles.headerTitulo}>Treinos</StyledText>
 
                         <TouchableOpacity style={styles.botaoAddRotina} onPress={() => setAddRotina(true)}>
-                            <StyledText style={styles.textoAdd}>Adicionar rotina de treino</StyledText>
                             <Ionicons name="add-circle" style={styles.iconeAdd} />
                         </TouchableOpacity>
                     </View>
@@ -102,8 +101,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.cinza.medio,
         borderRadius: 25,
         flexDirection: "row",
-        paddingLeft: 13,
-        paddingRight: 10,
+        paddingHorizontal: 5,
         alignItems: "center"
     },
     textoAdd:{
@@ -113,7 +111,6 @@ const styles = StyleSheet.create({
     iconeAdd:{
         fontSize: 24,
         color: colors.preto.padrao,
-        marginLeft: 5
     },
     cardTreino:{
         backgroundColor: colors.branco.padrao,

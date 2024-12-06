@@ -7,14 +7,14 @@ const AuthContext = React.createContext<{
   session?: string | null;
   isLoading: boolean;
   user: string | null;
-  setUser: (id: string) => void;
+  setUser: (user: string) => void;
 }>({
   signIn: (token: string) => null,
   signOut: () => null,
   session: null,
   isLoading: false,
   user: null,
-  setUser: (id: string) => null
+  setUser: (user: string) => null
 });
 
 // This hook can be used to access the user info.

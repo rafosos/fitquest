@@ -1,6 +1,6 @@
-import { View, StyleSheet, FlatList, TouchableOpacity, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
-import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
+import { AntDesign, Entypo, Feather, FontAwesome5 } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
 import { useSession } from '@/app/ctx';
 import { errorHandlerDebug } from '@/services/service_config';
@@ -8,10 +8,11 @@ import { colors } from '@/constants/Colors';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { CampeonatoDetalhes, UserProgresso } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
-import ModalConfirmacao from './ModalConfirmacao';
 import StyledText from './base/styledText';
 import { fonts } from '@/constants/Fonts';
 import { showDiaMes } from '@/utils/functions';
+import { HeaderPaginaDetalhes } from './base/headerModalPaginaDetalhes';
+import ModalPaginaDetalhes from './base/modalPaginaDetalhes';
 
 interface Props {
     isVisible: boolean;
@@ -101,187 +102,182 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     }
 
     return (
-        <Modal
-            animationType="slide" 
-            transparent
+        <ModalPaginaDetalhes
             visible={isVisible}
-            onRequestClose={() => clearAndClose()}
-        >
-            <ModalConfirmacao 
-                show={modalConfirma}
-                onConfirma={deletar}
-                onClose={() => setModalConfirma(false)}
-                titulo={`Você tem certeza que deseja excluir o campeonato ${campeonato?.nome}?`}
-                subtitulo={"Essa ação não poderá ser desfeita"}
-                botaoConfirmar={
+            close={clearAndClose}
+            modalConfirmacaoProps={{
+                show: modalConfirma,
+                onConfirma: deletar,
+                onClose: () => setModalConfirma(false),
+                titulo: `Você tem certeza que deseja excluir o campeonato ${campeonato?.nome}?`,
+                subtitulo: "Essa ação não poderá ser desfeita",
+                botaoConfirmar:
                     <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
                         <Feather name="trash-2" style={styles.iconeDeletar} />
                         <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
                     </TouchableOpacity>
-                }
+            }}
+        > 
+            <HeaderPaginaDetalhes 
+                titulo={campeonato?.nome ?? "..."}
+                onClose={onClose}
+                onDelete={() => setModalConfirma(true)}
             />
 
-            <TouchableOpacity
-                activeOpacity={1}
-                style={styles.modalWrapper}
-                onPressOut={clearAndClose}
-            >
-                <TouchableWithoutFeedback>
-                    <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-                        <View style={styles.titleContainer}>
-                            <StyledText style={styles.title}>{campeonato?.nome}</StyledText>
-                            <Feather name="trash-2" style={styles.botaoApagar} onPress={() => setModalConfirma(true)}/>
-                        </View>
-                        
-                        {!novoTreino && <> 
-                            <View style={styles.infoContainer}>
-                                <View style={styles.itemInfo}>
-                                    <StyledText>Dia final</StyledText>
-                                    <StyledText style={styles.title}>{showDiaMes(campeonato?.duracao)}</StyledText>
-                                </View>
-                                <View style={styles.itemInfo}>
-                                    <StyledText>Dias restantes</StyledText>
-                                    <StyledText style={styles.title}>{getDiasRestantes()}</StyledText>
-                                </View>
-                            </View>
-                            <View style={styles.infoContainer}>
-                                <View style={styles.itemInfo}>
-                                    <StyledText>Treinos</StyledText>
-                                    <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.dias ?? "..."}</StyledText>
-                                </View>
-                                
-                                <View style={styles.itemInfo}>
-                                    <StyledText>Último treino</StyledText>
-                                    <StyledText style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</StyledText> 
-                                </View>
-                            </View>
-                        </>}
+            {!novoTreino && <> 
+                <View style={styles.infoContainer}>
+                    <View style={styles.itemInfo}>
+                        <StyledText style={styles.txtCardHeader}>Dia final</StyledText>
+                        <StyledText style={styles.title}>{showDiaMes(campeonato?.duracao)}</StyledText>
+                    </View>
+                    <View style={styles.itemInfo}>
+                        <StyledText style={styles.txtCardHeader}>Dias restantes</StyledText>
+                        <StyledText style={styles.title}>{getDiasRestantes()}</StyledText>
+                    </View>
+                </View>
+                <View style={styles.infoContainer}>
+                    <View style={styles.itemInfo}>
+                        <StyledText style={styles.txtCardHeader}>Treinos</StyledText>
+                        <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.dias ?? "..."}</StyledText>
+                    </View>
+                    
+                    <View style={styles.itemInfo}>
+                        <StyledText style={styles.txtCardHeader}>Último treino</StyledText>
+                        <StyledText style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</StyledText> 
+                    </View>
+                </View>
+            </>}
 
-                        {novoTreino ? 
-                            <TouchableOpacity style={styles.botaoTreino} onPress={finalizarTreino}>
-                                <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                                <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
-                            </TouchableOpacity>
-                        :
-                            <TouchableOpacity style={styles.botaoTreino} onPress={iniciarNovoTreino}>
-                                <Entypo name="controller-play" style={styles.iconeBotaoTreino} />
-                                <StyledText style={styles.txtBotaoNovoTreino}>INICIAR TREINO</StyledText>
-                            </TouchableOpacity>
-                        }
+            {novoTreino ? 
+                <TouchableOpacity style={styles.botaoTreino} onPress={finalizarTreino}>
+                    <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
+                    <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
+                </TouchableOpacity>
+            :
+                <TouchableOpacity style={styles.botaoTreino} onPress={iniciarNovoTreino}>
+                    <Entypo name="controller-play" style={styles.iconeBotaoTreino} />
+                    <StyledText style={styles.txtBotaoNovoTreino}>INICIAR TREINO</StyledText>
+                </TouchableOpacity>
+            }
 
-                        <TabView
-                            navigationState={{index, routes}}
-                            onIndexChange={setIndex}
-                            lazy={({ route }) => route.title === 'participantes'}
-                            initialLayout={{width: layout.width}}
-                            swipeEnabled={!novoTreino}
-                            renderTabBar={(props) => 
-                                (novoTreino && props.navigationState.index == 0) ? <></> :
-                                <TabBar 
-                                    {...props}
-                                    style={styles.tabs}
-                                    indicatorStyle={styles.tabIndicator}
-                                    activeColor={colors.verde.padrao}
-                                    inactiveColor={colors.preto.padrao}
-                                />
+            <TabView
+                navigationState={{index, routes}}
+                onIndexChange={setIndex}
+                lazy={({ route }) => route.title === 'participantes'}
+                initialLayout={{width: layout.width}}
+                swipeEnabled={!novoTreino}
+                renderTabBar={(props) => 
+                    (novoTreino && props.navigationState.index == 0) ? <></> :
+                    <TabBar 
+                        {...props}
+                        style={styles.tabs}
+                        indicatorStyle={styles.tabIndicator}
+                        activeColor={colors.verde.padrao}
+                        inactiveColor={colors.branco.padrao}
+                    />
+                }
+                renderScene={SceneMap({
+                    exercicios: () => 
+                        <FlatList
+                            data={campeonato?.exercicios}
+                            contentContainerStyle={novoTreino ? styles.containerNovoTreino : styles.container}
+                            onStartShouldSetResponder={() => true}
+                            renderItem={({item, index}) => 
+                                <TouchableOpacity
+                                    activeOpacity={1}
+                                    style={styles.containerItem} 
+                                    onPress={() => novoTreino ? checkExercicio(!checkboxes[index], index) : null}
+                                >
+                                    {novoTreino && 
+                                        <View style={styles.containerCheckbox}>
+                                            <Checkbox 
+                                                value={checkboxes[index]}
+                                                onValueChange={(value) => checkExercicio(value, index)}
+                                            />
+                                        </View>
+                                    }
+
+                                    <View style={styles.card}>
+                                        <View style={styles.headerCard}>
+                                            <View style={styles.containerColumn}>
+                                                <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
+                                                <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</StyledText>
+                                            </View>
+                                        </View>
+
+                                        <View style={styles.containerCamposExec}>
+                                            <View style={styles.containerTxtCard}>
+                                                <StyledText style={styles.txtCard}>Séries: </StyledText>
+                                                <StyledText>{item.qtd_serie.toString()}</StyledText>
+                                            </View>
+
+                                            <View style={styles.containerTxtCard}>
+                                                <StyledText style={styles.txtCard}>Repetições: </StyledText>
+                                                <StyledText>{item.qtd_repeticoes.toString()}</StyledText>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
                             }
-                            renderScene={SceneMap({
-                                exercicios: () => 
-                                    <FlatList
-                                        data={campeonato?.exercicios}
-                                        contentContainerStyle={novoTreino ? styles.containerNovoTreino : styles.container}
-                                        onStartShouldSetResponder={() => true}
-                                        renderItem={({item, index}) => 
-                                            <TouchableOpacity
-                                                activeOpacity={1}
-                                                style={styles.containerItem} 
-                                                onPress={() => novoTreino ? checkExercicio(!checkboxes[index], index) : null}
-                                            >
-                                                {novoTreino && 
-                                                    <View style={styles.containerCheckbox}>
-                                                        <Checkbox 
-                                                            value={checkboxes[index]}
-                                                            onValueChange={(value) => checkExercicio(value, index)}
-                                                        />
-                                                    </View>
-                                                }
+                        />,
 
-                                                <View style={styles.card}>
-                                                    <View style={styles.headerCard}>
-                                                        <View style={styles.containerColumn}>
-                                                            <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
-                                                            <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</StyledText>
-                                                        </View>
-                                                    </View>
+                    participantes: () => 
+                        <FlatList
+                            data={progresso}
+                            onStartShouldSetResponder={() => true}
+                            renderItem={({item, index}) => 
+                                <TouchableOpacity
+                                    activeOpacity={1}
+                                    style={styles.containerItem} 
+                                    onPress={() => null}
+                                >
+                                    <View>
+                                        <StyledText style={[styles.indexParticipante, index == 0 && styles.indexDourado]}>{index+1}</StyledText>
+                                    </View>
 
-                                                    <View style={styles.containerCamposExec}>
-                                                        <View style={styles.containerTxtCard}>
-                                                            <StyledText style={styles.txtCard}>Séries: </StyledText>
-                                                            <StyledText>{item.qtd_serie.toString()}</StyledText>
-                                                        </View>
+                                    <View style={[styles.card, styles.headerCard]}>
+                                        <View style={styles.containerColumn}>
+                                            <View style={styles.containerUsername}>
+                                                {index == 0 && <FontAwesome5 name="crown" style={styles.iconeCoroa} />}
+                                                <StyledText style={styles.tituloExercicio}>{item.username}</StyledText>
+                                            </View>
+                                            <StyledText style={styles.subTituloExercicio}>{item.fullname}</StyledText>
+                                        </View>
 
-                                                        <View style={styles.containerTxtCard}>
-                                                            <StyledText style={styles.txtCard}>Repetições: </StyledText>
-                                                            <StyledText>{item.qtd_repeticoes.toString()}</StyledText>
-                                                        </View>
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        }
-                                    />,
-
-                                participantes: () => 
-                                    <FlatList
-                                        data={progresso}
-                                        onStartShouldSetResponder={() => true}
-                                        renderItem={({item, index}) => 
-                                            <TouchableOpacity
-                                                activeOpacity={1}
-                                                style={styles.containerItem} 
-                                                onPress={() => null}
-                                            >
-                                                <View>
-                                                    <StyledText>{index+1}</StyledText>
-                                                </View>
-
-                                                <View style={[styles.card, styles.headerCard]}>
-                                                    <View style={styles.containerColumn}>
-                                                        <StyledText style={styles.tituloExercicio}>{item.username}</StyledText>
-                                                        <StyledText style={styles.subTituloExercicio}>{item.fullname}</StyledText>
-                                                    </View>
-
-                                                    <View style={styles.containerColumn}>
-                                                        <StyledText style={styles.numeroTreinos}>{item.dias}</StyledText>
-                                                        <StyledText>treinos</StyledText>
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        }
-                                    />
-                                })
+                                        <View style={styles.containerColumn}>
+                                            <StyledText style={[styles.numeroTreinos, index == 0 && styles.indexDourado]}>{item.dias}</StyledText>
+                                            <StyledText style={[index == 0 && styles.indexDourado]}>treinos</StyledText>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
                             }
                         />
-                    
-                        {novoTreino &&
-                        <View style={styles.footerTreino}>
-                            <TouchableOpacity style={[styles.botaoFooter, styles.botaoFooterCancelar]} onPress={cancelarTreino}>
-                                <AntDesign name="close" style={styles.iconeBotaoTreino} />
-                                <StyledText style={styles.txtBotaoNovoTreino}>CANCELAR</StyledText>
-                            </TouchableOpacity>
-                        
-                            <TouchableOpacity style={styles.botaoFooter} onPress={finalizarTreino}>
-                                <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                                <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
-                            </TouchableOpacity>
-                        </View>}
-                  </View>
-                </TouchableWithoutFeedback>
-            </TouchableOpacity>
-        </Modal>
+                    })
+                }
+            />
+        
+            {novoTreino &&
+            <View style={styles.footerTreino}>
+                <TouchableOpacity style={[styles.botaoFooter, styles.botaoFooterCancelar]} onPress={cancelarTreino}>
+                    <AntDesign name="close" style={styles.iconeBotaoTreino} />
+                    <StyledText style={styles.txtBotaoNovoTreino}>CANCELAR</StyledText>
+                </TouchableOpacity>
+            
+                <TouchableOpacity style={styles.botaoFooter} onPress={finalizarTreino}>
+                    <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
+                    <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
+                </TouchableOpacity>
+            </View>}
+        </ModalPaginaDetalhes>
     );
 }
 
 const styles = StyleSheet.create({
+    modalContent: {
+        backgroundColor: colors.cinza.background,
+        padding: 5,
+        flex:1,
+    },
     botaoDeletar:{
         flexDirection: "row",
         borderRadius: 15,
@@ -294,23 +290,9 @@ const styles = StyleSheet.create({
         color:colors.branco.padrao
     },
     iconeDeletar:{
-        color:colors.branco.padrao,
+        color: colors.branco.padrao,
         textAlignVertical: 'center',
         marginRight:5
-    },
-    modalWrapper: {
-        flex:1,
-        backgroundColor: colors.preto.fade[5],
-        alignItems: "center",
-        justifyContent: "center"
-    },
-    modalContent: {
-        marginVertical: "10%",
-        backgroundColor: colors.branco.padrao,
-        borderRadius: 18,
-        padding: 5,
-        flex:1,
-        width: "90%"
     },
     container:{
         paddingHorizontal: 5
@@ -318,25 +300,14 @@ const styles = StyleSheet.create({
     containerNovoTreino:{
         paddingHorizontal: 5
     },
-    titleContainer: {
-        paddingVertical: 5,
-        borderTopRightRadius: 10,
-        borderTopLeftRadius: 10,
-        paddingHorizontal: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+    txtCardHeader:{
+        color: colors.branco.padrao
     },
     title: {
         fontSize: 16,
+        color: colors.branco.padrao,
         fontFamily: fonts.padrao.Bold700,
         textAlign: "center"
-    },
-    botaoApagar:{
-        position:"absolute",
-        right: 5,
-        color: colors.preto.padrao,
-        fontSize: 24
     },
     infoContainer: {
         flexDirection: 'row',
@@ -344,7 +315,7 @@ const styles = StyleSheet.create({
     },
     itemInfo:{
         borderWidth: 1,
-        borderColor: colors.preto.padrao,
+        borderColor: colors.branco.padrao,
         padding: 10,
         flex:1,
         margin:5,
@@ -370,7 +341,7 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
     tabs:{
-        backgroundColor: colors.branco.padrao,
+        backgroundColor: colors.cinza.background,
     },
     tabIndicator:{
         backgroundColor: colors.verde.padrao
@@ -380,12 +351,16 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         alignItems: "center"
     },
+    indexParticipante:{
+        color: colors.branco.padrao
+    },
     containerCheckbox:{
     },
     card:{
         borderWidth: 1,
         flexGrow: 1,
         borderColor: colors.preto.padrao,
+        backgroundColor: colors.branco.padrao,
         padding: 10,
         margin: 10,
         borderRadius: 4
@@ -396,6 +371,14 @@ const styles = StyleSheet.create({
     },
     containerColumn:{
         flexDirection: "column"
+    },
+    containerUsername:{
+        flexDirection: "row",
+        alignItems: 'center'
+    },
+    iconeCoroa:{
+        color:colors.dourado.padrao,
+        marginRight: 5
     },
     tituloExercicio:{
         fontSize: 18,
@@ -425,6 +408,9 @@ const styles = StyleSheet.create({
         fontSize: 20, 
         fontFamily: fonts.padrao.Bold700
     },
+    indexDourado:{
+        color: colors.dourado.padrao
+    },
     footerTreino:{
         flexDirection: "row",
         justifyContent: "space-between"    
@@ -442,7 +428,7 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     botaoFooterCancelar:{
-        backgroundColor: colors.cinza.escuro
+        backgroundColor: colors.cinza.medio2
     }
 });
   

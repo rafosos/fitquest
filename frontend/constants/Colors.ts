@@ -28,6 +28,9 @@ export const colors = {
     cinzaClaro: '#757575',
     cinzaEscuro: '#494949',
   },
+  dourado:{
+    padrao: '#daa520'
+  },
   verde:{
     padrao: '#3EBA52'
   },

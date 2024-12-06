@@ -75,6 +75,14 @@ export default function Perfil() {
         .finally(() => setRefreshing(false))
     }
 
+    const aceitarAmizade = () => {
+        userService.aceitarAmizade(userId, Number(amigoId))
+        .then(res => getPerfilUser())
+        .catch(err =>{ 
+            errorHandlerDebug(err)
+            setErro("Não foi possivel aceitar o pedido de amizade.")})
+    }
+  
     const desfazerAmizade = () => {
         userService.deletarAmizade(userId, Number(amigoId))
         .then(res => getPerfilUser())
@@ -129,9 +137,14 @@ export default function Perfil() {
                     <TouchableOpacity onPress={desfazerAmizade} style={[s.botaoAmigo, s.botaoDesfazerAmizade]}>
                         <StyledText style={s.txtBotao}>DESFAZER AMIZADE</StyledText>
                     </TouchableOpacity>
-                : user?.status_amizade == StatusAmizade.Pendente ?
+                : user?.status_amizade == StatusAmizade.Pendente  ?
+                    user.autor_pedido ?
                     <TouchableOpacity onPress={desfazerAmizade} style={[s.botaoAmigo, s.botaoPedidoEnviado]}>
                         <StyledText style={s.txtBotao}>PEDIDO ENVIADO</StyledText>
+                    </TouchableOpacity>
+                    :
+                    <TouchableOpacity onPress={aceitarAmizade} style={[s.botaoAmigo, s.botaoAdicionar]}>
+                        <StyledText style={s.txtBotao}>ACEITAR AMIZADE</StyledText>
                     </TouchableOpacity>
                 :
                     <TouchableOpacity onPress={adicionarAmigo} style={[s.botaoAmigo, s.botaoAdicionar]}>
@@ -204,7 +217,7 @@ const s = StyleSheet.create({
     containerImagem:{
         overflow: "hidden",
         justifyContent: "center",
-        height: Dimensions.get('window').height * 0.4
+        height: Dimensions.get('window').height * 0.3
     },
     gifAvatar:{
         resizeMode: "contain",

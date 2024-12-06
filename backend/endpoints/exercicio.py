@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, Response, status
+from fastapi import APIRouter, Query, Response, status, HTTPException, Body
 from typing import Annotated
 from db.db import Session
 from sqlalchemy import select, or_, and_, func, text, case, literal_column, Interval
@@ -10,10 +10,11 @@ from classes.user_exercicio import UserExercicio
 from classes.exercicio_rotina import ExercicioRotina
 from classes.exercicio_campeonato import ExercicioCampeonato
 from datetime import timedelta
-from classes.treino import Treino
+from classes.treino import Treino, StatusTreino
 
 router = APIRouter(
     tags=["exercicio"],
+    prefix="/exercicio",
     responses={404: {"description": "Not found"}}
 )
 
@@ -30,7 +31,7 @@ def add_exec(model: ExercicioModel, res: Response):
         res.status_code = status.HTTP_200_OK
         return "O pedido de amizade foi enviado com sucesso"
     
-@router.get("/exercicio/{user_id}")
+@router.get("/{user_id}")
 def get_exercicios(user_id: int, f: str, ids_escolhidos: Annotated[list[int] | None, Query()] = []):
     with Session() as sess:
         stmt = select(Exercicio).options(selectinload(Exercicio.grupo_muscular))\
@@ -64,7 +65,7 @@ def get_treinos_resumo(user_id: int):
         .join(ExercicioRotina, ExercicioRotina.id == UserExercicio.exec_rotina_id, isouter=True)\
         .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id, isouter=True)\
         .join(Exercicio, or_(ExercicioCampeonato.exercicio_id == Exercicio.id, ExercicioRotina.exercicio_id == Exercicio.id))\
-        .where(Treino.user_id == user_id)\
+        .where(and_(Treino.user_id == user_id, Treino.status == StatusTreino.ativo))\
         .group_by(Treino.id,
             Treino.rotina_id,
             Treino.campeonato_id,
@@ -106,7 +107,7 @@ def query_streak_dia(user_id):
             where grp = 0; \
         ")
 
-@router.get("/exercicio/streak_dia/{user_id}")
+@router.get("/streak_dia/{user_id}")
 def get_streak_dia(user_id:int):
     with Session() as sess:
         streak = sess.execute(query_streak_dia(user_id)).mappings().first()
@@ -142,7 +143,7 @@ def query_streak_semana(user_id):
     
     return stmt
 
-@router.get("/exercicio/streak_semana/{user_id}")
+@router.get("/streak_semana/{user_id}")
 def get_streak_semana(user_id:int):
     with Session() as sess:
         streak = sess.execute(query_streak_semana(user_id)).mappings().first()
@@ -182,10 +183,54 @@ def get_streak_semana(user_id:int):
     # from public.user_exercicio as t
     # where date_part('week', data) = date_part('week', current_date)
 
-@router.get("/exercicio/streak_geral/{user_id}")
+@router.get("/streak_geral/{user_id}")
 def get_streaks_geral(user_id: int):
     with Session() as sess:
         dia = sess.execute(query_streak_dia(user_id)).mappings().first()
         semana = sess.execute(query_streak_semana(user_id)).mappings().first()
         return {"streak_diario": dia, "streak_semanal": semana}
+    
+@router.patch("/{treino_id}")
+def atualizar_status_treino(treino_id: int, status: StatusTreino = Body(..., embed=True)):
+    with Session() as sess:
+        treino = sess.scalar(select(Treino).where(Treino.id == treino_id))
+        if not treino:
+            raise HTTPException(status_code=400, detail=f"Treino com id {treino_id} não encontrado.")
         
+        treino.status = status
+        
+        try:
+            sess.commit()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=e.args)
+        
+        return "Status do treino atualizado com sucesso.."
+    
+@router.get("/get_deletados/{user_id}")
+def get_treinos_deletados(user_id: int):
+    with Session() as sess:
+        stmt = select(
+            Treino.id,
+            Treino.rotina_id,
+            Treino.campeonato_id,
+            Treino.data,
+            Treino.nome,
+            Treino.tipo,
+            func.string_agg(Exercicio.nome, ", ").label("exercicios"),
+        ).select_from(Treino)\
+        .join(UserExercicio, UserExercicio.treino_id == Treino.id)\
+        .join(ExercicioRotina, ExercicioRotina.id == UserExercicio.exec_rotina_id, isouter=True)\
+        .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id, isouter=True)\
+        .join(Exercicio, or_(ExercicioCampeonato.exercicio_id == Exercicio.id, ExercicioRotina.exercicio_id == Exercicio.id))\
+        .where(and_(Treino.user_id == user_id, Treino.status == StatusTreino.deletado))\
+        .group_by(Treino.id,
+            Treino.rotina_id,
+            Treino.campeonato_id,
+            Treino.nome,
+            Treino.tipo,
+            Treino.data,)\
+        .order_by(Treino.data.desc())
+        
+        result = sess.execute(stmt).mappings().all()
+        
+        return result
