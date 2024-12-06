@@ -15,7 +15,7 @@
 
     <style>
         .navbar-nav .nav-item {
-            margin-right: 100px;
+            margin-right: auto; margin-left: auto;
         }
         .navbar {
             position: fixed;
@@ -132,25 +132,25 @@
 
     <div class="jumbotron"
         style="background: url('#'), -webkit-linear-gradient(left, #0a516d, #018790); background-size: cover; background-position: center; background-color: rgba(255, 255, 255, 0.5);">
-        <div class="container text-center">
+        <div class="container-fluid text-center">
             <h1 class="display-4 texto-customizado titulo-customizado">
                 <span style="color: #bacca4;" style="display: block;">FITQUEST</span>
                 <span style="display: block;">CodeProtein</span>
             </h1>
             <p class="lead texto-customizado">Um jeito mais divertidos de realizar seus treinos!!!</p>
-            <img src="image/exe.png" style="max-width: 100%; margin-top: 85px;" alt="Imagem">
+            <img src="image/exe.png" style="max-width: 100%; margin-top: 3rem;" alt="Imagem">
         </div>
     </div>
     
-    <div class="container marketing">
+    <div class="container-fluid marketing">
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4">
             </div>
         </div>
 
         <hr class="featurette-divider">
         <div class="row featurette">
-            <div class="col-md-7 d-flex align-items-center justify-content-center">
+            <div class="col-12 col-md-7 d-flex align-items-center justify-content-center">
                 <div class="text-center">
                     <h1 class="featurette-heading" style="color: #bacca4;" style="white-space: nowrap;">
                         Conheça um pouco da<br>
@@ -161,15 +161,15 @@
 
                 </div>
             </div>
-            <div class="col-md-5 d-flex align-items-center justify-content-center">
+            <div class="col-12 col-md-5 d-flex align-items-center justify-content-center">
                 <img src="image/Livro.png"
                     class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto opacity-75"
-                    alt="Descrição da imagem" width="500" height="500">
+                    alt="Descrição da imagem" class="img-fluid" >
             </div>
         </div>
         <hr class="featurette-divider">
         <div class="row featurette">
-            <div class="col-md-7 order-md-2 d-flex align-items-center justify-content-center">
+            <div class="col-12 col-md-7 order-md-2 d-flex align-items-center justify-content-center">
 
                 <div class="text-center">
                     <h1 class="featurette-heading" style="color: #bacca4;" style="white-space: nowrap;">
@@ -181,16 +181,17 @@
 
                 </div>
             </div>
-            <div class="col-md-5 order-md-1 d-flex align-items-center justify-content-center">
+            <div class="col-12 col-md-5 order-md-1 d-flex align-items-center justify-content-center">
 
                 <img src="image/faculdade.png"
                     class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto opacity-75"
-                    alt="Descrição da imagem" width="500" height="500">
+                    alt="Descrição da imagem" class="img-fluid" >
             </div>
         </div>
         <hr class="featurette-divider">
         <div class="row featurette">
-            <div class="col-md-7 d-flex align-items-center justify-content-center">
+            <div class="col-12 col-md-7 d-flex align-items-center justify-content-center">
+
                 <div class="text-center">
                     <h1 class="featurette-heading" style="color: #bacca4;" style="white-space: nowrap;">
                         Quer melhorar sua rotina na academia,<br>
@@ -200,12 +201,14 @@
                     <button type="button"
                         onclick="window.open('https://linktr.ee/qr/fe4728c1-2424-4e45-ba7f-67a896e14825?utm_source=qr_code', '_blank')"
                         class="btn btn-primary rounded-pill btn-lg mt-3">Entrar</button>
-                </div>
 
-                <div class="col-md-5 d-flex align-items-center justify-content-center">
-                    <img src="image/Qr.jpeg"
+                </div>
+            </div>
+            <div class="col-12 col-md-5 order-md-1 d-flex align-items-center justify-content-center">
+
+                <img src="image/Qr.jpg"
                     class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto opacity-75"
-                    alt="Descrição da imagem" width="500" height="500">
+                    alt="Descrição da imagem" class="img-fluid" >
                 </div>
             </div>
         </div>
@@ -214,9 +217,9 @@
     </div>
 
 
-    <footer class="container">
+    <footer class="container-fluid">
         <p class="float-end"><a href="#">Voltar ao inicio da página</a></p>
-        <!-- <p>&copy; 2024 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p> -->
+        <p>&copy; 2024 CodeProtein &middot;</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
