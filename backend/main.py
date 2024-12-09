@@ -31,10 +31,11 @@ async def lifespan(app_: FastAPI):
 # app = FastAPI(dependencies=Depends[login.get_current_active_user])
 
 # dev
-app = FastAPI() 
+# app = FastAPI() 
 
 # prod
-# app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan)
+
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 app.include_router(user.router)
