@@ -1,7 +1,7 @@
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import * as Progress from 'react-native-progress';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';
 import Campeonato from '@/classes/campeonato';
 import AddCampeonatoModal from '@/components/AddCampeonatoModal';
@@ -10,10 +10,12 @@ import { colors } from '@/constants/Colors';
 import DetalhesCampeonatoModal from '@/components/DetlhesCampeonatoModal';
 import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
-import { showDiaMes } from '@/utils/functions';
+import { getProgress, showDiaMes } from '@/utils/functions';
+import PesquisarCampeonatoModal from '@/components/PesquisarCampeonatoModal ';
 
 export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
+    const [searchModal, setSearchModal] = useState(false);
     const [campeonatos, setCampeonatos] = useState<Campeonato[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [detalhesModal, setDetalhesModal] = useState({show: false, campeonato_id:0});
@@ -21,8 +23,7 @@ export default function TabEventos() {
 
     const campeonatoService = CampeonatoService();
 
-    useEffect(() => 
-    refreshCampeonatos(), []);
+    useEffect(() => refreshCampeonatos(), []);
 
     const refreshCampeonatos = () => {
         if(!userId) return;
@@ -38,21 +39,14 @@ export default function TabEventos() {
         setAddModal(false);
         setDetalhesModal({show:false, campeonato_id: 0});
         refreshCampeonatos();
-        // show smth for user, some feedback
+    }
+
+    const onClosePesquisa = () => {
+        setSearchModal(false);
+        refreshCampeonatos();
     }
 
     const abrirModal = () => setAddModal(true);
-
-    const getProgres = (dataInicial:Date, dataFinal:Date) => {
-        const totalDias = datediff(dataInicial, dataFinal);
-        const diasAteFinal = datediff(dataFinal, new Date());
-
-        return 1 - (((diasAteFinal * 100) / totalDias) / 100);
-    }
-
-    const datediff = (first: Date, second: Date) => {        
-        return Math.abs(Math.round((second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24)));
-    }
 
     return (<>
         <AddCampeonatoModal
@@ -66,6 +60,12 @@ export default function TabEventos() {
             onClose={onCloseModal}
         />
 
+        <PesquisarCampeonatoModal 
+            visible={searchModal}
+            onClose={onClosePesquisa}
+            setDetalhesModal={setDetalhesModal}
+        />
+
         <FlatList 
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshCampeonatos}/>}
             data={campeonatos}
@@ -73,10 +73,16 @@ export default function TabEventos() {
             ListHeaderComponent={
                 <View style={styles.header}>
                     <StyledText style={styles.titulo}>Campeonatos</StyledText>
-                    <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
-                        <Ionicons name="add-circle" style={styles.iconeAdd} />
-                    </TouchableOpacity>
+                    <View style={styles.botoesHeaderContainer}>
+                        <TouchableOpacity style={styles.botaoPesquisa} onPress={() => setSearchModal(true)}>
+                            <FontAwesome5 name="search" style={styles.iconePesquisa} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
+                            <Ionicons name="add-circle" style={styles.iconeAdd} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
+
             }
             renderItem={({item:campeonato}) =>
                 <TouchableOpacity style={styles.card} onPress={() => setDetalhesModal({show: true, campeonato_id: campeonato.id})}>
@@ -92,7 +98,7 @@ export default function TabEventos() {
                             style={styles.progressBar}
                             color={colors.verde.padrao} 
                             width={null} 
-                            progress={getProgres(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} 
+                            progress={getProgress(new Date(campeonato.data_criacao), new Date(campeonato.duracao))} 
                         />
                     </View>
                 </TouchableOpacity>
@@ -123,6 +129,16 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontFamily: fonts.padrao.Bold700
     },
+    botoesHeaderContainer:{
+        backgroundColor: colors.cinza.medio,
+        borderRadius: 25,
+        flexDirection: "row",
+        paddingHorizontal: 5,
+        alignItems: "center"
+    },
+    botaoPesquisa:{
+        marginLeft: 8
+    },
     botaoAdd: {
         backgroundColor: colors.cinza.medio,
         borderRadius: 25,
@@ -132,6 +148,10 @@ const styles = StyleSheet.create({
     },
     textoAdd:{
         fontFamily: fonts.padrao.Regular400
+    },
+    iconePesquisa:{
+        fontSize: 20,
+        color: colors.preto.padrao,
     },
     iconeAdd:{
         fontSize: 24,

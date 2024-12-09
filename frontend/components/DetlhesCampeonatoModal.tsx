@@ -10,9 +10,10 @@ import { CampeonatoDetalhes, UserProgresso } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
 import StyledText from './base/styledText';
 import { fonts } from '@/constants/Fonts';
-import { showDiaMes } from '@/utils/functions';
+import { errorHandlerPadrao, showDiaMes } from '@/utils/functions';
 import { HeaderPaginaDetalhes } from './base/headerModalPaginaDetalhes';
 import ModalPaginaDetalhes from './base/modalPaginaDetalhes';
+import ErroInput from './ErroInput';
 
 interface Props {
     isVisible: boolean;
@@ -26,6 +27,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     const [novoTreino, setNovoTreino] = useState(false);
     const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
     const [modalConfirma, setModalConfirma] = useState(false);
+    const [erro, setErro] = useState("");
     const [index, setIndex] = useState(0);
     const [routes] = useState([{key: "exercicios", title: "Exercícios"}, {key: 'participantes', title: "Participantes"}]);
     const campeonatoService = CampeonatoService();
@@ -78,6 +80,12 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
             .catch(err => errorHandlerDebug(err))
     }
 
+    const entrarCampeonato = () => {
+        campeonatoService.entrarCampeonato(userId, campeonatoId)
+            .then(res => refresh())
+            .catch(err => errorHandlerPadrao(err, setErro))
+    }
+
     const checkExercicio = (value: boolean, index: number) => {
         checkboxes[index] = value;
         setCheckboxes([...checkboxes]);
@@ -87,7 +95,14 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         if (!campeonato) return
         campeonatoService.deleteCampeonato(campeonato.id)
             .then(res => clearAndClose())
-            .catch(err => errorHandlerDebug(err))
+            .catch(err => errorHandlerPadrao(err, setErro))
+        }
+        
+    const sair = () => {
+        if (!campeonato) return
+        campeonatoService.sairCampeonato(campeonato.id, userId)
+            .then(res => clearAndClose())
+            .catch(err => errorHandlerPadrao(err, setErro))
     }
 
     const datediff = (destino: Date, hoje: Date) => {
@@ -105,23 +120,47 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         <ModalPaginaDetalhes
             visible={isVisible}
             close={clearAndClose}
-            modalConfirmacaoProps={{
-                show: modalConfirma,
-                onConfirma: deletar,
-                onClose: () => setModalConfirma(false),
-                titulo: `Você tem certeza que deseja excluir o campeonato ${campeonato?.nome}?`,
-                subtitulo: "Essa ação não poderá ser desfeita",
-                botaoConfirmar:
-                    <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
-                        <Feather name="trash-2" style={styles.iconeDeletar} />
-                        <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
-                    </TouchableOpacity>
-            }}
+            modalConfirmacaoProps={
+                campeonato?.criadorId == userId ? 
+                {
+                    show: modalConfirma,
+                    onConfirma: deletar,
+                    onClose: () => setModalConfirma(false),
+                    titulo: `Você tem certeza que deseja excluir o campeonato ${campeonato?.nome}?`,
+                    subtitulo: "Essa ação não poderá ser desfeita",
+                    botaoConfirmar:
+                        <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
+                            <Feather name="trash-2" style={styles.iconeDeletar} />
+                            <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
+                        </TouchableOpacity>
+                }
+                :
+                {
+                    show: modalConfirma,
+                    onConfirma: sair,
+                    onClose: () => setModalConfirma(false),
+                    titulo: `Você tem certeza que deseja sair do campeonato ${campeonato?.nome}?`,
+                    subtitulo: "O seu progresso será salvo",
+                    botaoConfirmar:
+                        <TouchableOpacity onPress={sair} style={styles.botaoDeletar}>
+                            <Entypo name="log-out" style={styles.iconeDeletar} />
+                            <StyledText style={styles.txtBotaoDeletar}>SAIR</StyledText>
+                        </TouchableOpacity>
+                }
+            }
         > 
             <HeaderPaginaDetalhes 
                 titulo={campeonato?.nome ?? "..."}
                 onClose={onClose}
                 onDelete={() => setModalConfirma(true)}
+                showSair={userId != campeonato?.criadorId && campeonato?.joined}
+                showDelete={campeonato?.joined}
+            />
+
+            <ErroInput
+                show={!!erro}
+                texto={erro}
+                setShow={setErro}
             />
 
             {!novoTreino && <> 
@@ -148,7 +187,12 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                 </View>
             </>}
 
-            {novoTreino ? 
+            {!campeonato?.joined?
+                <TouchableOpacity style={styles.botaoTreino} onPress={entrarCampeonato}>
+                    <Entypo name="login" style={styles.iconeBotaoTreino} />
+                    <StyledText style={styles.txtBotaoNovoTreino}>ENTRAR NO CAMPEONATO</StyledText>
+                </TouchableOpacity>
+            : novoTreino ? 
                 <TouchableOpacity style={styles.botaoTreino} onPress={finalizarTreino}>
                     <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
                     <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>

@@ -42,9 +42,11 @@ export class CampeonatoDetalhes{
     id: number;
     nome: string;
     duracao: Date;
+    criadorId: number | undefined;
     ultimo_treino: Date | undefined;
     participantes: Array<User> | undefined;
     exercicios: Array<Exercicio> | undefined;
+    joined: boolean = false;
     userId: number | undefined;
 }
 

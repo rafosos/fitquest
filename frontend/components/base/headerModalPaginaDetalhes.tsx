@@ -1,4 +1,4 @@
-import { AntDesign, Feather } from "@expo/vector-icons"
+import { AntDesign, Entypo, Feather } from "@expo/vector-icons"
 import { StyleSheet, View } from "react-native"
 import StyledText from "./styledText"
 import { colors } from "@/constants/Colors"
@@ -7,17 +7,22 @@ import { fonts } from "@/constants/Fonts"
 interface HeaderProps{
     onClose: () => void,
     titulo: string,
-    onDelete: () => void,
-    showDelete?: boolean
+    onDelete?: () => void,
+    showDelete?: boolean,
+    showSair?: boolean
 }
 
-export function HeaderPaginaDetalhes({onClose, titulo, onDelete, showDelete = true}: HeaderProps){
+export function HeaderPaginaDetalhes({onClose, titulo, onDelete, showDelete = true, showSair}: HeaderProps){
 
     return(
         <View style={styles.titleContainer}>
             <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose} style={styles.iconeVoltar}/>
             <StyledText style={styles.title}>{titulo}</StyledText>
-            {showDelete && <Feather name="trash-2" style={styles.botaoApagar} onPress={onDelete}/>}
+            {showSair ? 
+                <Entypo name="log-out" style={styles.botaoApagar} onPress={onDelete}/>
+                :
+                showDelete && <Feather name="trash-2" style={styles.botaoApagar} onPress={onDelete}/>
+            }
         </View>
     )
 }
