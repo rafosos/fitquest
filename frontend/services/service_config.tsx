@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = 'http://192.168.0.12:8000'; //casa
+// const API_URL = 'http://192.168.0.11:8000'; //casa
 // const API_URL = 'http://192.168.154.82:8000'; //cel
 // const API_URL = 'http://172.17.110.49:8000'; //facul
 // const API_URL = 'http://192.168.162.156:8000'; //facul L
-// const API_URL = 'http://172.17.106.70:8000'; //facul biblio
+// const API_URL = 'http://172.17.96.75:8000'; //facul biblio
 // const API_URL = "https://fitquest-8s1c.onrender.com" //prod
 
 const axiosInstance = axios.create({
