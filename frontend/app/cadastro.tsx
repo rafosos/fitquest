@@ -48,7 +48,7 @@ export default function Cadastro() {
                 onChange: handleDatePickerChange
         })
     }, [datePicker]);
-
+    
     const handleCadastrar = () => {        
         let erroObj = {...erros};
         // checagem de erros

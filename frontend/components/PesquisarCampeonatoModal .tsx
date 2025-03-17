@@ -23,7 +23,7 @@ export default function PesquisarCampeonatoModal({visible, onClose, setDetalhesM
     const [erro, setErro] = useState("");
     const [loading, setLoading] = useState(false);
     const campeonatoService = CampeonatoService();
-    const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
+    const {id:userId} = JSON.parse(useSession().username ?? "{id:null}");
 
     useEffect(() => {
         if(texto)

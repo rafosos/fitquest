@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta, timezone, date
+from datetime import datetime, timedelta, timezone
 import jwt
-from fastapi import APIRouter, Body, Response, status, Depends, HTTPException
+from fastapi import APIRouter, Response, status, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from sqlalchemy import select, or_
 from db.db import Session
@@ -8,11 +9,16 @@ from passlib.context import CryptContext
 from classes.user import User
 from pydantic import BaseModel
 from jwt.exceptions import InvalidTokenError
+import os
+import logging
 
-SECRET_KEY = "95e03e0ea5649c41ba49b9a929994ef2154bec63faf096d02d51dd737d3c684b"
+SECRET_KEY = os.environ["SECRET_KEY"]
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+logger = logging.getLogger("api")
 
 router = APIRouter(
     tags=["conta"],
@@ -21,24 +27,23 @@ router = APIRouter(
         404: {"description": "Not found"}}
 )
 
-# class Token(BaseModel):
-#     access_token: str
-#     token_type: str
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
-# class TokenData(BaseModel):
-#     username: str | None = None
-#     fullname: str | None = None
-#     id: str | None = None
-
-# def create_access_token(data: dict, expires_delta: timedelta | None = None):
-#     to_encode = data.copy()
-#     if expires_delta:
-#         expire = datetime.now(timezone.utc) + expires_delta
-#     else:
-#         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-#     to_encode.update({"exp": expire})
-#     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-#     return encoded_jwt
+class TokenData(BaseModel):
+    username: str
+    id: str
+    
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -46,42 +51,49 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-# async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-#     credentials_exception = HTTPException(
-#         status_code=status.HTTP_401_UNAUTHORIZED,
-#         detail="Could not validate credentials",
-#         headers={"WWW-Authenticate": "Bearer"},
-#     )
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         username: str = payload.get("username")
-#         if username is None:
-#             raise credentials_exception
+    print(":()", flush=True)
+    logger.debug("asdasdasdasdasd")
+
+    with Session() as sess:
+        user = sess.scalar(select(User).where(User.username == "string"))
+    return user
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        id: str = payload.get("id")
+        print(id)
+        print(username)
+        if username is None or id is None:
+            raise credentials_exception
         
-#         token_data = TokenData(username=username)
-#     except InvalidTokenError:
-#         raise credentials_exception
+        token_data = TokenData(username=username, id=str(id))
+    except InvalidTokenError:
+        raise credentials_exception
     
-#     with Session() as sess:
-#         user = sess.scalar(select(User).where(User.username == token_data.username))
+    with Session() as sess:
+        user = sess.scalar(select(User).where(User.username == token_data.username))
 
-#     if user is None:
-#         raise credentials_exception
-#     return user
+    if user is None:
+        raise credentials_exception
+    return user
 
 class CadastroModel(BaseModel):
     username: str 
     fullname: str
     email: str
-    # peso: float
-    # altura: float
     nascimento: datetime 
-    # classe: int
     senha: str
     
 @router.post("/cadastro")
-def cadastro(form: CadastroModel, res: Response):
+def cadastro(form: CadastroModel):
     with Session() as sess:
         email_ja_existe = sess.execute(select(User).where(User.email == form.email)).first()
         if (email_ja_existe is not None):
@@ -98,25 +110,27 @@ def cadastro(form: CadastroModel, res: Response):
         level=0,
         admin=False,
         nascimento=form.nascimento,
-        # classe_id=form.classe,
         senha=get_password_hash(form.senha)
     )
     user.add_user()
     return {"id": user.id}
 
 @router.post("/login")
-def login(login: Annotated[str, Body()], senha: Annotated[str, Body()], res: Response):
+def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response):
     print("POST: login", flush=True)
     with Session() as sess:
-        stmt = select(User).where(or_(User.username == login, User.email == login))
+        stmt = select(User).where(or_(User.username == form.username, User.email == form.username))
         user = sess.scalar(stmt)
         if (not user):
-            res.status_code = status.HTTP_401_UNAUTHORIZED
-            return "Usuário não encontrado"
+           raise HTTPException(status_code=400, detail="Usuário não encontrado")
         
-        if(verify_password(senha, user.senha)):
+        if(verify_password(form.password, user.senha)):
             res.status_code = status.HTTP_200_OK
-            return user
+            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={"sub": user.username, "id": user.id}, 
+                expires_delta=access_token_expires
+            )
+            return {"access_token": access_token, "token_type": "bearer", "username": user.username, "id": user.id}
         else:
-            res.status_code = status.HTTP_401_UNAUTHORIZED
-            return "Senha incorreta"
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Senha incorreta")

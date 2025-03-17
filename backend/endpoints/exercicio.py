@@ -5,16 +5,20 @@ from sqlalchemy import select, or_, and_, func, text, case, literal_column, Inte
 from sqlalchemy.sql.expression import bindparam
 from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
+from classes.user import User
 from classes.exercicio import Exercicio
 from classes.user_exercicio import UserExercicio
 from classes.exercicio_rotina import ExercicioRotina
 from classes.exercicio_campeonato import ExercicioCampeonato
 from datetime import timedelta
 from classes.treino import Treino, StatusTreino
+from fastapi import Depends
+from .login import get_current_user
 
 router = APIRouter(
     tags=["exercicio"],
     prefix="/exercicio",
+    dependencies=[Depends(get_current_user)],
     responses={404: {"description": "Not found"}}
 )
 
@@ -31,8 +35,9 @@ def add_exec(model: ExercicioModel, res: Response):
         res.status_code = status.HTTP_200_OK
         return "O pedido de amizade foi enviado com sucesso"
     
-@router.get("/{user_id}")
-def get_exercicios(user_id: int, f: str, ids_escolhidos: Annotated[list[int] | None, Query()] = []):
+@router.get("/")
+def get_exercicios(current_user: Annotated[User, Depends(get_current_user)], f: str, ids_escolhidos: Annotated[list[int] | None, Query()] = []):
+    user_id = current_user.id
     with Session() as sess:
         stmt = select(Exercicio).options(selectinload(Exercicio.grupo_muscular))\
         .where(
@@ -49,8 +54,11 @@ def get_exercicios(user_id: int, f: str, ids_escolhidos: Annotated[list[int] | N
 
         return exercicios
 
-@router.get("/treinos_resumo/{user_id}")
-def get_treinos_resumo(user_id: int):
+@router.get("/treinos_resumo/")
+def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)]):
+    if not current_user:
+        raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, "deu nao mano")
+    user_id = current_user.id
     with Session() as sess:
         stmt = select(
             Treino.id,
@@ -107,8 +115,9 @@ def query_streak_dia(user_id):
             where grp = 0; \
         ")
 
-@router.get("/streak_dia/{user_id}")
-def get_streak_dia(user_id:int):
+@router.get("/streak_dia/")
+def get_streak_dia(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
         streak = sess.execute(query_streak_dia(user_id)).mappings().first()
     return streak
@@ -143,39 +152,11 @@ def query_streak_semana(user_id):
     
     return stmt
 
-@router.get("/streak_semana/{user_id}")
-def get_streak_semana(user_id:int):
+@router.get("/streak_semana/")
+def get_streak_semana(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
         streak = sess.execute(query_streak_semana(user_id)).mappings().first()
-        
-        # streak = sess.execute(text(
-        #   f"select  \
-        #         min(semana_passada) streak_start,  \
-        #         max(semana) streak_end, \
-        #         count(*) + 1 streak_length \
-        #     from ( \
-        #         select  \
-        #             t.*, \
-        #             case \
-        #                 when semana = semana_passada \
-        #                 then 2 \
-        #                 when semana != semana_passada and semana = DATE_PART('week', data_passada + interval '1 week') \
-        #                 then 0 \
-        #                 else 1  \
-        #             end grp \
-        #         from ( \
-        #             select \
-        #                 DATE_PART('week', data) as semana, \
-        #                 DATE_PART('week', lag(data) over(order by data)) as semana_passada, \
-        #                 lag(data) over(order by data) as data_passada \
-        #             from treino \
-        #             where user_id = {user_id} \
-        #             group by data \
-        #         ) t \
-        #         order by semana desc \
-        #     ) t \
-        #     where grp = 0; \
-        # ")).mappings().first()
     return streak
 
     # contagem de dias na ultima semana
@@ -183,8 +164,9 @@ def get_streak_semana(user_id:int):
     # from public.user_exercicio as t
     # where date_part('week', data) = date_part('week', current_date)
 
-@router.get("/streak_geral/{user_id}")
-def get_streaks_geral(user_id: int):
+@router.get("/streak_geral/")
+def get_streaks_geral(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
         dia = sess.execute(query_streak_dia(user_id)).mappings().first()
         semana = sess.execute(query_streak_semana(user_id)).mappings().first()
@@ -206,8 +188,9 @@ def atualizar_status_treino(treino_id: int, status: StatusTreino = Body(..., emb
         
         return "Status do treino atualizado com sucesso.."
     
-@router.get("/get_deletados/{user_id}")
-def get_treinos_deletados(user_id: int):
+@router.get("/get_deletados/")
+def get_treinos_deletados(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
         stmt = select(
             Treino.id,

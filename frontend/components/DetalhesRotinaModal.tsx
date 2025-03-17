@@ -25,7 +25,7 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
     const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
     const [modalConfirma, setModalConfirma] = useState(false);
     const rotinaService = RotinaService();
-    const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
+    const {id:userId} = JSON.parse(useSession().username ?? "{id:null}");
 
     useEffect(() => refresh(), [rotinaId]);
     

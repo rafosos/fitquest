@@ -37,7 +37,7 @@ export default function TabAvatar() {
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, treino: TreinoResumo | null}>({show: false, treino: null});
     const [refreshing, setRefreshing] = useState(false);
     const [erro, setErro] = useState<string>("");
-    const { user: userString } = useSession();
+    const { username: userString } = useSession();
     const user: User = useRef(JSON.parse(userString ?? "{}")).current;
     const exercicioService = ExercicioService();
     const userService = UserService();
@@ -47,17 +47,19 @@ export default function TabAvatar() {
     }, []);
     
     const refresh = () => {
-        getInformacoesUsuario();
+      console.log("socorro")
+        // getInformacoesUsuario();
         getAtividades();
     }
 
     const getInformacoesUsuario = () => {
-        userService.getInformacoesUsuario(user.id)
+        userService.getInformacoesUsuario()
             .then(res => {
                 setInformacoesUsuario(res);
                 setErro("");
             })
             .catch(err => {
+              errorHandlerDebug(err);
                 if (err.response){
                     setErro(err.response.data.detail)}
                 else
@@ -67,7 +69,7 @@ export default function TabAvatar() {
     
     const getAtividades = () => {
         setRefreshing(true)
-        exercicioService.getUltimosTreinosResumo(user.id)
+        exercicioService.getUltimosTreinosResumo()
         .then(res => setAtividades(res))
         .catch(err => errorHandlerDebug(err))
         .finally(() => setRefreshing(false))

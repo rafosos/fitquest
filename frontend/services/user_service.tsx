@@ -1,22 +1,27 @@
 import User, { UserPerfil } from "@/classes/user";
 import { deletar, get, patch, post, put } from "./service_config";
 import { InformacoesUsuario } from "@/classes/streaks";
+import { LoginResponse } from "@/classes/loginResponse";
+import { useSession } from "@/app/ctx";
 
 export default function UserService(){
     const prefix = "/user";
+    const {id} = useSession();
 
     const cadastrar = (params: {
         username: string,
         fullname: string,
         email: string,
         nascimento: Date,
-        // classe: number,
         senha: string
     }) => 
         post("/cadastro", params);
 
     const login = (login: string, senha: string) => {
-        const promise = post<User>("/login", {login, senha});
+        const formData = new FormData();
+        formData.append("username", login.trim());
+        formData.append("password", senha.trim());
+        const promise = post<LoginResponse>("/login", formData, {headers: {'Content-Type': 'multipart/form-data'}});
         return promise.then(res => res.data);
     }
 
@@ -45,8 +50,8 @@ export default function UserService(){
         return promise.then(res => res.data);
     }
     
-    const getInformacoesUsuario = (user_id: number) => {
-        const promise = get<InformacoesUsuario>(`${prefix}/informacoes/${user_id}`);
+    const getInformacoesUsuario = () => {
+        const promise = get<InformacoesUsuario>(`${prefix}/informacoes/`);
         return promise.then(res => res.data);
     }
 

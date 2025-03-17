@@ -16,7 +16,7 @@ export default function TabTreino() {
     const [rotinas, setRotinas] = useState<RotinaResumida[]>([]);
     const [addRotina, setAddRotina] = useState(false);
     const [detalhesModal, setDetahesModal] = useState({show: false, rotina_id:0});
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
+    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
     const rotinaService = RotinaService();
 
     useEffect(() => {

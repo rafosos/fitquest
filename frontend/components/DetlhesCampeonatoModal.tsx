@@ -31,7 +31,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     const [index, setIndex] = useState(0);
     const [routes] = useState([{key: "exercicios", title: "Exercícios"}, {key: 'participantes', title: "Participantes"}]);
     const campeonatoService = CampeonatoService();
-    const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
+    const {id:userId} = JSON.parse(useSession().username ?? "{id:null}");
     const layout = useWindowDimensions();
 
     useEffect(() => refresh(), [campeonatoId]);

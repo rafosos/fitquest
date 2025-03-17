@@ -22,7 +22,7 @@ const DUAS_SEMANAS = 12096e5;
 
 export default function AddCampeonatoModal({ isVisible = false, onClose = () => {} }) {
     const hoje = new Date();
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
+    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
     const [erros, setErros] = useState<any>({});
     const [exercicios, setExercicios] = useState<Exercicio[]>([]);
     const [resultados, setResultados] = useState<Exercicio[]>([]);

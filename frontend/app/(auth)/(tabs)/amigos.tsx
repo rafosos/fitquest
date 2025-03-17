@@ -20,7 +20,7 @@ export default function TabAmigos() {
     const [modalPedidos, setModalPedidos] = useState(false);
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, user: User | null}>({show: false, user: null});
     const [loadingAmigos, setLoadingAmigos] = useState(false);
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
+    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
 
     const userService = UserService();
 

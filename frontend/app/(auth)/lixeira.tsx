@@ -20,7 +20,7 @@ export default function Lixeira(){
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, treino: TreinoResumo | null}>({show: false, treino: null});
     const [refreshing, setRefreshing] = useState(false);
     const exercicioService = ExercicioService();
-    const { user: userString } = useSession();
+    const { username: userString } = useSession();
     const user: User = useRef(JSON.parse(userString ?? "{}")).current;
 
     useEffect(() => getDeletados(),[]);

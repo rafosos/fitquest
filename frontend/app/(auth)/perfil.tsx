@@ -33,7 +33,7 @@ export default function Perfil() {
     const [refreshing, setRefreshing] = useState(false);
     const [erro, setErro] = useState<string | null>();
     const [user, setUser] = useState<UserPerfil>();
-    const userId = JSON.parse(useSession().user ?? "{id:null}").id;
+    const userId = JSON.parse(useSession().username ?? "{id:null}").id;
     const exercicioService = ExercicioService();
     const userService = UserService();
 

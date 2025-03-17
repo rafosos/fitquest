@@ -14,7 +14,7 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
     const [amigoId, setAmigoId] = useState<number | null>(null);
     const [resultados, setResultados] = useState<AutocompleteDropdownItem[]>([]);
     const [erro, setErro] = useState<string>("");
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
+    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
 
     const userService = UserService();
     

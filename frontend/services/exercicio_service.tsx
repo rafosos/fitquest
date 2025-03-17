@@ -4,18 +4,18 @@ import Exercicio from "@/classes/exercicio";
 import { InformacoesUsuario } from "@/classes/streaks";
 
 export default function ExercicioService(){
-    const getExercicioFiltro = (user_id: number, f: string, ids_escolhidos: number[]) => {
-        const promise = get<Exercicio[]>(`/exercicio/${user_id}`, {f, ids_escolhidos});
+    const getExercicioFiltro = (f: string, ids_escolhidos: number[]) => {
+        const promise = get<Exercicio[]>(`/exercicio/`, {f, ids_escolhidos});
         return promise.then(res => res.data.map(exercicio => new Exercicio(exercicio.id, exercicio.nome, exercicio.grupo_muscular)));
     }
     
-    const getUltimosTreinosResumo = (userId: number) => {
-        const promise = get<TreinoResumo[]>(`/exercicio/treinos_resumo/${userId}`);
+    const getUltimosTreinosResumo = () => {
+        const promise = get<TreinoResumo[]>(`/exercicio/treinos_resumo/`);
         return promise.then(res => res.data);    
     }
 
-    const getStreaks = (userId: number) => {
-        const promise = get<InformacoesUsuario>(`/exercicio/streak_geral/${userId}`);
+    const getStreaks = () => {
+        const promise = get<InformacoesUsuario>(`/exercicio/streak_geral/`);
         return promise.then(res => res.data);
     }
     
@@ -24,8 +24,8 @@ export default function ExercicioService(){
         return promise.then(res => res.data);    
     }
     
-    const getDeletados = (user_id: number) => {
-        const promise = get<TreinoResumo[]>(`/exercicio/get_deletados/${user_id}`);
+    const getDeletados = () => {
+        const promise = get<TreinoResumo[]>(`/exercicio/get_deletados/`);
         return promise.then(res => res.data);
     }
 

@@ -22,7 +22,7 @@ enum campos {
 }
 
 export default function Configuracoes() {
-    const { signOut, user: userString, setUser } = useSession();
+    const { signOut, username: userString, setUser } = useSession();
     const userRef = useRef(JSON.parse(userString ?? "{}"));
     const [campoEditar, setCampoEditar] = useState<campos>();
     const [loading, setLoading] = useState<boolean>(false);
@@ -37,8 +37,15 @@ export default function Configuracoes() {
     }
 
     const updateValor = (campo: campos) => {
+        let valorNovo = valorEditar;
+        if (campo == campos.altura || campo == campos.peso)
+            valorNovo = valorNovo.replace(',', '.');
+
+        // if(campo == campos.nascimento)
+        //     valorNovo = new Date(valorEditar);
+        
         setLoading(true);
-        userService.editarDado(`${userRef.current.id}`, campos[campo], valorEditar)
+        userService.editarDado(`${userRef.current.id}`, campos[campo], valorNovo)
             .then(res => {
                 userRef.current = res;
                 setUser(JSON.stringify(res));
@@ -71,7 +78,8 @@ export default function Configuracoes() {
         valorItem: any,
         campo: campos,
         inputType: KeyboardTypeOptions = "default",
-        extraStyle?: StyleProp<ViewStyle>
+        extraStyle?: StyleProp<ViewStyle>,
+        editable = true
     ) => 
         <View style={[s.containerConfiguracao, stylePosicao]}>
             {campoEditar == campo ?
@@ -99,7 +107,7 @@ export default function Configuracoes() {
                     <StyledText style={s.txtInfo}>{tituloItem}</StyledText> 
                     <StyledText style={s.valorCard}>{typeof(valorItem) == "number" ? valorItem.toString() : valorItem}</StyledText>
                 </View>
-                <MaterialIcons name="edit" onPress={() => habilitarEdicao(valorItem, campo)}/>
+                {campo != campos.nascimento && <MaterialIcons name="edit" size={18} onPress={() => habilitarEdicao(valorItem, campo)}/>}
             </>
             }
         </View>

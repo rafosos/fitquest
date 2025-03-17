@@ -15,8 +15,11 @@ from classes.user_campeonato import user_campeonato
 from classes.user import User
 from classes.status import Status, statuses
 from classes.amizade import Amizade
+from fastapi import Depends
+from .login import get_current_user
 
 router = APIRouter(
+    dependencies=[Depends(get_current_user)],
     tags=["campeonato"],
     prefix='/campeonato',
     responses={404: {"description": "Not found"}}

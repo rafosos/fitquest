@@ -1,24 +1,22 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
+import { Platform } from "react-native";
 
-// const API_URL = 'http://192.168.0.12:8000'; //casa
-// const API_URL = 'http://192.168.154.82:8000'; //cel
-// const API_URL = 'http://172.17.110.49:8000'; //facul
-// const API_URL = 'http://192.168.162.156:8000'; //facul L
-// const API_URL = 'http://172.17.106.70:8000'; //facul biblio
-const API_URL = "https://fitquest-8s1c.onrender.com" //prod
+const API_URL = Platform.OS == "web" ? 'http://localhost:8000' : 
+'http://192.168.0.14:8000'; //casa
+// 'http://192.168.236.82:8000'; //cel
+// 'http://172.17.99.32:8000'; //facul
+// 'http://192.168.162.156:8000'; //facul L
+// 'http://172.17.106.70:8000'; //facul biblio
+// "https://fitquest-8s1c.onrender.com" //prod
 
-const axiosInstance = axios.create({
-    baseURL: API_URL,
-    paramsSerializer: {
-        indexes: null
-    }
-})
+axios.defaults.baseURL = API_URL
+axios.defaults.paramsSerializer = { indexes:null }
 
 const get = <T extends unknown>(endpoint: string, params: any = {}) => 
-    axiosInstance.get<T>(endpoint, {params})
+    axios.get<T>(endpoint, {params})
 
-const post = <T extends unknown>(endpoint: string, params: any = {}) => 
-    axios.post<T>(API_URL + endpoint, params)
+const post = <T extends unknown>(endpoint: string, params: any = {}, config :AxiosRequestConfig<any> = {}) => 
+    axios.post<T>(API_URL + endpoint, params, config)
 
 const put = <T extends unknown>(endpoint: string, params: any = {}) => 
     axios.put<T>(API_URL + endpoint, params)

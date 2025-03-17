@@ -21,7 +21,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     const [resultados, setResultados] = useState<Exercicio[]>([]);
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<any>({});
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
+    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
 
     const rotinaService = RotinaService();
     const exercicioService = ExercicioService();
@@ -236,7 +236,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                     }
                     ListFooterComponent={
                         <TouchableOpacity onPress={submit} style={styles.botaoAdicionar}>
-                            <StyledText style={styles.txtBotaoAdd}>ADICIONAR</StyledText>
+                            <StyledText style={styles.txtBotaoAdd}>SALVAR ROTINA</StyledText>
                         </TouchableOpacity>
                     }
                 />

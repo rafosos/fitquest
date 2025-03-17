@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, status, HTTPException
+from fastapi import APIRouter, Response, status, HTTPException, Depends
 from typing import List
 from collections import defaultdict
 from db.db import Session
@@ -10,8 +10,10 @@ from classes.treino import Treino, TipoTreino
 from classes.rotina import Rotina
 from classes.grupo_muscular import GrupoMuscular
 from classes.exercicio_rotina import ExercicioRotina
+from .login import get_current_user
 
 router = APIRouter(
+    dependencies=[Depends(get_current_user)],
     tags=["rotina"],
     prefix='/rotina',
     responses={404: {"description": "Not found"}}
