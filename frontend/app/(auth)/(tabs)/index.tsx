@@ -39,6 +39,7 @@ export default function TabAvatar() {
     const [erro, setErro] = useState<string>("");
     const { username: userString } = useSession();
     const user: User = useRef(JSON.parse(userString ?? "{}")).current;
+    
     const exercicioService = ExercicioService();
     const userService = UserService();
 
@@ -47,8 +48,7 @@ export default function TabAvatar() {
     }, []);
     
     const refresh = () => {
-      console.log("socorro")
-        // getInformacoesUsuario();
+        getInformacoesUsuario();
         getAtividades();
     }
 

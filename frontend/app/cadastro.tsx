@@ -6,8 +6,6 @@ import StyledTextInput from "@/components/base/styledTextInput";
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 import UserService from "@/services/user_service";
-import ClasseService from "@/services/classe_service";
-import Classe from "@/classes/classe";
 import { fonts } from "@/constants/Fonts";
 import GradienteInicio from "@/components/GradienteInicio";
 import { colors } from "@/constants/Colors";
@@ -23,22 +21,14 @@ export default function Cadastro() {
     const [erros, setErros] = useState<any>({});
     const [senha, setSenha] = useState("");
     const [loading, setLoading] = useState(false);
-    // const [classes, setClasses] = useState<Classe[]>([]);
     const [datePicker, setDatePicker] = useState(false);
     
     const userService = UserService();
-    // const classeService = ClasseService();
 
     const fullnameRef = useRef<TextInput>(null);
     const emailRef = useRef<TextInput>(null);
     
     const navigator = useNavigation();
-
-    // useEffect(() => {
-    //     classeService.getAll()
-    //         .then(res => setClasses(res))
-    //         .catch(err => console.log(err));
-    // }, []);
 
     useEffect(() => {
         if (Platform.OS == "android" && datePicker)
