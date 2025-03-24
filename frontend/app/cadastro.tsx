@@ -12,6 +12,7 @@ import { colors } from "@/constants/Colors";
 import ErroInput from "@/components/ErroInput";
 import { AntDesign } from "@expo/vector-icons";
 import { showDiaMes } from "@/utils/functions";
+import { useToast } from "react-native-toast-notifications";
 
 export default function Cadastro() {    
     const [username, setUsername] = useState("");
@@ -24,6 +25,8 @@ export default function Cadastro() {
     const [datePicker, setDatePicker] = useState(false);
     
     const userService = UserService();
+
+    const toast = useToast();
 
     const fullnameRef = useRef<TextInput>(null);
     const emailRef = useRef<TextInput>(null);
@@ -66,7 +69,8 @@ export default function Cadastro() {
         })
             .then(res => {
                 if (res){
-                    router.back()
+                    router.back();
+                    toast.show("Usuário cadastrado com sucesso!", {type: "success"});
                 }
             })
             .catch(err => {
