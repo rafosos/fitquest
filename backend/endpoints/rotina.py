@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Response, status, HTTPException, Depends
-from typing import List
+from typing import List, Annotated
 from collections import defaultdict
 from db.db import Session
 from sqlalchemy import select, and_, literal_column
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
 from classes.user_exercicio import UserExercicio
+from classes.user import User
 from classes.treino import Treino, TipoTreino
 from classes.rotina import Rotina
 from classes.grupo_muscular import GrupoMuscular
@@ -29,33 +30,38 @@ class RotinaModel(BaseModel):
     dias: int
     exercicios: List[ExercicioModel]
 
-@router.post("/{user_id}")
-def add_rotina(user_id, model: RotinaModel, res: Response):
+@router.post("/")
+def add_rotina(current_user: Annotated[User, Depends(get_current_user)], model: RotinaModel, res: Response):
     with Session() as sess:
-            rotina = Rotina(user_id=user_id, nome=model.nome, dias=model.dias)
-            sess.add(rotina)
+        rotina = Rotina(user_id=current_user.id, nome=model.nome, dias=model.dias)
+        sess.add(rotina)
+        
+        for exec in model.exercicios:
+            exec_entidade = sess.scalar(select(Exercicio).where(Exercicio.id == exec.id))
+            if exec_entidade is None:
+                raise HTTPException(status_code=400, detail=f"Exercicio com id {exec.id} não encontrado")
             
-            for exec in model.exercicios:
-                exec_entidade = sess.scalar(select(Exercicio).where(Exercicio.id == exec.id))
-                if exec_entidade is None:
-                    raise HTTPException(status_code=400, detail=f"Exercicio com id {exec.id} nao encontrado")
-                
-                exec_entidade.rotinas.append(
-                    ExercicioRotina(
-                        exercicio_id=exec_entidade.id, 
-                        exercicio=exec_entidade, 
-                        rotina=rotina, 
-                        qtd_serie=exec.series, 
-                        qtd_repeticoes=exec.repeticoes
-                    )
-                ) 
+            exec_entidade.rotinas.append(
+                ExercicioRotina(
+                    exercicio_id=exec_entidade.id, 
+                    exercicio=exec_entidade, 
+                    rotina=rotina, 
+                    qtd_serie=exec.series, 
+                    qtd_repeticoes=exec.repeticoes
+                )
+            ) 
 
-            sess.commit()
+        sess.commit()
     res.status_code = status.HTTP_200_OK
     return "A nova rotina foi adicionada com sucesso."
 
-@router.get("/{user_id}")
-def get_rotina(user_id: int):
+@router.get("/")
+def get_rotina(current_user: Annotated[User, Depends(get_current_user)]):
+    print("oi", flush=True)
+
+    if not current_user:
+        raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, "deu nao mano :()")
+
     stmt = (
         select(
             Rotina.id, 
@@ -65,7 +71,7 @@ def get_rotina(user_id: int):
         )
         .join(ExercicioRotina, Rotina.id == ExercicioRotina.rotina_id)
         .join(Exercicio, ExercicioRotina.exercicio_id == Exercicio.id)
-        .filter(Rotina.user_id == user_id)
+        .filter(Rotina.user_id == current_user.id)
         .order_by(Rotina.id)
     )
     with Session() as sess:
@@ -88,13 +94,13 @@ def get_rotina(user_id: int):
 
     return [v for k,v in rotinas_dict.items()]
 
-@router.get("/detalhes/{user_id}/{rotina_id}")
-def get_rotina_detalhes(user_id: int, rotina_id: int):
+@router.get("/detalhes/{rotina_id}")
+def get_rotina_detalhes(current_user: Annotated[User, Depends(get_current_user)], rotina_id: int):
     cte_ultimo_treino = select(Treino.data.label("ultimo_treino"), Treino.rotina_id)\
         .where(
             and_(
                 Treino.tipo == TipoTreino.rotina, 
-                Treino.user_id == user_id,
+                Treino.user_id == current_user.id,
                 Treino.rotina_id == rotina_id
             ))\
         .limit(1).order_by(Treino.data.desc()).cte("cte_ultimo_treino")
@@ -149,18 +155,17 @@ def get_rotina_detalhes(user_id: int, rotina_id: int):
 
 class TreinoModel(BaseModel):
     rotinaId: int
-    userId: int
     ids_exercicios: List[int]
 
 @router.post("/treino/")
-def add_treino(model: TreinoModel, res: Response):
+def add_treino(model: TreinoModel, current_user: Annotated[User, Depends(get_current_user)], res: Response):
     with Session() as sess:
         result = sess.execute(
             select(ExercicioRotina.rotina_id, Rotina.nome)
             .select_from(ExercicioRotina)
             .join(Rotina, Rotina.id == ExercicioRotina.rotina_id)
             .where(ExercicioRotina.id == model.ids_exercicios[0])).first()
-        treino = Treino(user_id=model.userId, rotina_id=result[0], nome=result[1], tipo=TipoTreino.rotina)
+        treino = Treino(user_id=current_user.id, rotina_id=result[0], nome=result[1], tipo=TipoTreino.rotina)
         exercicios = [UserExercicio(exec_rotina_id=id) for id in model.ids_exercicios]
         treino.exercicios = exercicios
         sess.add(treino)
@@ -169,9 +174,9 @@ def add_treino(model: TreinoModel, res: Response):
     return "O novo treino foi adicionado com sucesso."
 
 @router.delete("/{id}")
-def delete_rotina(id: int, res: Response):
+def delete_rotina(id: int, current_user: Annotated[User, Depends(get_current_user)], res: Response):
     with Session() as sess:
-        rotina = sess.scalar(select(Rotina).where(Rotina.id == id))
+        rotina = sess.scalar(select(Rotina).where(and_(Rotina.id == id, Rotina.user_id == current_user.id)))
         sess.delete(rotina)
         sess.commit()
     res.status_code = status.HTTP_200_OK

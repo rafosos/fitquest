@@ -33,7 +33,6 @@ export default function Perfil() {
     const [refreshing, setRefreshing] = useState(false);
     const [erro, setErro] = useState<string | null>();
     const [user, setUser] = useState<UserPerfil>();
-    const userId = JSON.parse(useSession().username ?? "{id:null}").id;
     const exercicioService = ExercicioService();
     const userService = UserService();
 
@@ -52,7 +51,7 @@ export default function Perfil() {
     const getPerfilUser = () => {
         if(!amigoId) return
 
-        userService.getPerfilUsuario(userId, Number(amigoId))
+        userService.getPerfilUsuario(Number(amigoId))
             .then(res => {
                 setUser(res);
                 setErro(null);
@@ -76,7 +75,7 @@ export default function Perfil() {
     }
 
     const aceitarAmizade = () => {
-        userService.aceitarAmizade(userId, Number(amigoId))
+        userService.aceitarAmizade(Number(amigoId))
         .then(res => getPerfilUser())
         .catch(err =>{ 
             errorHandlerDebug(err)
@@ -84,7 +83,7 @@ export default function Perfil() {
     }
   
     const desfazerAmizade = () => {
-        userService.deletarAmizade(userId, Number(amigoId))
+        userService.deletarAmizade(Number(amigoId))
         .then(res => getPerfilUser())
         .catch(err =>{ 
             errorHandlerDebug(err)
@@ -92,7 +91,7 @@ export default function Perfil() {
     }
     
     const adicionarAmigo = () => {
-        userService.addAmigo(userId, Number(amigoId))
+        userService.addAmigo(Number(amigoId))
             .then(() => getPerfilUser())
             .catch(err => {
                 errorHandlerDebug(err)

@@ -4,6 +4,7 @@
     "slug": "frontend",
     "backgroundColor": "#494949",
     "version": "1.0.0",
+    "jsengine": "hermes",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -14,14 +15,18 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.jpg",
         "backgroundColor": "#000000"
       },
-      "package": "com.codeprotein.fitquest"
+      "package": "com.codeprotein.fitquest",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +43,9 @@
       "eas": {
         "projectId": "01261b3f-9d4d-4e60-806e-2f0c242afe35"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/01261b3f-9d4d-4e60-806e-2f0c242afe35"
     }
   }
 }

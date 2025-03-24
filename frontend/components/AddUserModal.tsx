@@ -1,4 +1,3 @@
-import { useSession } from '@/app/ctx';
 import UserService from '@/services/user_service';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
@@ -14,7 +13,6 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
     const [amigoId, setAmigoId] = useState<number | null>(null);
     const [resultados, setResultados] = useState<AutocompleteDropdownItem[]>([]);
     const [erro, setErro] = useState<string>("");
-    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
 
     const userService = UserService();
     
@@ -24,10 +22,8 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
     }
     
     const getUsersDropdown = (f: string) => {
-        if(!userId) return;
-
         setLoading(true);
-        userService.getNaoAmigos(userId, f)
+        userService.getNaoAmigos(f)
             .then(res => setResultados(res.map(user => {return {id: user.id.toString(), title:user.fullname}})))
             .catch(err => errorHandlerDebug(err))
             .finally(() => setLoading(false));
@@ -42,8 +38,8 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
     }
 
     const addAmigo = () => 
-        userId && amigoId &&
-        userService.addAmigo(userId, amigoId)
+        amigoId &&
+        userService.addAmigo(amigoId)
             .then(res => clearAndClose())
             .catch(err => {
                 errorHandlerDebug(err);

@@ -22,7 +22,6 @@ const DUAS_SEMANAS = 12096e5;
 
 export default function AddCampeonatoModal({ isVisible = false, onClose = () => {} }) {
     const hoje = new Date();
-    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
     const [erros, setErros] = useState<any>({});
     const [exercicios, setExercicios] = useState<Exercicio[]>([]);
     const [resultados, setResultados] = useState<Exercicio[]>([]);
@@ -60,15 +59,13 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
     }
 
     const getUsersDropdown = (f: string) => {
-        if(!userId) return;
-
         if (!f.length) {
             setAmigos([]);
             return;
         }
 
         setLoadingAmigos(true);
-        userService.getAmigosFilter(userId, f)
+        userService.getAmigosFilter(f)
             .then(res => setAmigos(res.map(user => {return {id: user.id.toString(), title:user.fullname}})))
             .catch(err => console.log(err))
             .finally(() => setLoadingAmigos(false));
@@ -93,7 +90,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         campeonatoService.addCampeonato(
             {nome, 
                 duracao: new Date(dataFinal), 
-                participantes_ids: [...participantes.map(p => Number(p.id)), Number(userId)],
+                participantes_ids: [...participantes.map(p => Number(p.id))],
                 exercicios:[...exercicios.map(e => new ExercicioCampeonato(e.id, e.qtd_serie, e.qtd_repeticoes))]
             })
             .then(res => clearAndClose())
@@ -124,7 +121,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         }
 
         setLoadingExercicios(true);
-        exercicioService.getExercicioFiltro(Number(userId), f, exercicios.map(e => e.id))
+        exercicioService.getExercicioFiltro(f, exercicios.map(e => e.id))
             .then(res => setResultados(res.map(exec => {return {...exec, id: exec.id, title:exec.nome}})))
             .catch(error => errorHandlerDebug(error))
             .finally(() => setLoadingExercicios(false));
@@ -172,6 +169,9 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                 
             <FlatList
                 data={exercicios}
+                removeClippedSubviews={false}
+                keyboardShouldPersistTaps="always"
+                automaticallyAdjustKeyboardInsets
                 ListHeaderComponent={<>
                     <View style={styles.titleContainer}>
                         <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose}/>

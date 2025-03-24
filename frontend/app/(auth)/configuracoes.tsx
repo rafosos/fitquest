@@ -45,7 +45,7 @@ export default function Configuracoes() {
         //     valorNovo = new Date(valorEditar);
         
         setLoading(true);
-        userService.editarDado(`${userRef.current.id}`, campos[campo], valorNovo)
+        userService.editarDado(campos[campo], valorNovo)
             .then(res => {
                 userRef.current = res;
                 setUser(JSON.stringify(res));

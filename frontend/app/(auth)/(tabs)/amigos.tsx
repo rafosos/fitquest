@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { useSession } from '@/app/ctx';
 import User from '@/classes/user';
 import AddUserModal from '@/components/AddUserModal';
 import UserService from '@/services/user_service';
@@ -20,7 +19,6 @@ export default function TabAmigos() {
     const [modalPedidos, setModalPedidos] = useState(false);
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, user: User | null}>({show: false, user: null});
     const [loadingAmigos, setLoadingAmigos] = useState(false);
-    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
 
     const userService = UserService();
 
@@ -28,14 +26,12 @@ export default function TabAmigos() {
     refreshFriendList(), []);
 
     const refreshFriendList = () => {
-        if(!userId) return;
-
         refreshAmigos();
     }
         
     const refreshAmigos = () => {
         setLoadingAmigos(true);
-        userService.getAmigos(userId)
+        userService.getAmigos()
             .then(res => setAmigos(res))
             .catch(err => console.log(err))
             .finally(() => setLoadingAmigos(false));          
@@ -44,6 +40,7 @@ export default function TabAmigos() {
     const onCloseModal = () => {
         setAddModal(false);
         setModalPedidos(false);
+        setModalConfirma({show:false, user: null});
         refreshFriendList();
         // show smth for user, some feedback
     }
@@ -53,7 +50,7 @@ export default function TabAmigos() {
     const deletarAmizade = () => {
         if(!modalConfirma.user?.id) return;
 
-        userService.deletarAmizade(userId, modalConfirma.user.id)
+        userService.deletarAmizade(modalConfirma.user.id)
             .then(res => {
                 setModalConfirma({show:false, user:null});
                 refreshFriendList();
@@ -61,7 +58,8 @@ export default function TabAmigos() {
             .catch(err => errorHandlerDebug(err));
     }
 
-    const abrirTelaAmigo = (amigoId:number) => router.navigate({pathname: '/(auth)/perfil', params:{userId: amigoId}});
+    const abrirTelaAmigo = (amigoId:number) => 
+        router.navigate({pathname: '/(auth)/perfil', params:{userId: amigoId}});
 
     return (<View style={styles.container}>
         <AddUserModal

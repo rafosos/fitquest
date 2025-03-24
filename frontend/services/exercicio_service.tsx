@@ -9,8 +9,8 @@ export default function ExercicioService(){
         return promise.then(res => res.data.map(exercicio => new Exercicio(exercicio.id, exercicio.nome, exercicio.grupo_muscular)));
     }
     
-    const getUltimosTreinosResumo = () => {
-        const promise = get<TreinoResumo[]>(`/exercicio/treinos_resumo/`);
+    const getUltimosTreinosResumo = (amigoId?: number) => {
+        const promise = get<TreinoResumo[]>(`/exercicio/treinos_resumo/` + (amigoId ?? ""));
         return promise.then(res => res.data);    
     }
 

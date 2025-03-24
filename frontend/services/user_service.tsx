@@ -1,4 +1,4 @@
-import User, { UserPerfil } from "@/classes/user";
+import User, { PedidoAmizade, UserPerfil } from "@/classes/user";
 import { deletar, get, patch, post, put } from "./service_config";
 import { InformacoesUsuario } from "@/classes/streaks";
 import { LoginResponse } from "@/classes/loginResponse";
@@ -26,7 +26,7 @@ export default function UserService(){
     }
 
     const addAmigo = (amigoId: number) =>{
-        const promise = post<string>(`${prefix}/add-amigo/`, {amigoId});
+        const promise = post<string>(`${prefix}/add-amigo/${amigoId}`);
         return promise.then(res => res.data);
     }
 
@@ -46,7 +46,7 @@ export default function UserService(){
     }
 
     const getPedidosAmizade = () =>{
-        const promise = get<User[]>(`${prefix}/get-pedidos-amizade/`);
+        const promise = get<PedidoAmizade[]>(`${prefix}/get-pedidos-amizade/`);
         return promise.then(res => res.data);
     }
     
@@ -61,12 +61,12 @@ export default function UserService(){
     }
 
     const recusarAmizade = (id: number) =>{
-        const promise = deletar<boolean>(`${prefix}/delete-pedido-amizade//${id}`);
+        const promise = deletar<boolean>(`${prefix}/delete-pedido-amizade/${id}`);
         return promise.then(res => res.data);
     }
 
     const deletarAmizade = (id: number) =>{
-        const promise = deletar<boolean>(`${prefix}/delete-amizade//${id}`);
+        const promise = deletar<boolean>(`${prefix}/delete-amizade/${id}`);
         return promise.then(res => res.data);
     }
 

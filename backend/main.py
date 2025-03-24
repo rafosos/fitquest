@@ -28,7 +28,6 @@ async def lifespan(app_: FastAPI):
     yield
     log.info("Shutting down...")
 
-
 # dev
 app = FastAPI(debug=True) 
 origins = ["*"]
@@ -58,3 +57,6 @@ def hello_world():
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level='debug')
+
+
+# rodar com fastapi dev main.pSy vai dar erro de network

@@ -76,7 +76,7 @@ def get_amigos(current_user: Annotated[User, Depends(get_current_user)]):
     
 @router.get("/get-amigos/{filtro}")
 def get_amigos(current_user: Annotated[User, Depends(get_current_user)], filtro):
-    user_id = current_user
+    user_id = current_user.id
     filtro_string = f"%%{filtro}%%"
 
     with Session() as sess:
@@ -136,12 +136,12 @@ def get_pedidos_amizade(current_user: Annotated[User, Depends(get_current_user)]
     user_id = current_user.id
     with Session() as sess:
 
-        stmt = select(User)\
+        stmt = select(User.id, User.username, User.fullname, Amizade.status_id)\
             .join(Amizade, Amizade.user1_id == User.id)\
             .join(Status, Amizade.status_id == Status.id)\
             .where(and_(Amizade.user2_id == user_id, Status.descricao == statuses[1]))
         
-        amigos = sess.scalars(stmt).all()
+        amigos = sess.execute(stmt).mappings().all()
         return amigos
     
 @router.get("/informacoes/")
@@ -165,12 +165,18 @@ def get_informacoes_usuario(current_user: Annotated[User, Depends(get_current_us
         return res
     
 @router.put("/status-pedido-amizade/")
-def change_status_pedido_amizade(current_user: Annotated[User, Depends(get_current_user)], id: Annotated[int, Body()], status: Annotated[int, Body()], res: Response):
-    user_id = current_user.id
+def change_status_pedido_amizade(
+    current_user: Annotated[User, Depends(get_current_user)], 
+    id: Annotated[int, Body()], 
+    status: Annotated[int, Body()]):
+
     with Session() as sess:
 
-        stmt = select(Amizade).where(and_(Amizade.user1_id == id, Amizade.user2_id == user_id))
+        stmt = select(Amizade).where(and_(Amizade.user1_id == id, Amizade.user2_id == current_user.id))
         amizade = sess.scalar(stmt)
+        if(not amizade):
+            raise HTTPException(404, "Amizade não encontrada")
+        
         amizade.status_id = status
         try:
             sess.commit()

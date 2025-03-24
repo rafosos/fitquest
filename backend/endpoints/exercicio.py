@@ -37,7 +37,6 @@ def add_exec(model: ExercicioModel, res: Response):
     
 @router.get("/")
 def get_exercicios(current_user: Annotated[User, Depends(get_current_user)], f: str, ids_escolhidos: Annotated[list[int] | None, Query()] = []):
-    user_id = current_user.id
     with Session() as sess:
         stmt = select(Exercicio).options(selectinload(Exercicio.grupo_muscular))\
         .where(
@@ -46,7 +45,7 @@ def get_exercicios(current_user: Annotated[User, Depends(get_current_user)], f: 
                 Exercicio.id.not_in(ids_escolhidos), 
                 or_(
                     Exercicio.criado_por == None, 
-                    Exercicio.criado_por == user_id
+                    Exercicio.criado_por == current_user.id
                 )
             )
         )
@@ -54,11 +53,13 @@ def get_exercicios(current_user: Annotated[User, Depends(get_current_user)], f: 
 
         return exercicios
 
-@router.get("/treinos_resumo/")
-def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)]):
-    if not current_user:
-        raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, "deu nao mano")
-    user_id = current_user.id
+@router.get("/treinos_resumo/{amigoId}")
+def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)], amigoId: int):
+    if not amigoId:
+        user_id = current_user.id
+    else:
+        user_id = amigoId
+        
     with Session() as sess:
         stmt = select(
             Treino.id,

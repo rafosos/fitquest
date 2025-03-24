@@ -14,7 +14,8 @@ import logging
 
 SECRET_KEY = os.environ["SECRET_KEY"]
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+MINUTES_PER_MONTH = 43200
+ACCESS_TOKEN_EXPIRE_MINUTES = MINUTES_PER_MONTH
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -63,14 +64,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
     with Session() as sess:
         user = sess.scalar(select(User).where(User.username == "string"))
-    return user
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         id: str = payload.get("id")
-        print(id)
-        print(username)
         if username is None or id is None:
             raise credentials_exception
         

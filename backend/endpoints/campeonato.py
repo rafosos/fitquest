@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from db.db import Session
-from typing import List
+from typing import List, Annotated
 from sqlalchemy import select, func, case, and_, literal_column, or_, literal
 from sqlalchemy.orm import selectinload, aliased
 from datetime import datetime
@@ -38,7 +38,9 @@ class CampeonatoModel(BaseModel):
     # criador: int
 
 @router.post("/")
-def add_campeonato(model: CampeonatoModel):
+def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends(get_current_user)]):
+    model.participantes_ids.append(current_user.id)
+    
     with Session() as sess:
         participantes = sess.scalars(select(User).where(User.id.in_(model.participantes_ids))).all()
         exercicios = [ExercicioCampeonato(exercicio_id=e.exercicio_id, qtd_serie=e.qtd_serie, qtd_repeticoes=e.qtd_repeticoes) for e in model.exercicios]

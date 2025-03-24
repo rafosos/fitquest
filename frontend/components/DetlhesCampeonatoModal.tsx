@@ -295,6 +295,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                                     </View>
                                 </TouchableOpacity>
                             }
+                            ListEmptyComponent={<StyledText>Faça um treino para aparecer na lista!</StyledText>}
                         />
                     })
                 }
