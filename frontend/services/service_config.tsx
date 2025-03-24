@@ -1,13 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { Platform } from "react-native";
 
-const API_URL = Platform.OS == "web" ? 'http://localhost:8000' : 
-'http://192.168.0.14:8000'; //casa
-// 'http://192.168.236.82:8000'; //cel
-// 'http://172.17.99.32:8000'; //facul
-// 'http://192.168.162.156:8000'; //facul L
-// 'http://172.17.106.70:8000'; //facul biblio
-// "https://fitquest-8s1c.onrender.com" //prod
+const API_URL = "fitquest-production.up.railway.app";
 
 axios.defaults.baseURL = API_URL
 axios.defaults.paramsSerializer = { indexes:null }
