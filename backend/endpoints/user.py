@@ -231,6 +231,23 @@ def editar_altura(current_user: Annotated[User, Depends(get_current_user)], camp
         sess.commit()
         return user
     
+@router.get("/perfil-configuracoes/")
+def get_perfil_configs(current_user: Annotated[User, Depends(get_current_user)]):
+    with Session() as sess:
+        user = sess.execute(select(
+            User.fullname,
+            User.nascimento,
+            User.peso,
+            User.altura,
+            User.email,
+            User.status
+        ).where(User.id == current_user.id)).mappings().first()
+
+        if not user:
+            raise HTTPException(status_code=400, detail="Usuário não encontrado")
+
+        return user
+    
 @router.get("/perfil/{amigo_id}")
 def get_user_perfil(current_user: Annotated[User, Depends(get_current_user)], amigo_id: int):
     user_id = current_user.id

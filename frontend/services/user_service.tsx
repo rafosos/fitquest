@@ -81,7 +81,7 @@ export default function UserService(){
     }
 
     const editarDado = (campo:string, valor: string) => {
-        const promise = patch<User>(`${prefix}/${campo}`, {valor});
+        const promise = patch<User>(`${prefix}/editar/${campo}`, {valor});
         return promise.then(res => res.data);
     }
         
@@ -89,6 +89,11 @@ export default function UserService(){
         const promise = get<UserPerfil>(`${prefix}/perfil/${amigo_id}`);
         return promise.then(res => res.data);
     }
+    
+    const getUserInfo = () => {   
+        const promise = get<User>(`${prefix}/perfil-configuracoes/`);
+        return promise.then(res => res.data);
+    }
 
-    return {cadastrar, editarDado, login, addAmigo, getAmigos, getPerfilUsuario, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
+    return {cadastrar, getUserInfo, editarDado, login, addAmigo, getAmigos, getPerfilUsuario, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
 }
