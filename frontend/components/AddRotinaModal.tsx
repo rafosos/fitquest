@@ -21,7 +21,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     const [resultados, setResultados] = useState<Exercicio[]>([]);
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<any>({});
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
+    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
 
     const rotinaService = RotinaService();
     const exercicioService = ExercicioService();
@@ -34,7 +34,6 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
         setExercicios([]);
         setResultados([]);
         onClose();
-        console.log("deu")
     }
     
     const getExerciciosDropdown = (f: string) => {
@@ -44,7 +43,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
         }
 
         setLoading(true);
-        exercicioService.getExercicioFiltro(Number(userId), f, exercicios.map(e => e.id))
+        exercicioService.getExercicioFiltro(f, exercicios.map(e => e.id))
             .then(res => setResultados(res.map(exec => {return {...exec, id: exec.id, title:exec.nome}})))
             .catch(error => errorHandlerDebug(error))
             .finally(() => setLoading(false));
@@ -91,10 +90,10 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
         // se algum erro existe, a função .some vai voltar true e não vai chamar submit
         if(Object.values(erroObj).some(err => err)) return;
 
-        rotinaService.addRotina(userId, {
+        rotinaService.addRotina({
             nome,
             dias: duracao,
-            exercicios: exercicios.map(e => {return{id: e.id, series: e.qtd_serie, repeticoes: e.qtd_repeticoes}})
+            exercicios: exercicios.map(e => { return {id: e.id, series: e.qtd_serie, repeticoes: e.qtd_repeticoes}})
         }).then(res => clearAndClose())
         .catch(err => errorHandlerDebug(err));
     }
@@ -236,7 +235,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
                     }
                     ListFooterComponent={
                         <TouchableOpacity onPress={submit} style={styles.botaoAdicionar}>
-                            <StyledText style={styles.txtBotaoAdd}>ADICIONAR</StyledText>
+                            <StyledText style={styles.txtBotaoAdd}>SALVAR ROTINA</StyledText>
                         </TouchableOpacity>
                     }
                 />

@@ -5,7 +5,6 @@ import { colors } from '@/constants/Colors';
 import { RotinaResumida } from '@/classes/rotina';
 import AddRotinaModal from '@/components/AddRotinaModal';
 import RotinaService from '@/services/rotina_service';
-import { useSession } from '@/app/ctx';
 import { errorHandlerDebug } from '@/services/service_config';
 import DetalhesRotinaModal from '@/components/DetalhesRotinaModal';
 import StyledText from '@/components/base/styledText';
@@ -16,17 +15,15 @@ export default function TabTreino() {
     const [rotinas, setRotinas] = useState<RotinaResumida[]>([]);
     const [addRotina, setAddRotina] = useState(false);
     const [detalhesModal, setDetahesModal] = useState({show: false, rotina_id:0});
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
     const rotinaService = RotinaService();
 
     useEffect(() => {
-        refresh()
+        refresh();
     }, []);
 
     const getRotinas = () => {
-        if(!userId) return;
         setRefreshing(true);
-        return rotinaService.getRotinas(userId)
+        rotinaService.getRotinas()
             .then(res => setRotinas(res))
             .catch(err => errorHandlerDebug(err))
             .finally(() => setRefreshing(false))
@@ -36,8 +33,7 @@ export default function TabTreino() {
         setAddRotina(false);
         setDetahesModal({rotina_id: 0, show:false});
         setRefreshing(true);
-        await getRotinas();
-        setRefreshing(false);
+        getRotinas();
     }
 
     return (

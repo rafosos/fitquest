@@ -54,3 +54,14 @@ export class PedidoAmizade{
     fullname: string;
     status: StatusAmizade
 }
+
+export class UserNaoAmigoDropbox{
+    constructor(id: number, nome: string, username: string) {
+        this.id = id;
+        this.fullname = nome;
+        this.username = username;
+    }
+    id: number;
+    username:string;
+    fullname: string;
+}

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, router } from "expo-router";
 import { ActivityIndicator, KeyboardTypeOptions, StyleProp, StyleSheet, TextInput, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { useSession } from '@/app/ctx';
@@ -11,6 +11,7 @@ import StyledTextInput from '@/components/base/styledTextInput';
 import UserService from '@/services/user_service';
 import { errorHandlerDebug } from '@/services/service_config';
 import ErroInput from '@/components/ErroInput';
+import User from '@/classes/user';
 
 enum campos {
     fullname,
@@ -22,25 +23,43 @@ enum campos {
 }
 
 export default function Configuracoes() {
-    const { signOut, user: userString, setUser } = useSession();
-    const userRef = useRef(JSON.parse(userString ?? "{}"));
+    const { signOut, setUser } = useSession();
     const [campoEditar, setCampoEditar] = useState<campos>();
     const [loading, setLoading] = useState<boolean>(false);
     const [valorEditar, setValorEditar] = useState<any>();
     const [erro, setErro] = useState<string>("");
+    const [userRef, setUserRef] = useState<User>();
     const userService = UserService();
 
     const inputRef = useRef<TextInput>(null);
+
+    useEffect(() => getUserInfo(), []);
+
+    const getUserInfo = () => {
+        setLoading(true);
+        userService.getUserInfo()
+            .then(res => {
+                setUserRef(res)})
+            .catch(err => errorHandlerDebug(err))
+            .finally(() => setLoading(false));
+    }
 
     const onPressLogOut = () => {
         signOut();
     }
 
     const updateValor = (campo: campos) => {
+        let valorNovo = valorEditar;
+        if (campo == campos.altura || campo == campos.peso)
+            valorNovo = valorNovo.replace(',', '.');
+
+        // if(campo == campos.nascimento)
+        //     valorNovo = new Date(valorEditar);
+        
         setLoading(true);
-        userService.editarDado(`${userRef.current.id}`, campos[campo], valorEditar)
+        userService.editarDado(campos[campo], valorNovo)
             .then(res => {
-                userRef.current = res;
+                setUserRef(res);
                 setUser(JSON.stringify(res));
                 setCampoEditar(undefined);
                 setErro("");
@@ -71,7 +90,8 @@ export default function Configuracoes() {
         valorItem: any,
         campo: campos,
         inputType: KeyboardTypeOptions = "default",
-        extraStyle?: StyleProp<ViewStyle>
+        extraStyle?: StyleProp<ViewStyle>,
+        editable = true
     ) => 
         <View style={[s.containerConfiguracao, stylePosicao]}>
             {campoEditar == campo ?
@@ -99,7 +119,7 @@ export default function Configuracoes() {
                     <StyledText style={s.txtInfo}>{tituloItem}</StyledText> 
                     <StyledText style={s.valorCard}>{typeof(valorItem) == "number" ? valorItem.toString() : valorItem}</StyledText>
                 </View>
-                <MaterialIcons name="edit" onPress={() => habilitarEdicao(valorItem, campo)}/>
+                {campo != campos.nascimento && <MaterialIcons name="edit" size={18} onPress={() => habilitarEdicao(valorItem, campo)}/>}
             </>
             }
         </View>
@@ -122,12 +142,12 @@ export default function Configuracoes() {
         
             <StyledText style={s.tituloCard}>Dados pessoais</StyledText>
             <View style={s.containerInfo}>
-                {campoConfiguracao(s.textTop, "Nome completo", userRef.current.fullname, campos.fullname)}
-                {campoConfiguracao(s.textMiddle, "Data de nascimento", showDiaMes(userRef.current.nascimento), campos.nascimento)}
-                {campoConfiguracao(s.textMiddle, "Peso", userRef.current.peso, campos.peso, 'decimal-pad')}
-                {campoConfiguracao(s.textMiddle, "Altura", userRef.current.altura, campos.altura, 'decimal-pad')}
-                {campoConfiguracao(s.textMiddle, "Email", userRef.current.email, campos.email)}
-                {campoConfiguracao(s.textBottom, "Status", userRef.current.status, campos.status)}
+                {campoConfiguracao(s.textTop, "Nome completo", userRef?.fullname, campos.fullname)}
+                {campoConfiguracao(s.textMiddle, "Data de nascimento", showDiaMes(userRef?.nascimento), campos.nascimento)}
+                {campoConfiguracao(s.textMiddle, "Peso", userRef?.peso, campos.peso, 'decimal-pad')}
+                {campoConfiguracao(s.textMiddle, "Altura", userRef?.altura, campos.altura, 'decimal-pad')}
+                {campoConfiguracao(s.textMiddle, "Email", userRef?.email, campos.email)}
+                {campoConfiguracao(s.textBottom, "Status", userRef?.status, campos.status)}
             </View>
 
             <StyledText style={s.tituloCard}>Atividades</StyledText>

@@ -11,6 +11,7 @@ import { Feather } from "@expo/vector-icons";
 import ErroInput from "@/components/ErroInput";
 import { errorHandlerDebug } from "@/services/service_config";
 import GradienteInicio from "@/components/GradienteInicio";
+import axios from "axios";
 
 export default function Login() {
     const { signIn, setUser } = useSession();
@@ -40,7 +41,8 @@ export default function Login() {
         userService.login(login, senha)
             .then(res => {
                 if (res){
-                    signIn(res.id.toString());
+                    axios.defaults.headers.common = { "Authorization": `Bearer ${res.access_token}` }
+                    signIn(res);
                     setUser(JSON.stringify(res));
                     router.replace("/");
                 } else {
@@ -50,7 +52,7 @@ export default function Login() {
             .catch(err => {
                 errorHandlerDebug(err);
                 if(err.response && err.response.status == 401)
-                    setErros({...erroObj, geral: `Login e senha inválidos ou incompatíveis, cheque as informações e tente novamente.`});
+                    setErros({...erroObj, geral: `Login e senha inválidos ou incompatíveis, confira as informações e tente novamente.`});
                 else if(err.message == "Network Error") //server is down
                     setErros({...erroObj, geral: `Erro: ${err.message}`});
                 else

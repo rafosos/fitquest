@@ -28,7 +28,6 @@ export function ModalPedidosAmizade({visible, onClose, setVisible}: Props){
     const [loading, setLoading] = useState(false);
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, user: User | null}>({show: false, user: null});
     const [erro, setErro] = useState<string>("");
-    const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
     const userService = UserService();
 
     useEffect(() => {
@@ -44,7 +43,7 @@ export function ModalPedidosAmizade({visible, onClose, setVisible}: Props){
 
     const getPedidos = () => {
         setLoading(true);
-        userService.getPedidosAmizade(userId)
+        userService.getPedidosAmizade()
             .then(res => setPedidos(res))
             .catch(err => {
                 errorHandlerDebug(err);
@@ -57,7 +56,7 @@ export function ModalPedidosAmizade({visible, onClose, setVisible}: Props){
     }
 
     const aceitarAmizade = (id: number) =>
-        userId && userService.aceitarAmizade(userId, id)
+        userService.aceitarAmizade(id)
             .then(res => getPedidos())
             .catch(err => {
                 errorHandlerDebug(err);
@@ -68,7 +67,7 @@ export function ModalPedidosAmizade({visible, onClose, setVisible}: Props){
             });
     
     const recusarAmizade = (id: number) => 
-        userId && userService.recusarAmizade(userId, id)
+        userService.recusarAmizade(id)
                 .then(res => getPedidos())
                 .catch(err => {
                     errorHandlerDebug(err);
@@ -81,7 +80,7 @@ export function ModalPedidosAmizade({visible, onClose, setVisible}: Props){
     const deletarAmizade = () => {
         if(!modalConfirma.user?.id) return;
 
-        userService.deletarAmizade(userId, modalConfirma.user.id)
+        userService.deletarAmizade(modalConfirma.user.id)
             .then(res => {
                 setModalConfirma({show:false, user:null});
                 getPedidos();

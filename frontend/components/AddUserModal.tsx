@@ -1,4 +1,3 @@
-import { useSession } from '@/app/ctx';
 import UserService from '@/services/user_service';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
@@ -8,13 +7,15 @@ import { AutocompleteDropdown, AutocompleteDropdownItem } from 'react-native-aut
 import { Feather } from '@expo/vector-icons';
 import { errorHandlerDebug } from '@/services/service_config';
 import ErroInput from './ErroInput';
+import StyledText from './base/styledText';
+import { UserNaoAmigoDropbox } from '@/classes/user';
+import { fonts } from '@/constants/Fonts';
 
 export default function AddUserModal({ isVisible = false, onClose = () => {} }) {
     const [loading, setLoading] = useState(false);
     const [amigoId, setAmigoId] = useState<number | null>(null);
-    const [resultados, setResultados] = useState<AutocompleteDropdownItem[]>([]);
+    const [resultados, setResultados] = useState<UserNaoAmigoDropbox[]>([]);
     const [erro, setErro] = useState<string>("");
-    const { id: userId } = JSON.parse(useSession().user ?? "{id: null}");
 
     const userService = UserService();
     
@@ -24,11 +25,9 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
     }
     
     const getUsersDropdown = (f: string) => {
-        if(!userId) return;
-
         setLoading(true);
-        userService.getNaoAmigos(userId, f)
-            .then(res => setResultados(res.map(user => {return {id: user.id.toString(), title:user.fullname}})))
+        userService.getNaoAmigos(f)
+            .then(res => setResultados(res))
             .catch(err => errorHandlerDebug(err))
             .finally(() => setLoading(false));
     }
@@ -42,8 +41,8 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
     }
 
     const addAmigo = () => 
-        userId && amigoId &&
-        userService.addAmigo(userId, amigoId)
+        amigoId &&
+        userService.addAmigo(amigoId)
             .then(res => clearAndClose())
             .catch(err => {
                 errorHandlerDebug(err);
@@ -68,7 +67,7 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
             />
 
             <AutocompleteDropdown
-                dataSet={resultados}
+                dataSet={resultados.map(user => {return {id: user.id.toString(), title:user.fullname}})}
                 onChangeText={getUsersDropdown}
                 onSelectItem={onSelectItem}
                 debounce={600}
@@ -97,6 +96,14 @@ export default function AddUserModal({ isVisible = false, onClose = () => {} }) 
                 inputHeight={50}
                 closeOnBlur={true}
                 showChevron={false}
+                renderItem={(item) =>{
+                    const user = resultados.find(u => u.id == Number(item.id));
+                    return(
+                        <View style={styles.containerDropdownItem}>
+                            <StyledText style={styles.dropdownItemUsername}>{user?.username}</StyledText>
+                            <StyledText style={styles.dropdownItemFullname}>{user?.fullname}</StyledText>
+                        </View>
+                    )}}
                 clearOnFocus={false}
                 closeOnSubmit
                 EmptyResultComponent={<></>}
@@ -134,6 +141,17 @@ const styles = StyleSheet.create({
         borderColor: colors.preto.padrao,
         margin: 10,
         borderRadius: 4,
+    },
+    containerDropdownItem:{
+        flexDirection: 'column',
+        padding: 12
+    },
+    dropdownItemUsername:{
+        fontFamily: fonts.padrao.Bold700
+    },
+    dropdownItemFullname: {
+        fontFamily: fonts.padrao.Light300,
+        fontSize: 13
     },
     botaoAdicionar: {
         padding: 8,

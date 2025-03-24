@@ -18,6 +18,7 @@ import {
   Inter_800ExtraBold,
   Inter_900Black,
 } from '@expo-google-fonts/inter';
+import { ToastProvider } from 'react-native-toast-notifications'
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -53,13 +54,15 @@ export default function RootLayout() {
   return (
     <AutocompleteDropdownContextProvider>
       <SessionProvider>
-        <Stack screenOptions={{contentStyle: styles.AndroidSafeArea}}>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="bemvindo" options={{ headerShown: false }} />
-          <Stack.Screen name="login" options={{ headerShown: false }} />
-          <Stack.Screen name="cadastro" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
+        <ToastProvider>
+          <Stack screenOptions={{contentStyle: styles.AndroidSafeArea}}>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="bemvindo" options={{ headerShown: false }} />
+            <Stack.Screen name="login" options={{ headerShown: false }} />
+            <Stack.Screen name="cadastro" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </ToastProvider>
       </SessionProvider>
     </AutocompleteDropdownContextProvider>
   );

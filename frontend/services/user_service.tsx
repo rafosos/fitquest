@@ -1,89 +1,99 @@
-import User, { UserPerfil } from "@/classes/user";
+import User, { PedidoAmizade, UserNaoAmigoDropbox, UserPerfil } from "@/classes/user";
 import { deletar, get, patch, post, put } from "./service_config";
 import { InformacoesUsuario } from "@/classes/streaks";
+import { LoginResponse } from "@/classes/loginResponse";
+import { useSession } from "@/app/ctx";
 
 export default function UserService(){
     const prefix = "/user";
+    const {id} = useSession();
 
     const cadastrar = (params: {
         username: string,
         fullname: string,
         email: string,
         nascimento: Date,
-        // classe: number,
         senha: string
     }) => 
         post("/cadastro", params);
 
     const login = (login: string, senha: string) => {
-        const promise = post<User>("/login", {login, senha});
+        const formData = new FormData();
+        formData.append("username", login.trim());
+        formData.append("password", senha.trim());
+        const promise = post<LoginResponse>("/login", formData, {headers: {'Content-Type': 'multipart/form-data'}});
         return promise.then(res => res.data);
     }
 
-    const addAmigo = (user_id: string, amigoId: number) =>{
-        const promise = post<string>(`${prefix}/add-amigo/${user_id}`, {amigoId});
+    const addAmigo = (amigoId: number) =>{
+        const promise = post<string>(`${prefix}/add-amigo/${amigoId}`);
         return promise.then(res => res.data);
     }
 
-    const getAmigos = (user_id: string) =>{
-        const promise = get<User[]>(`${prefix}/get-amigos/${user_id}`);
+    const getAmigos = () =>{
+        const promise = get<User[]>(`${prefix}/get-amigos/`);
         return promise.then(res => res.data);
     }
 
-    const getNaoAmigos = (user_id: string, filtro: string) => {
-        const promise = get<User[]>(`${prefix}/get-nao-amigos/${user_id}/${filtro}`);
+    const getNaoAmigos = (filtro: string) => {
+        const promise = get<UserNaoAmigoDropbox[]>(`${prefix}/get-nao-amigos/${filtro}`);
         return promise.then(res => res.data);
     }
 
-    const getAmigosFilter = (user_id: string, filter: string) =>{
-        const promise = get<User[]>(`${prefix}/get-amigos/${user_id}/${filter}`);
+    const getAmigosFilter = (filter: string) =>{
+        const promise = get<User[]>(`${prefix}/get-amigos/${filter}`);
         return promise.then(res => res.data);
     }
 
-    const getPedidosAmizade = (user_id: string) =>{
-        const promise = get<User[]>(`${prefix}/get-pedidos-amizade/${user_id}`);
+    const getPedidosAmizade = () =>{
+        const promise = get<PedidoAmizade[]>(`${prefix}/get-pedidos-amizade/`);
         return promise.then(res => res.data);
     }
     
-    const getInformacoesUsuario = (user_id: number) => {
-        const promise = get<InformacoesUsuario>(`${prefix}/informacoes/${user_id}`);
+    const getInformacoesUsuario = () => {
+        const promise = get<InformacoesUsuario>(`${prefix}/informacoes/`);
         return promise.then(res => res.data);
     }
 
-    const aceitarAmizade = (user_id: string, id: number) =>{
-        const promise = put<boolean>(`${prefix}/status-pedido-amizade/${user_id}`, {id, status: 1});
+    const aceitarAmizade = (id: number) =>{
+        const promise = put<boolean>(`${prefix}/status-pedido-amizade/`, {id, status: 1});
         return promise.then(res => res.data);
     }
 
-    const recusarAmizade = (user_id: string, id: number) =>{
-        const promise = deletar<boolean>(`${prefix}/delete-pedido-amizade/${user_id}/${id}`);
+    const recusarAmizade = (id: number) =>{
+        const promise = deletar<boolean>(`${prefix}/delete-pedido-amizade/${id}`);
         return promise.then(res => res.data);
     }
 
-    const deletarAmizade = (user_id: string, id: number) =>{
-        const promise = deletar<boolean>(`${prefix}/delete-amizade/${user_id}/${id}`);
+    const deletarAmizade = (id: number) =>{
+        const promise = deletar<boolean>(`${prefix}/delete-amizade/${id}`);
         return promise.then(res => res.data);
     }
 
-    const editarPeso = (user_id: string, valor: number) => {
-        const promise = patch<boolean>(`${prefix}/${user_id}/peso`, {valor});
+    const editarPeso = (valor: number) => {
+        const promise = patch<boolean>(`${prefix}/peso`, {valor});
         return promise.then(res => res.data);
     }
 
-    const editarAltura = (user_id: string, valor: number) => {
-        const promise = patch<boolean>(`${prefix}/${user_id}/altura`, {valor});
+    const editarAltura = (valor: number) => {
+        const promise = patch<boolean>(`${prefix}/altura`, {valor});
         return promise.then(res => res.data);
     }
 
-    const editarDado = (user_id: string, campo:string, valor: string) => {
-        const promise = patch<User>(`${prefix}/${user_id}/${campo}`, {valor});
+    const editarDado = (campo:string, valor: string) => {
+        const promise = patch<User>(`${prefix}/editar/${campo}`, {valor});
         return promise.then(res => res.data);
     }
         
-    const getPerfilUsuario = (user_id:number, amigo_id: number) => {
-        const promise = get<UserPerfil>(`${prefix}/perfil/${user_id}/${amigo_id}`);
+    const getPerfilUsuario = (amigo_id: number) => {
+        const promise = get<UserPerfil>(`${prefix}/perfil/${amigo_id}`);
+        return promise.then(res => res.data);
+    }
+    
+    const getUserInfo = () => {   
+        const promise = get<User>(`${prefix}/perfil-configuracoes/`);
         return promise.then(res => res.data);
     }
 
-    return {cadastrar, editarDado, login, addAmigo, getAmigos, getPerfilUsuario, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
+    return {cadastrar, getUserInfo, editarDado, login, addAmigo, getAmigos, getPerfilUsuario, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
 }

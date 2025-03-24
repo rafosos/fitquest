@@ -25,12 +25,12 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
     const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
     const [modalConfirma, setModalConfirma] = useState(false);
     const rotinaService = RotinaService();
-    const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
+    const {id: userId} = JSON.parse(useSession().id ?? "{id:null}");
 
     useEffect(() => refresh(), [rotinaId]);
     
     const refresh = () => {
-        rotinaService.getDetalhesRotina(userId, rotinaId)
+        rotinaService.getDetalhesRotina(rotinaId)
             .then(res => setRotina(res))
             .catch(err => errorHandlerDebug(err))
     }
@@ -53,7 +53,6 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
     const finalizarTreino = () => {
         rotinaService.addTreino({
             rotinaId, 
-            userId, 
             ids_exercicios: rotina?.exercicios.filter((e, i) => checkboxes[i]).map(e => e.id) ?? []
         })
             .then(res => clearAndClose())

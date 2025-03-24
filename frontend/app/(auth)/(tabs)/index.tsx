@@ -37,8 +37,9 @@ export default function TabAvatar() {
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, treino: TreinoResumo | null}>({show: false, treino: null});
     const [refreshing, setRefreshing] = useState(false);
     const [erro, setErro] = useState<string>("");
-    const { user: userString } = useSession();
+    const { username: userString } = useSession();
     const user: User = useRef(JSON.parse(userString ?? "{}")).current;
+    
     const exercicioService = ExercicioService();
     const userService = UserService();
 
@@ -52,12 +53,13 @@ export default function TabAvatar() {
     }
 
     const getInformacoesUsuario = () => {
-        userService.getInformacoesUsuario(user.id)
+        userService.getInformacoesUsuario()
             .then(res => {
                 setInformacoesUsuario(res);
                 setErro("");
             })
             .catch(err => {
+              errorHandlerDebug(err);
                 if (err.response){
                     setErro(err.response.data.detail)}
                 else
@@ -67,18 +69,20 @@ export default function TabAvatar() {
     
     const getAtividades = () => {
         setRefreshing(true)
-        exercicioService.getUltimosTreinosResumo(user.id)
+        exercicioService.getUltimosTreinosResumo()
         .then(res => setAtividades(res))
         .catch(err => errorHandlerDebug(err))
         .finally(() => setRefreshing(false))
     }
 
+
+
     const getData = () => {
         return [
             new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
             new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false),
-            new DataFlatlist('Peso', informacoesUsuario?.peso ?? "...", true, TipoModalPesoAltura.peso),
-            new DataFlatlist('Altura', informacoesUsuario?.altura ?? "...", true, TipoModalPesoAltura.altura),
+            // new DataFlatlist('Peso', informacoesUsuario?.peso ?? "...", true, TipoModalPesoAltura.peso),
+            // new DataFlatlist('Altura', informacoesUsuario?.altura ?? "...", true, TipoModalPesoAltura.altura),
         ];
     }
 
@@ -142,7 +146,7 @@ export default function TabAvatar() {
 
                 {informacoesUsuario?.status && <StyledText style={s.status}>{informacoesUsuario?.status}</StyledText>}
 
-                <FlatList
+                {/* <FlatList
                     data={getData()}
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -151,7 +155,19 @@ export default function TabAvatar() {
                             <StyledText>{item.title}: <StyledText style={s.txtStreak}>{item.value}</StyledText></StyledText> 
                         </View>
                     }
-                />
+                /> */}
+
+{/* new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
+new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false), */}
+
+                <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+                  <View style={[s.card, s.cardInformacoesPessoais]}>
+                      <StyledText>Streak semanal: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_semanal?.streak_length}</StyledText></StyledText> 
+                  </View>
+                  <View style={[s.card, s.cardInformacoesPessoais]}>
+                      <StyledText>Streak diário: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_diario?.streak_length}</StyledText></StyledText> 
+                  </View>
+                </View>
 
                 <StyledText style={s.tituloUltimasAtividades}>Últimas atividades</StyledText>
             </>}

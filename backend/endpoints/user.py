@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Response, status, HTTPException
+from fastapi import APIRouter, Body, Response, status, HTTPException, Depends
 from typing import Annotated
 from db.db import Session
 from sqlalchemy import select, or_, case, and_
@@ -7,21 +7,26 @@ from .exercicio import get_streaks_geral
 from classes.amizade import Amizade
 from classes.user import User
 from classes.status import Status, statuses
+from .login import get_current_user
+import logging
+logger = logging.getLogger("api")
 
 router = APIRouter(
+    dependencies=[Depends(get_current_user)],
     tags=["user"],
     prefix='/user',
-    responses={404: {"description": "Not found"}}
+    # responses={404: {"description": "Not found"}}
 )
 
-@router.post("/add-amigo/{user_id}")
-def add_amigo(user_id: int, res: Response, amigoId: int = Body(..., embed=True)):
+@router.post("/add-amigo/{amigo_id}")
+def add_amigo(amigo_id: int, current_user: Annotated[User, Depends(get_current_user)], res: Response):
+    user_id = current_user.id
     with Session() as sess:
-        stmt = select(User).where(User.id == amigoId)
+        stmt = select(User).where(User.id == amigo_id)
         amigo = sess.execute(stmt).first()
         if (amigo is None):
             res.status_code = status.HTTP_400_BAD_REQUEST
-            raise HTTPException(status_code=400, detail=f"Usuário com id {amigoId} não encontrado.")
+            raise HTTPException(status_code=400, detail=f"Usuário com id {amigo_id} não encontrado.")
         amigo = amigo[0]
 
         stmt = select(User).where(User.id == user_id)
@@ -47,8 +52,9 @@ def add_amigo(user_id: int, res: Response, amigoId: int = Body(..., embed=True))
         res.status_code = status.HTTP_200_OK
         return "O pedido de amizade foi enviado com sucesso"
 
-@router.get("/get-amigos/{user_id}")
-def get_amigos(user_id):
+@router.get("/get-amigos")
+def get_amigos(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
 
         cte = select(Status.id).where(Status.descricao == statuses[0]).cte("status_ativo") 
@@ -68,8 +74,9 @@ def get_amigos(user_id):
         amigos = sess.scalars(stmt).all()
         return amigos
     
-@router.get("/get-amigos/{user_id}/{filtro}")
-def get_amigos(user_id, filtro):
+@router.get("/get-amigos/{filtro}")
+def get_amigos(current_user: Annotated[User, Depends(get_current_user)], filtro):
+    user_id = current_user.id
     filtro_string = f"%%{filtro}%%"
 
     with Session() as sess:
@@ -96,8 +103,9 @@ def get_amigos(user_id, filtro):
         amigos = [{"id": r[0], "username": r[1], "fullname": r[2]} for r in sess.execute(stmt).all()]
         return amigos
     
-@router.get("/get-nao-amigos/{user_id}/{filtro}")
-def get_amigos(user_id, filtro):
+@router.get("/get-nao-amigos/{filtro}")
+def get_amigos(current_user: Annotated[User, Depends(get_current_user)], filtro):
+    user_id = current_user.id
     filtro_string = f"%%{filtro}%%"
 
     with Session() as sess:
@@ -123,20 +131,22 @@ def get_amigos(user_id, filtro):
         amigos = sess.execute(stmt).mappings().all()
         return amigos
     
-@router.get("/get-pedidos-amizade/{user_id}")
-def get_pedidos_amizade(user_id: int):
+@router.get("/get-pedidos-amizade/")
+def get_pedidos_amizade(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
 
-        stmt = select(User)\
+        stmt = select(User.id, User.username, User.fullname, Amizade.status_id)\
             .join(Amizade, Amizade.user1_id == User.id)\
             .join(Status, Amizade.status_id == Status.id)\
             .where(and_(Amizade.user2_id == user_id, Status.descricao == statuses[1]))
         
-        amigos = sess.scalars(stmt).all()
+        amigos = sess.execute(stmt).mappings().all()
         return amigos
     
-@router.get("/informacoes/{user_id}")
-def get_informacoes_usuario(user_id:int):
+@router.get("/informacoes/")
+def get_informacoes_usuario(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
         infos = sess.execute(
             select(
@@ -148,18 +158,25 @@ def get_informacoes_usuario(user_id:int):
         if not infos:
             raise HTTPException(status_code=400, detail="Usuário não encontrado.")
 
-        streaks = get_streaks_geral(user_id)
+        streaks = get_streaks_geral(current_user)
         res = dict()
         res.update(infos)
         res.update(streaks)
         return res
     
-@router.put("/status-pedido-amizade/{user_id}")
-def change_status_pedido_amizade(user_id: int, id: Annotated[int, Body()], status: Annotated[int, Body()], res: Response):
+@router.put("/status-pedido-amizade/")
+def change_status_pedido_amizade(
+    current_user: Annotated[User, Depends(get_current_user)], 
+    id: Annotated[int, Body()], 
+    status: Annotated[int, Body()]):
+
     with Session() as sess:
 
-        stmt = select(Amizade).where(and_(Amizade.user1_id == id, Amizade.user2_id == user_id))
+        stmt = select(Amizade).where(and_(Amizade.user1_id == id, Amizade.user2_id == current_user.id))
         amizade = sess.scalar(stmt)
+        if(not amizade):
+            raise HTTPException(404, "Amizade não encontrada")
+        
         amizade.status_id = status
         try:
             sess.commit()
@@ -168,8 +185,9 @@ def change_status_pedido_amizade(user_id: int, id: Annotated[int, Body()], statu
 
         return f"Status da amizade alterado com sucesso para {status}"
 
-@router.delete("/delete-pedido-amizade/{user_id}/{id}")
-def delete_pedido_amizade(user_id: int, id: int):
+@router.delete("/delete-pedido-amizade/{id}")
+def delete_pedido_amizade(current_user: Annotated[User, Depends(get_current_user)], id: int):
+    user_id = current_user.id
     with Session() as sess:
         stmt = select(Amizade).where(Amizade.user1_id == id, Amizade.user2_id == user_id)
 
@@ -182,8 +200,9 @@ def delete_pedido_amizade(user_id: int, id: int):
 
         return f"Pedido de amizade deletado com sucesso"
     
-@router.delete("/delete-amizade/{user_id}/{id}")
-def delete_amizade(user_id: int, id: int):
+@router.delete("/delete-amizade/{id}")
+def delete_amizade(current_user: Annotated[User, Depends(get_current_user)], id: int):
+    user_id = current_user.id
     with Session() as sess:
         stmt = select(Amizade).where(
             or_(
@@ -200,8 +219,9 @@ def delete_amizade(user_id: int, id: int):
 
         return f"Amizade deletada com sucesso"
         
-@router.patch("/{user_id}/{campo}")
-def editar_altura(user_id:int, campo: str, valor: str = Body(..., embed=True)):
+@router.patch("/editar/{campo}")
+def editar_altura(current_user: Annotated[User, Depends(get_current_user)], campo: str, valor: str = Body(..., embed=True)):
+    user_id = current_user.id
     with Session() as sess:
         user = sess.scalar(select(User).where(User.id == user_id))
         if not user:
@@ -211,8 +231,26 @@ def editar_altura(user_id:int, campo: str, valor: str = Body(..., embed=True)):
         sess.commit()
         return user
     
-@router.get("/perfil/{user_id}/{amigo_id}")
-def get_user_perfil(user_id: int, amigo_id: int):
+@router.get("/perfil-configuracoes/")
+def get_perfil_configs(current_user: Annotated[User, Depends(get_current_user)]):
+    with Session() as sess:
+        user = sess.execute(select(
+            User.fullname,
+            User.nascimento,
+            User.peso,
+            User.altura,
+            User.email,
+            User.status
+        ).where(User.id == current_user.id)).mappings().first()
+
+        if not user:
+            raise HTTPException(status_code=400, detail="Usuário não encontrado")
+
+        return user
+    
+@router.get("/perfil/{amigo_id}")
+def get_user_perfil(current_user: Annotated[User, Depends(get_current_user)], amigo_id: int):
+    user_id = current_user.id
     with Session() as sess:
         user = sess.execute(select(
             User.fullname,

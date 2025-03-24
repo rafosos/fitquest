@@ -25,7 +25,7 @@ export function ModalEditarPesoAltura({visible, onClose, tipo, valorOriginal}: P
     const [valor, setValor] = useState(`${valorOriginal}`);
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<any>({});
-    const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
+    const {id:userId} = JSON.parse(useSession().username ?? "{id:null}");
     const userService = UserService();
 
     useEffect(() => {

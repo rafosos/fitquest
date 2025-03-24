@@ -5,26 +5,26 @@ export default function RotinaService(){
 
     const prefix = "/rotina"
 
-    const addRotina = (user_id: string, rotina: {
+    const addRotina = (rotina: {
         nome: string,
         dias: number,
         exercicios: {id: number, series: number, repeticoes: number}[]
     }) =>{
-        const promise = post<string>(`${prefix}/${user_id}`, rotina);
+        const promise = post<string>(`${prefix}/`, rotina);
         return promise.then(res => res.data);
     }
 
-    const getRotinas = (user_id: string) => {
-        const promise = get<RotinaResumida[]>(`${prefix}/${user_id}`);
+    const getRotinas = () => {
+        const promise = get<RotinaResumida[]>(`${prefix}/`);
         return promise.then(res => res.data);    
     }
 
-    const getDetalhesRotina = (user_id: number, rotina_id: number) => {
-        const promise = get<RotinaDetalhes>(`${prefix}/detalhes/${user_id}/${rotina_id}`);
+    const getDetalhesRotina = (rotina_id: number) => {
+        const promise = get<RotinaDetalhes>(`${prefix}/detalhes/${rotina_id}`);
         return promise.then(res => res.data);
     }
 
-    const addTreino = (treino: {rotinaId: number, userId: number, ids_exercicios: number[]}) =>{
+    const addTreino = (treino: {rotinaId: number, ids_exercicios: number[]}) =>{
         const promise = post<string>(`${prefix}/treino/`, treino);
         return promise.then(res => res.data);
     }

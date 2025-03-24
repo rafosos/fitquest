@@ -31,7 +31,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     const [index, setIndex] = useState(0);
     const [routes] = useState([{key: "exercicios", title: "Exercícios"}, {key: 'participantes', title: "Participantes"}]);
     const campeonatoService = CampeonatoService();
-    const {id:userId} = JSON.parse(useSession().user ?? "{id:null}");
+    const {id:userId} = JSON.parse(useSession().username ?? "{id:null}");
     const layout = useWindowDimensions();
 
     useEffect(() => refresh(), [campeonatoId]);
@@ -295,6 +295,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                                     </View>
                                 </TouchableOpacity>
                             }
+                            ListEmptyComponent={<StyledText style={styles.txtListEmpty}>Faça um treino para aparecer na lista!</StyledText>}
                         />
                     })
                 }
@@ -454,6 +455,11 @@ const styles = StyleSheet.create({
     },
     indexDourado:{
         color: colors.dourado.padrao
+    },
+    txtListEmpty:{
+        color: colors.branco.padrao,
+        textAlign: 'center',
+        marginTop: 15
     },
     footerTreino:{
         flexDirection: "row",
