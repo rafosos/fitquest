@@ -29,8 +29,11 @@ async def lifespan(app_: FastAPI):
     log.info("Shutting down...")
 
 # dev
-app = FastAPI(debug=True) 
+# app = FastAPI(debug=True) 
 origins = ["*"]
+
+# prod
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -38,11 +41,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# prod
-# app = FastAPI(lifespan=lifespan)
-
-logger = logging.getLogger("api")
 
 app.include_router(user.router)
 app.include_router(classe.router)
@@ -58,5 +56,4 @@ def hello_world():
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level='debug')
 
-
-# rodar com fastapi dev main.pSy vai dar erro de network
+# rodar com fastapi dev main.py vai dar erro de network
