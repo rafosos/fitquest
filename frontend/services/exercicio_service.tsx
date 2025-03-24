@@ -10,8 +10,8 @@ export default function ExercicioService(){
     }
     
     const getUltimosTreinosResumo = (amigoId?: number) => {
-        const promise = get<TreinoResumo[]>(`/exercicio/treinos_resumo/` + (amigoId ?? ""));
-        return promise.then(res => res.data);    
+        const promise = get<TreinoResumo[]>(`/exercicio/treinos_resumo/` + (amigoId ?? "0"));
+        return promise.then(res => res.data);
     }
 
     const getStreaks = () => {
@@ -21,7 +21,7 @@ export default function ExercicioService(){
     
     const atualizarStatusTreino = (treino_id: number, status: StatusTreino) => {
         const promise = patch<boolean>(`/exercicio/${treino_id}`, {status});
-        return promise.then(res => res.data);    
+        return promise.then(res => res.data);
     }
     
     const getDeletados = () => {

@@ -1,4 +1,4 @@
-import User, { PedidoAmizade, UserPerfil } from "@/classes/user";
+import User, { PedidoAmizade, UserNaoAmigoDropbox, UserPerfil } from "@/classes/user";
 import { deletar, get, patch, post, put } from "./service_config";
 import { InformacoesUsuario } from "@/classes/streaks";
 import { LoginResponse } from "@/classes/loginResponse";
@@ -36,7 +36,7 @@ export default function UserService(){
     }
 
     const getNaoAmigos = (filtro: string) => {
-        const promise = get<User[]>(`${prefix}/get-nao-amigos/${filtro}`);
+        const promise = get<UserNaoAmigoDropbox[]>(`${prefix}/get-nao-amigos/${filtro}`);
         return promise.then(res => res.data);
     }
 

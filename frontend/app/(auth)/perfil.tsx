@@ -101,9 +101,7 @@ export default function Perfil() {
     const getData = () => {
         return [
             new DataFlatlist('Streak semanal', user?.streak_semanal?.streak_length, false),
-            new DataFlatlist('Streak diário', user?.streak_diario?.streak_length, false),
-            new DataFlatlist('Peso', user?.peso ?? "...", true, TipoModalPesoAltura.peso),
-            new DataFlatlist('Altura', user?.altura ?? "...", true, TipoModalPesoAltura.altura),
+            new DataFlatlist('Streak diário', user?.streak_diario?.streak_length, false)
         ];
     }
 

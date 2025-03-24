@@ -75,12 +75,14 @@ export default function TabAvatar() {
         .finally(() => setRefreshing(false))
     }
 
+
+
     const getData = () => {
         return [
             new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
             new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false),
-            new DataFlatlist('Peso', informacoesUsuario?.peso ?? "...", true, TipoModalPesoAltura.peso),
-            new DataFlatlist('Altura', informacoesUsuario?.altura ?? "...", true, TipoModalPesoAltura.altura),
+            // new DataFlatlist('Peso', informacoesUsuario?.peso ?? "...", true, TipoModalPesoAltura.peso),
+            // new DataFlatlist('Altura', informacoesUsuario?.altura ?? "...", true, TipoModalPesoAltura.altura),
         ];
     }
 
@@ -144,7 +146,7 @@ export default function TabAvatar() {
 
                 {informacoesUsuario?.status && <StyledText style={s.status}>{informacoesUsuario?.status}</StyledText>}
 
-                <FlatList
+                {/* <FlatList
                     data={getData()}
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -153,7 +155,19 @@ export default function TabAvatar() {
                             <StyledText>{item.title}: <StyledText style={s.txtStreak}>{item.value}</StyledText></StyledText> 
                         </View>
                     }
-                />
+                /> */}
+
+{/* new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
+new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false), */}
+
+                <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+                  <View style={[s.card, s.cardInformacoesPessoais]}>
+                      <StyledText>Streak semanal: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_semanal?.streak_length}</StyledText></StyledText> 
+                  </View>
+                  <View style={[s.card, s.cardInformacoesPessoais]}>
+                      <StyledText>Streak diário: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_diario?.streak_length}</StyledText></StyledText> 
+                  </View>
+                </View>
 
                 <StyledText style={s.tituloUltimasAtividades}>Últimas atividades</StyledText>
             </>}

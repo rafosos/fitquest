@@ -416,6 +416,7 @@ const styles = StyleSheet.create({
         borderColor: colors.vermelho.padrao
     },
     containerChips:{
+        flexDirection: 'row',
         flexWrap: "wrap",
         alignItems: "flex-start",
         marginHorizontal: 10
