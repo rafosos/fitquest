@@ -14,18 +14,18 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);  
     }
     
-    const getCampeonatos = (user_id: string) =>{
-        const promise = get<Campeonato[]>(prefix + `/${user_id}`);
+    const getCampeonatos = () =>{
+        const promise = get<Campeonato[]>(prefix + `/`);
         return promise.then(res => res.data);
     }
 
-    const getCampeonatosPesquisa = (user_id: string, termo: string) =>{
-        const promise = get<Campeonato[]>(prefix + `/pesquisa/${user_id}/${termo}`);
+    const getCampeonatosPesquisa = (termo: string) =>{
+        const promise = get<Campeonato[]>(prefix + `/pesquisa/${termo}`);
         return promise.then(res => res.data);
     }
     
-    const getCampeonatoDetalhes = (userId: number, campeonatoId: number) => {
-        const promise = get<CampeonatoDetalhes>(prefix +`/detalhes/${userId}/${campeonatoId}`);
+    const getCampeonatoDetalhes = (campeonatoId: number) => {
+        const promise = get<CampeonatoDetalhes>(prefix +`/detalhes/${campeonatoId}`);
         return promise.then(res => res.data);
     }
 
@@ -34,7 +34,7 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);
     }
     
-    const addTreino = (params: {campeonatoId: number, userId: number, exercicios_ids: number[]}) => {
+    const addTreino = (params: {campeonatoId: number, exercicios_ids: number[]}) => {
         return post(prefix + "/add-treino", params);
     }
 
@@ -42,13 +42,13 @@ export default function CampeonatoService(){
         return deletar(prefix + `/${campeonatoId}`);
     }
 
-    const entrarCampeonato = (userId: number, campeonatoId: number) => {
-        const promise = patch<boolean>(prefix + `/entrar/${campeonatoId}/${userId}`);
+    const entrarCampeonato = (campeonatoId: number) => {
+        const promise = patch<boolean>(prefix + `/entrar/${campeonatoId}`);
         return promise.then(res => res.data);
     }
     
-    const sairCampeonato = (campeonatoId: number, userId: number) => {
-        const promise = patch<boolean>(prefix + `/sair/${campeonatoId}/${userId}`);
+    const sairCampeonato = (campeonatoId: number) => {
+        const promise = patch<boolean>(prefix + `/sair/${campeonatoId}`);
         return promise.then(res => res.data);
     }
 

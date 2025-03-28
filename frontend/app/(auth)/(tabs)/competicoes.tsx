@@ -25,11 +25,9 @@ export default function TabEventos() {
 
     useEffect(() => refreshCampeonatos(), []);
 
-    const refreshCampeonatos = () => {
-        if(!userId) return;
-        
+    const refreshCampeonatos = () => {        
         setRefreshing(true);
-        campeonatoService.getCampeonatos(userId)
+        campeonatoService.getCampeonatos()
             .then(res => setCampeonatos(res))
             .catch(err => console.log(err))
             .finally(() => setRefreshing(false));

@@ -12,6 +12,7 @@ class ExercicioCampeonato(Base):
     data: Mapped[date] = mapped_column(server_default=func.now())
     qtd_serie: Mapped[int]
     qtd_repeticoes: Mapped[int]
+    pontos: Mapped[int] = mapped_column(server_default="0")
     
     exercicio: Mapped["Exercicio"] = relationship(back_populates="campeonatos")
     campeonato: Mapped["Campeonato"] = relationship(back_populates="exercicios")

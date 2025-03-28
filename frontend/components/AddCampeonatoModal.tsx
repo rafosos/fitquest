@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect } from "react";
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { useSession } from '@/app/ctx';
 import { ExercicioCampeonato } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
 import UserService from '@/services/user_service';
@@ -10,7 +9,6 @@ import { AutocompleteDropdown, AutocompleteDropdownContextProvider, IAutocomplet
 import { Feather } from "@expo/vector-icons";
 import { colors } from "@/constants/Colors";
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import Exercicio from "@/classes/exercicio";
 import ExercicioService from "@/services/exercicio_service";
 import { errorHandlerDebug } from "@/services/service_config";
 import ErroInput from "./ErroInput";
@@ -23,8 +21,8 @@ const DUAS_SEMANAS = 12096e5;
 export default function AddCampeonatoModal({ isVisible = false, onClose = () => {} }) {
     const hoje = new Date();
     const [erros, setErros] = useState<any>({});
-    const [exercicios, setExercicios] = useState<Exercicio[]>([]);
-    const [resultados, setResultados] = useState<Exercicio[]>([]);
+    const [exercicios, setExercicios] = useState<ExercicioCampeonato[]>([]);
+    const [resultados, setResultados] = useState<ExercicioCampeonato[]>([]);
     const [nome, setNome] = useState("");
     const [datePicker, setDatePicker] = useState(false);
     const [dataFinal, setDataFinal] = useState(new Date(Date.now() + DUAS_SEMANAS));
@@ -91,7 +89,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
             {nome, 
                 duracao: new Date(dataFinal), 
                 participantes_ids: [...participantes.map(p => Number(p.id))],
-                exercicios:[...exercicios.map(e => new ExercicioCampeonato(e.id, e.qtd_serie, e.qtd_repeticoes))]
+                exercicios
             })
             .then(res => clearAndClose())
             .catch(err => errorHandlerDebug(err));
@@ -121,7 +119,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         }
 
         setLoadingExercicios(true);
-        exercicioService.getExercicioFiltro(f, exercicios.map(e => e.id))
+        exercicioService.getExercicioFiltro(f, exercicios.map(e => e.exercicio_id))
             .then(res => setResultados(res.map(exec => {return {...exec, id: exec.id, title:exec.nome}})))
             .catch(error => errorHandlerDebug(error))
             .finally(() => setLoadingExercicios(false));
@@ -130,7 +128,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
     const onSelectItem = (item: AutocompleteDropdownItem | null) => {
         if(!item) return
 
-        const e = resultados.splice(resultados.findIndex((r) => r.id.toString() == item.id),1);
+        const e = resultados.splice(resultados.findIndex((r) => r.exercicio_id.toString() == item.id),1);
         if(!e) return;
         
         setExercicios([...exercicios, ...e]);
@@ -146,6 +144,11 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
  
     const updateRepeticao = (index: number, value: number) => {
         exercicios[index].qtd_repeticoes = value;
+        setExercicios([...exercicios]);
+    }
+
+    const updatePontos = (index: number, value: number) => {
+        exercicios[index].qtd_pontos = value;
         setExercicios([...exercicios]);
     }
 
@@ -286,7 +289,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                     <AutocompleteDropdown
                         controller={controller => dropdownExecController.current = controller}
                         direction={"up"}
-                        dataSet={resultados.map(res => {return {...res, id: res.id.toString(), title: res.nome}})}
+                        dataSet={resultados.map(res => {return {...res, id: res.exercicio_id.toString(), title: res.nome}})}
                         onChangeText={getExerciciosDropdown}
                         onSelectItem={onSelectItem}
                         debounce={600}
@@ -361,6 +364,16 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                                     onChangeText={(txt) => updateRepeticao(index, Number(txt))}
                                     style={styles.inputCard}
                                     />
+                            </View>
+
+                            <View style={styles.containerTxtCard}>
+                                <StyledText style={styles.txtCard}>Pontos:</StyledText>
+                                <StyledTextInput
+                                    value={item.qtd_pontos.toString()}
+                                    keyboardType='numeric'
+                                    onChangeText={(txt) => updatePontos(index, Number(txt))}
+                                    style={styles.inputCard}
+                                />
                             </View>
                         </View>
                     </View>
@@ -456,13 +469,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
     },
-    inputCard: {
-        borderBottomWidth: 1,
-        borderColor: colors.preto.fade["3"],
-        padding: 10,
-        margin: 10,
-        fontFamily: fonts.padrao.Medium500
-    },
     containerTituloExercicio:{
         flexDirection: "column"
     },
@@ -475,16 +481,24 @@ const styles = StyleSheet.create({
         fontFamily: fonts.padrao.Light300,
         color: colors.cinza.escuro
     },
+    containerCamposExec: {
+        flexDirection: "row",
+        flex: 1,
+        justifyContent: 'space-between',
+    },
     containerTxtCard:{
-        flex:1,
         flexDirection: "row",
         alignItems: "center"
     },
     txtCard:{
-        fontSize: 17
+        fontSize: 15
     },
-    containerCamposExec: {
-        flexDirection: "row",
+    inputCard: {
+        borderBottomWidth: 1,
+        borderColor: colors.preto.fade["3"],
+        padding: 5,
+        margin: 5,
+        fontFamily: fonts.padrao.Medium500
     },
     botaoSubmit:{
         backgroundColor: colors.verde.padrao,

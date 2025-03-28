@@ -31,8 +31,9 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     const [index, setIndex] = useState(0);
     const [routes] = useState([{key: "exercicios", title: "Exercícios"}, {key: 'participantes', title: "Participantes"}]);
     const campeonatoService = CampeonatoService();
-    const {id:userId} = JSON.parse(useSession().username ?? "{id:null}");
     const layout = useWindowDimensions();
+
+    const userId = Number(useSession().id);
 
     useEffect(() => refresh(), [campeonatoId]);
     
@@ -43,7 +44,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     }
     
     const getDetalhes = () =>
-        campeonatoService.getCampeonatoDetalhes(userId, campeonatoId)
+        campeonatoService.getCampeonatoDetalhes(campeonatoId)
             .then(res => setCampeonato(res))
             .catch(err => errorHandlerDebug(err));
     
@@ -73,7 +74,6 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     const finalizarTreino = () => {
         campeonatoService.addTreino({
             campeonatoId, 
-            userId,
             exercicios_ids: campeonato?.exercicios?.filter((e, i) => checkboxes[i]).map(e => e.id).filter(e => e != undefined) ?? []
         })
             .then(res => clearAndClose())
@@ -81,7 +81,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
     }
 
     const entrarCampeonato = () => {
-        campeonatoService.entrarCampeonato(userId, campeonatoId)
+        campeonatoService.entrarCampeonato(campeonatoId)
             .then(res => refresh())
             .catch(err => errorHandlerPadrao(err, setErro))
     }
@@ -100,7 +100,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         
     const sair = () => {
         if (!campeonato) return
-        campeonatoService.sairCampeonato(campeonato.id, userId)
+        campeonatoService.sairCampeonato(campeonato.id)
             .then(res => clearAndClose())
             .catch(err => errorHandlerPadrao(err, setErro))
     }

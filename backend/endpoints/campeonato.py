@@ -29,6 +29,7 @@ class ExercicioModel(BaseModel):
     exercicio_id: int
     qtd_serie: int
     qtd_repeticoes: int
+    qtd_pontos: int
 
 class CampeonatoModel(BaseModel):
     nome: str
@@ -43,7 +44,7 @@ def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends
     
     with Session() as sess:
         participantes = sess.scalars(select(User).where(User.id.in_(model.participantes_ids))).all()
-        exercicios = [ExercicioCampeonato(exercicio_id=e.exercicio_id, qtd_serie=e.qtd_serie, qtd_repeticoes=e.qtd_repeticoes) for e in model.exercicios]
+        exercicios = [ExercicioCampeonato(exercicio_id=e.exercicio_id, qtd_serie=e.qtd_serie, qtd_repeticoes=e.qtd_repeticoes, pontos=e.qtd_pontos) for e in model.exercicios]
 
         camp = Campeonato(nome=model.nome, duracao=model.duracao, criado_por_id=model.participantes_ids[-1])
         camp.users.extend(participantes)
@@ -52,8 +53,9 @@ def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends
         sess.commit()
         return camp.id
 
-@router.get("/{user_id}")
-def get_campeonato(user_id: int):
+@router.get("/")
+def get_campeonato(current_user: Annotated[User, Depends(get_current_user)]):
+    user_id = current_user.id
     with Session() as sess:
         participantes = aliased(User)
         criador = aliased(User)
@@ -74,8 +76,9 @@ def get_campeonato(user_id: int):
             ).mappings().all()
         return campeonatos
     
-@router.get("/pesquisa/{user_id}/{termo}")
-def get_campeonato(user_id: int, termo: str):
+@router.get("/pesquisa/{termo}")
+def get_campeonato(current_user: Annotated[User, Depends(get_current_user)], termo: str):
+    user_id = current_user.id
     with Session() as sess:
         participantes = aliased(User)
         criador = aliased(User)
@@ -117,8 +120,9 @@ def get_campeonato(user_id: int, termo: str):
             ).mappings().all()
         return campeonatos
 
-@router.get("/detalhes/{user_id}/{campeonato_id}")
-def get_campeonato_detalhes(user_id: int, campeonato_id: int):
+@router.get("/detalhes/{campeonato_id}")
+def get_campeonato_detalhes(current_user: Annotated[User, Depends(get_current_user)], campeonato_id: int):
+    user_id = current_user.id
     cte_ultimo_treino = select(Treino.data.label("ultimo_treino"), Treino.campeonato_id)\
         .where(
             and_(
@@ -241,14 +245,14 @@ def delete_campeonato(campeonato_id: int):
         sess.commit()
     return "O campeonato foi deletado com sucesso"
 
-@router.patch("/entrar/{campeonato_id}/{user_id}")
-def sair_campeonato(campeonato_id: int, user_id: int):
+@router.patch("/entrar/{campeonato_id}")
+def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(get_current_user)]):
     with Session() as sess:
         campeonato = sess.scalar(select(Campeonato).where(Campeonato.id == campeonato_id))
         if not campeonato:
             raise HTTPException(status_code=402, detail="Campeonato não encontrado!")
 
-        user = sess.scalar(select(User).where(User.id == user_id))
+        user = sess.scalar(select(User).where(User.id == current_user.id))
         if not user:
             raise HTTPException(status_code=402, detail="Usuário não encontrado!")
 
@@ -260,14 +264,14 @@ def sair_campeonato(campeonato_id: int, user_id: int):
             print(e)
             raise HTTPException(status_code=500, detail="Erro ao entrar no campeonato.")
 
-@router.patch("/sair/{campeonato_id}/{user_id}")
-def sair_campeonato(campeonato_id: int, user_id: int):
+@router.patch("/sair/{campeonato_id}")
+def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(get_current_user)]):
     with Session() as sess:
         campeonato = sess.scalar(select(Campeonato).where(Campeonato.id == campeonato_id))
         if not campeonato:
             raise HTTPException(status_code=402, detail="Campeonato não encontrado!")
 
-        user = sess.scalar(select(User).where(User.id == user_id))
+        user = sess.scalar(select(User).where(User.id == current_user.id))
         if not user:
             raise HTTPException(status_code=402, detail="Usuário não encontrado!")
 

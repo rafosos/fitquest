@@ -1,4 +1,5 @@
 import Exercicio from "./exercicio";
+import GrupoMuscular from "./grupo_muscular";
 import User from "./user";
 
 export default class Campeonato{
@@ -20,16 +21,19 @@ export default class Campeonato{
 }
 
 export class ExercicioCampeonato{
-    constructor(exercicio_id: number, qtd_series: number, qtd_repeticoes: number) {
+    constructor(exercicio_id: number, nome: string, grupo_muscular: GrupoMuscular) {
         this.exercicio_id = exercicio_id;
-        this.qtd_serie = qtd_series;
-        this.qtd_repeticoes = qtd_repeticoes;
+        this.nome = nome;
+        this.grupo_muscular = grupo_muscular;
     }
+
     id: number | undefined;
     exercicio_id: number;
+    nome: string | undefined;
+    grupo_muscular: GrupoMuscular;
     qtd_serie: number = 0;
     qtd_repeticoes: number = 0;
-    exercicio_nome: string | undefined;
+    qtd_pontos: number = 0;
 }
 
 export class CampeonatoDetalhes{
