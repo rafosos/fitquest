@@ -1,24 +1,24 @@
 import axios, { AxiosRequestConfig } from "axios";
 
-const API_URL = "fitquest-production.up.railway.app";
+const API_URL = "https://fitquest-production.up.railway.app";
 
 axios.defaults.baseURL = API_URL
 axios.defaults.paramsSerializer = { indexes:null }
 
 const get = <T extends unknown>(endpoint: string, params: any = {}) => 
-    axios.get<T>(endpoint, {params})
+    axios.get<T>(endpoint, {params});
 
 const post = <T extends unknown>(endpoint: string, params: any = {}, config :AxiosRequestConfig<any> = {}) => 
-    axios.post<T>(API_URL + endpoint, params, config)
+    axios.post<T>(API_URL + endpoint, params, config);
 
 const put = <T extends unknown>(endpoint: string, params: any = {}) => 
-    axios.put<T>(API_URL + endpoint, params)
+    axios.put<T>(API_URL + endpoint, params);
 
 const deletar = <T extends unknown>(endpoint: string, params: any = {}) => 
-    axios.delete<T>(API_URL + endpoint, {params})
+    axios.delete<T>(API_URL + endpoint, {params});
 
 const patch = <T extends unknown>(endpoint: string, params: any = {}) => 
-    axios.patch<T>(API_URL + endpoint, params)
+    axios.patch<T>(API_URL + endpoint, params);
 
 
 const errorHandlerDebug = (error: any) => {
