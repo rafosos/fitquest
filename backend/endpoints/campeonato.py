@@ -201,13 +201,15 @@ def get_progresso(campeonato_id: int):
             user_campeonato.c.user_id,
             User.username,
             User.fullname,
-            func.count(Treino.user_id).label("dias")
+            func.coalesce(func.sum(ExercicioCampeonato.pontos), 0).label("pontos")
         ).select_from(user_campeonato)\
         .join(User, User.id == user_campeonato.c.user_id)\
-        .join(Treino, and_(User.id == Treino.user_id, user_campeonato.c.campeonato_id == Treino.campeonato_id), isouter=True)\
-        .where(and_(Treino.tipo == TipoTreino.campeonato, user_campeonato.c.campeonato_id == campeonato_id))\
+        .join(Treino, Treino.user_id == User.id, isouter=True)\
+        .join(UserExercicio, UserExercicio.treino_id == Treino.id, isouter=True)\
+        .join(ExercicioCampeonato, UserExercicio.exec_campeonato_id == ExercicioCampeonato.id, isouter=True)\
+        .where(user_campeonato.c.campeonato_id == campeonato_id)\
         .group_by(user_campeonato.c.user_id, User.username, User.fullname)\
-        .order_by(func.count(Treino.user_id).desc())
+        .order_by(func.coalesce(func.sum(ExercicioCampeonato.pontos), 0).desc())
     
         return sess.execute(stmt).mappings().all()
 

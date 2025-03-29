@@ -58,5 +58,5 @@ export class UserProgresso{
     user_id: number | undefined;
     username: string | undefined;
     fullname: string | undefined;
-    dias: number | undefined;
+    pontos: number | undefined;
 }

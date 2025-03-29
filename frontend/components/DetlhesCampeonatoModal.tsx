@@ -177,7 +177,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                 <View style={styles.infoContainer}>
                     <View style={styles.itemInfo}>
                         <StyledText style={styles.txtCardHeader}>Treinos</StyledText>
-                        <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.dias ?? "..."}</StyledText>
+                        <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.pontos ?? "..."}</StyledText>
                     </View>
                     
                     <View style={styles.itemInfo}>
@@ -289,8 +289,8 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                                         </View>
 
                                         <View style={styles.containerColumn}>
-                                            <StyledText style={[styles.numeroTreinos, index == 0 && styles.indexDourado]}>{item.dias}</StyledText>
-                                            <StyledText style={[index == 0 && styles.indexDourado]}>treinos</StyledText>
+                                            <StyledText style={[styles.numeroTreinos, index == 0 && styles.indexDourado]}>{item.pontos}</StyledText>
+                                            <StyledText style={[index == 0 && styles.indexDourado]}>pontos</StyledText>
                                         </View>
                                     </View>
                                 </TouchableOpacity>

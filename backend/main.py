@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from endpoints import user, classe, login, exercicio, campeonato, rotina
+from endpoints import user, login, exercicio, campeonato, rotina
 from classes.status import insert_statuses
 from classes.exercicio import insert_exercicios
 from classes.grupo_muscular import insert_grupos_musculares
@@ -43,7 +43,6 @@ app.add_middleware(
 )
 
 app.include_router(user.router)
-app.include_router(classe.router)
 app.include_router(login.router)
 app.include_router(exercicio.router)
 app.include_router(campeonato.router)

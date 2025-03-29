@@ -110,7 +110,7 @@ def cadastro(form: CadastroModel):
         nascimento=form.nascimento,
         senha=get_password_hash(form.senha)
     )
-    user.add_user()
+    user.add_self()
     return {"id": user.id}
 
 @router.post("/login")
