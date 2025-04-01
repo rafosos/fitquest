@@ -2,28 +2,26 @@ import { colors } from "@/constants/Colors"
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons"
 import * as Progress from 'react-native-progress';
 import { ActivityIndicator, FlatList, Modal, StyleSheet, TouchableOpacity, View } from "react-native"
-import StyledText from "./base/styledText"
+import StyledText from "@/components/base/styledText"
 import { fonts } from "@/constants/Fonts"
-import StyledTextInput from "./base/styledTextInput"
+import StyledTextInput from "@/components/base/styledTextInput"
 import { useEffect, useState } from "react"
 import CampeonatoService from "@/services/campeonato_service"
 import Campeonato from "@/classes/campeonato"
-import { useSession } from "@/app/ctx"
 import { errorHandlerPadrao, getProgress, showDiaMes } from "@/utils/functions"
+import { router } from "expo-router";
 
 interface Props{
     visible: boolean,
     onClose: () => void,
-    setDetalhesModal: (prop: {show: boolean, campeonato_id: number}) => void
 }
 
-export default function PesquisarCampeonatoModal({visible, onClose, setDetalhesModal}: Props){
+export default function PesquisarCampeonatoModal({visible, onClose}: Props){
     const [texto, setTexto] = useState("");
     const [campeonatos, setCampeonatos] = useState<Campeonato[]>([]);
     const [erro, setErro] = useState("");
     const [loading, setLoading] = useState(false);
     const campeonatoService = CampeonatoService();
-    const {id:userId} = JSON.parse(useSession().username ?? "{id:null}");
 
     useEffect(() => {
         if(texto)
@@ -34,11 +32,14 @@ export default function PesquisarCampeonatoModal({visible, onClose, setDetalhesM
 
     const getCampeonatos = () => {
         setLoading(true);
-        campeonatoService.getCampeonatosPesquisa(userId, texto)
+        campeonatoService.getCampeonatosPesquisa(texto)
             .then(res => setCampeonatos(res))
             .catch(err => errorHandlerPadrao(err,setErro))
             .finally(()=> setLoading(false));
     }
+
+    const abrirTelaCampeonato = (campeonatoId: number) => 
+        router.navigate({pathname: '/(auth)/detalhesCampeonato', params: {campeonatoId}});
 
     return (
         <Modal
@@ -72,7 +73,7 @@ export default function PesquisarCampeonatoModal({visible, onClose, setDetalhesM
                     contentContainerStyle={styles.containerFlatlist}
                     data={campeonatos}
                     renderItem={({item: campeonato}) => 
-                        <TouchableOpacity style={styles.card} onPress={() => setDetalhesModal({show: true, campeonato_id: campeonato.id})}>
+                        <TouchableOpacity style={styles.card} onPress={() => abrirTelaCampeonato(campeonato.id)}>
                             <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
                             <View style={styles.containerCriadoCampeonato}>
                                 <StyledText style={styles.itemCompeticao}>Criado por: <StyledText>{campeonato.username_criador}</StyledText></StyledText>

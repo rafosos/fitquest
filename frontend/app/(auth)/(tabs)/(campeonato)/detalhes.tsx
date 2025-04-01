@@ -3,37 +3,48 @@ import { useEffect, useState } from 'react';
 import { AntDesign, Entypo, Feather, FontAwesome5 } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
 import { useSession } from '@/app/ctx';
-import { errorHandlerDebug } from '@/services/service_config';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { colors } from '@/constants/Colors';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { CampeonatoDetalhes, UserProgresso } from '@/classes/campeonato';
+import { Atividade, CampeonatoDetalhes, UserProgresso } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
-import StyledText from './base/styledText';
+import StyledText from '../../../../components/base/styledText';
 import { fonts } from '@/constants/Fonts';
 import { errorHandlerPadrao, showDiaMes } from '@/utils/functions';
-import { HeaderPaginaDetalhes } from './base/headerModalPaginaDetalhes';
-import ModalPaginaDetalhes from './base/modalPaginaDetalhes';
-import ErroInput from './ErroInput';
+import { HeaderPaginaDetalhes } from '../../../../components/base/headerModalPaginaDetalhes';
+import ErroInput from '../../../../components/ErroInput';
+import ModalConfirmacao from '@/components/ModalConfirmacao';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 
-interface Props {
-    isVisible: boolean;
-    onClose: () => void;
-    campeonatoId: number;
-}
-
-export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonatoId}: Props) {
+export default function DetalhesCampeonato() {
     const [campeonato, setCampeonato] = useState<CampeonatoDetalhes>();
     const [progresso, setProgresso] = useState<UserProgresso[]>([]);
+    const [atividades, setAtividades] = useState<Atividade[]>([]);
     const [novoTreino, setNovoTreino] = useState(false);
     const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
     const [modalConfirma, setModalConfirma] = useState(false);
     const [erro, setErro] = useState("");
     const [index, setIndex] = useState(0);
-    const [routes] = useState([{key: "exercicios", title: "Exercícios"}, {key: 'participantes', title: "Participantes"}]);
+    const [routes] = useState([
+        {key: "exercicios", title: "Exercícios"}, 
+        {key: 'atividades', title: "Atividades"},
+        {key: 'participantes', title: "Participantes"}
+    ]);
     const campeonatoService = CampeonatoService();
+    const errorHandler = ErrorHandler();
     const layout = useWindowDimensions();
 
     const userId = Number(useSession().id);
+    const campeonatoId = Number(useLocalSearchParams().campeonatoId);
+
+    const navigation = useNavigation<BottomTabNavigationProp<any>>();
+    useEffect(() => {
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });  
+      return () => {
+        navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
+      };
+    }, [navigation]);
 
     useEffect(() => refresh(), [campeonatoId]);
     
@@ -41,17 +52,23 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         if (!campeonatoId) return
         getDetalhes();
         getProgresso();
+        getAtividades();
     }
     
     const getDetalhes = () =>
         campeonatoService.getCampeonatoDetalhes(campeonatoId)
             .then(res => setCampeonato(res))
-            .catch(err => errorHandlerDebug(err));
+            .catch(err => errorHandler.handleError(err));
     
     const getProgresso = () => 
         campeonatoService.getDetalhesProgresso(campeonatoId)
             .then(res => setProgresso(res))
-            .catch(err => errorHandlerDebug(err));
+            .catch(err => errorHandler.handleError(err));
+            
+    const getAtividades = () =>
+        campeonatoService.getAtividades(campeonatoId)
+            .then(res => setAtividades(res))
+            .catch(err => errorHandler.handleError(err));
 
     const iniciarNovoTreino = () => {
         setIndex(0);
@@ -68,7 +85,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         setCheckboxes([]);
         setModalConfirma(false);
         setIndex(0);
-        onClose();
+        router.back();
     }
 
     const finalizarTreino = () => {
@@ -77,7 +94,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
             exercicios_ids: campeonato?.exercicios?.filter((e, i) => checkboxes[i]).map(e => e.id).filter(e => e != undefined) ?? []
         })
             .then(res => clearAndClose())
-            .catch(err => errorHandlerDebug(err))
+            .catch(err => errorHandler.handleError(err));
     }
 
     const entrarCampeonato = () => {
@@ -116,46 +133,42 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
         else return `${dias} dias`;
     }
 
+    const abrirTelaAmigo = (amigoId: number | undefined) => 
+        amigoId == userId ?
+        router.navigate({pathname: '/(auth)/(tabs)/'})
+        :
+        router.navigate({pathname: '/(auth)/perfil', params:{userId: amigoId}});
+
     return (
-        <ModalPaginaDetalhes
-            visible={isVisible}
-            close={clearAndClose}
-            modalConfirmacaoProps={
-                campeonato?.criadorId == userId ? 
-                {
-                    show: modalConfirma,
-                    onConfirma: deletar,
-                    onClose: () => setModalConfirma(false),
-                    titulo: `Você tem certeza que deseja excluir o campeonato ${campeonato?.nome}?`,
-                    subtitulo: "Essa ação não poderá ser desfeita",
-                    botaoConfirmar:
-                        <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
-                            <Feather name="trash-2" style={styles.iconeDeletar} />
-                            <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
-                        </TouchableOpacity>
+        <View style={styles.containerAll}>
+            <ModalConfirmacao 
+                show={modalConfirma}
+                onConfirma={deletar}
+                onClose={() => setModalConfirma(false)}
+                titulo={`Você tem certeza que deseja ${campeonato?.criadorId == userId? "excluir ": "sair d"}o campeonato ${campeonato?.nome}?`}
+                subtitulo={campeonato?.criadorId == userId? "Essa ação não poderá ser desfeita." : "O seu progresso será salvo."}
+                botaoConfirmar={campeonato?.criadorId == userId ?
+                    <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
+                        <Feather name="trash-2" style={styles.iconeDeletar} />
+                        <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
+                    </TouchableOpacity> 
+                    :
+                    <TouchableOpacity onPress={sair} style={styles.botaoDeletar}>
+                        <Entypo name="log-out" style={styles.iconeDeletar} />
+                        <StyledText style={styles.txtBotaoDeletar}>SAIR</StyledText>
+                    </TouchableOpacity>
                 }
-                :
-                {
-                    show: modalConfirma,
-                    onConfirma: sair,
-                    onClose: () => setModalConfirma(false),
-                    titulo: `Você tem certeza que deseja sair do campeonato ${campeonato?.nome}?`,
-                    subtitulo: "O seu progresso será salvo",
-                    botaoConfirmar:
-                        <TouchableOpacity onPress={sair} style={styles.botaoDeletar}>
-                            <Entypo name="log-out" style={styles.iconeDeletar} />
-                            <StyledText style={styles.txtBotaoDeletar}>SAIR</StyledText>
-                        </TouchableOpacity>
-                }
-            }
-        > 
-            <HeaderPaginaDetalhes 
-                titulo={campeonato?.nome ?? "..."}
-                onClose={onClose}
-                onDelete={() => setModalConfirma(true)}
-                showSair={userId != campeonato?.criadorId && campeonato?.joined}
-                showDelete={campeonato?.joined}
             />
+            
+            <View style={styles.header}>
+                <HeaderPaginaDetalhes 
+                    titulo={campeonato?.nome ?? "..."}
+                    onClose={router.back}
+                    onDelete={() => setModalConfirma(true)}
+                    showSair={userId != campeonato?.criadorId && campeonato?.joined}
+                    showDelete={campeonato?.joined}
+                />
+            </View>
 
             <ErroInput
                 show={!!erro}
@@ -224,6 +237,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                     exercicios: () => 
                         <FlatList
                             data={campeonato?.exercicios}
+                            maintainVisibleContentPosition={{minIndexForVisible: 0, autoscrollToTopThreshold: 0}}
                             contentContainerStyle={novoTreino ? styles.containerNovoTreino : styles.container}
                             onStartShouldSetResponder={() => true}
                             renderItem={({item, index}) => 
@@ -265,6 +279,16 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                             }
                         />,
 
+                    atividades: () => 
+                        <FlatList
+                            data={atividades}
+                            renderItem={({item}) => 
+                                <View>
+                                    <StyledText>{item.fullname}</StyledText>
+                                </View>
+                            }
+                        />,
+
                     participantes: () => 
                         <FlatList
                             data={progresso}
@@ -273,7 +297,7 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                                 <TouchableOpacity
                                     activeOpacity={1}
                                     style={styles.containerItem} 
-                                    onPress={() => null}
+                                    onPress={() => abrirTelaAmigo(item.user_id)}
                                 >
                                     <View>
                                         <StyledText style={[styles.indexParticipante, index == 0 && styles.indexDourado]}>{index+1}</StyledText>
@@ -313,15 +337,17 @@ export default function DetalhesCampeonatoModal({ isVisible, onClose, campeonato
                     <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
                 </TouchableOpacity>
             </View>}
-        </ModalPaginaDetalhes>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    modalContent: {
-        backgroundColor: colors.cinza.background,
-        padding: 5,
+    containerAll:{
         flex:1,
+        backgroundColor: colors.cinza.background
+    },
+    header:{
+        paddingHorizontal: 10
     },
     botaoDeletar:{
         flexDirection: "row",

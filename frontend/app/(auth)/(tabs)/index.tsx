@@ -9,8 +9,8 @@ import { TipoModalPesoAltura } from '@/components/ModalEditarPesoAltura';
 import { colors } from '@/constants/Colors';
 import { fonts } from '@/constants/Fonts';
 import ExercicioService from '@/services/exercicio_service';
-import { errorHandlerDebug } from '@/services/service_config';
 import UserService from '@/services/user_service';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 import { showDiaMes } from '@/utils/functions';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
@@ -39,6 +39,8 @@ export default function TabAvatar() {
     const [erro, setErro] = useState<string>("");
     const { username: userString } = useSession();
     const user: User = useRef(JSON.parse(userString ?? "{}")).current;
+
+    const errorHandler = ErrorHandler();
     
     const exercicioService = ExercicioService();
     const userService = UserService();
@@ -54,28 +56,17 @@ export default function TabAvatar() {
 
     const getInformacoesUsuario = () => {
         userService.getInformacoesUsuario()
-            .then(res => {
-                setInformacoesUsuario(res);
-                setErro("");
-            })
-            .catch(err => {
-              errorHandlerDebug(err);
-                if (err.response){
-                    setErro(err.response.data.detail)}
-                else
-                    setErro(err.message)
-            });
+            .then(res => setInformacoesUsuario(res))
+            .catch(err => errorHandler.handleError(err));
     }
     
     const getAtividades = () => {
         setRefreshing(true)
         exercicioService.getUltimosTreinosResumo()
-        .then(res => setAtividades(res))
-        .catch(err => errorHandlerDebug(err))
-        .finally(() => setRefreshing(false))
+            .then(res => setAtividades(res))
+            .catch(err => errorHandler.handleError(err))
+            .finally(() => setRefreshing(false))
     }
-
-
 
     const getData = () => {
         return [
@@ -90,13 +81,7 @@ export default function TabAvatar() {
         setRefreshing(true);
         exercicioService.atualizarStatusTreino(Number(modalConfirma.treino?.id), StatusTreino.deletado)
             .then(res => onCloseModalConfirmacao())
-            .catch(err => {
-                errorHandlerDebug(err)
-                if (err.response){
-                    setErro(err.response.data.detail)}
-                else
-                    setErro(err.message)
-            })
+            .catch(err => errorHandler.handleError(err))
             .finally(() => setRefreshing(false));
     }
 

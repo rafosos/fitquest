@@ -55,11 +55,11 @@ export default function RootLayout() {
     <AutocompleteDropdownContextProvider>
       <SessionProvider>
         <ToastProvider>
-          <Stack screenOptions={{contentStyle: styles.AndroidSafeArea}}>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="bemvindo" options={{ headerShown: false }} />
-            <Stack.Screen name="login" options={{ headerShown: false }} />
-            <Stack.Screen name="cadastro" options={{ headerShown: false }} />
+          <Stack screenOptions={{contentStyle: styles.AndroidSafeArea, headerShown: false}}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="bemvindo" />
+            <Stack.Screen name="login" />
+            <Stack.Screen name="cadastro" />
             <Stack.Screen name="+not-found" />
           </Stack>
         </ToastProvider>

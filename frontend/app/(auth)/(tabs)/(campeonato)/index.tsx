@@ -2,23 +2,23 @@ import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 're
 import React, { useEffect, useState } from 'react';
 import * as Progress from 'react-native-progress';
 import { AntDesign, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+
 import { useSession } from '@/app/ctx';
 import Campeonato from '@/classes/campeonato';
-import AddCampeonatoModal from '@/components/AddCampeonatoModal';
+import AddCampeonatoModal from './components/AddCampeonatoModal';
 import CampeonatoService from '@/services/campeonato_service';
 import { colors } from '@/constants/Colors';
-import DetalhesCampeonatoModal from '@/components/DetlhesCampeonatoModal';
 import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
 import { getProgress, showDiaMes } from '@/utils/functions';
-import PesquisarCampeonatoModal from '@/components/PesquisarCampeonatoModal ';
+import PesquisarCampeonatoModal from './components/PesquisarCampeonatoModal ';
 
 export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
     const [searchModal, setSearchModal] = useState(false);
     const [campeonatos, setCampeonatos] = useState<Campeonato[]>([]);
     const [refreshing, setRefreshing] = useState(false);
-    const [detalhesModal, setDetalhesModal] = useState({show: false, campeonato_id:0});
     const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
 
     const campeonatoService = CampeonatoService();
@@ -35,7 +35,6 @@ export default function TabEventos() {
   
     const onCloseModal = () => {
         setAddModal(false);
-        setDetalhesModal({show:false, campeonato_id: 0});
         refreshCampeonatos();
     }
 
@@ -46,22 +45,18 @@ export default function TabEventos() {
 
     const abrirModal = () => setAddModal(true);
 
+    const abrirTelaCampeonato = (campeonatoId: number) => 
+        router.navigate({pathname: './detalhes', params: {campeonatoId}});
+    
     return (<>
         <AddCampeonatoModal
             isVisible={addModal}
             onClose={onCloseModal}
         />
 
-        <DetalhesCampeonatoModal 
-            isVisible={detalhesModal.show}
-            campeonatoId={detalhesModal.campeonato_id}
-            onClose={onCloseModal}
-        />
-
         <PesquisarCampeonatoModal 
             visible={searchModal}
             onClose={onClosePesquisa}
-            setDetalhesModal={setDetalhesModal}
         />
 
         <FlatList 
@@ -83,13 +78,13 @@ export default function TabEventos() {
 
             }
             renderItem={({item:campeonato}) =>
-                <TouchableOpacity style={styles.card} onPress={() => setDetalhesModal({show: true, campeonato_id: campeonato.id})}>
+                <TouchableOpacity style={styles.card} onPress={() => abrirTelaCampeonato(campeonato.id)}>
                     <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
                     <View style={styles.containerCriadoCampeonato}>
                         <StyledText style={styles.itemCompeticao}>Criado por: <StyledText>{campeonato.id_criador == userId ? "você" : campeonato.username_criador}</StyledText></StyledText>
                         <StyledText style={styles.itemCompeticao}>Criado em: <StyledText>{showDiaMes(campeonato.data_criacao)}</StyledText></StyledText>
                     </View>
-                    <StyledText style={styles.itemCompeticao}>Participantes: <StyledText>você{!!campeonato.participantes ? `,${campeonato.participantes}` : ""}</StyledText></StyledText>
+                    <StyledText style={styles.itemCompeticao}>Participantes: <StyledText>você{!!campeonato.participantes ? `, ${campeonato.participantes}` : ""}</StyledText></StyledText>
                     <View style={styles.containerCriadoCampeonato}>
                         <StyledText style={styles.txtProgresso}>Progresso: </StyledText>
                         <Progress.Bar

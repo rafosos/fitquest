@@ -57,11 +57,6 @@ def add_rotina(current_user: Annotated[User, Depends(get_current_user)], model: 
 
 @router.get("/")
 def get_rotina(current_user: Annotated[User, Depends(get_current_user)]):
-    print("oi", flush=True)
-
-    if not current_user:
-        raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, "deu nao mano :()")
-
     stmt = (
         select(
             Rotina.id, 

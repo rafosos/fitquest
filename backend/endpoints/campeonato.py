@@ -213,13 +213,32 @@ def get_progresso(campeonato_id: int):
     
         return sess.execute(stmt).mappings().all()
 
+@router.get("/atividades/{campeonato_id}")
+def get_atividades(campeonato_id: int):
+    with Session() as sess:
+        stmt = select(
+            Treino.user_id,
+            Treino.data,
+            User.username,
+            User.fullname,
+            func.sum(ExercicioCampeonato.pontos).label("pontos"),
+            func.string_agg(Exercicio.nome, ', ').label("exercicios")
+        ).select_from(Treino)\
+        .join(User, User.id == Treino.user_id)\
+        .join(UserExercicio, UserExercicio.treino_id == Treino.id)\
+        .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id)\
+        .join(Exercicio, Exercicio.id == ExercicioCampeonato.exercicio_id)\
+        .where(Treino.campeonato_id == campeonato_id)\
+        .group_by(Treino.user_id, Treino.data, User.fullname, User.username)
+
+        return sess.execute(stmt).mappings().all()
+
 class TreinoModel(BaseModel):
     campeonatoId: int
-    userId: int
     exercicios_ids: List[int]
 
 @router.post("/add-treino")
-def add_treino(model: TreinoModel):
+def add_treino(model: TreinoModel, current_user: Annotated[User, Depends(get_current_user)]):
     with Session() as sess:
         result = sess.execute(
             select(
@@ -229,7 +248,7 @@ def add_treino(model: TreinoModel):
             .select_from(ExercicioCampeonato)
             .join(Campeonato, ExercicioCampeonato.campeonato_id == Campeonato.id)
             .where(ExercicioCampeonato.id == model.exercicios_ids[0])).first()
-        treino = Treino(user_id=model.userId, campeonato_id=result[0], nome=result[1], tipo=TipoTreino.campeonato)
+        treino = Treino(user_id=current_user.id, campeonato_id=result[0], nome=result[1], tipo=TipoTreino.campeonato)
         exercicios = [UserExercicio(exec_campeonato_id=id) for id in model.exercicios_ids]
         treino.exercicios = exercicios
         sess.add(treino)

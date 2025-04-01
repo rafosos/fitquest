@@ -1,5 +1,5 @@
 import { deletar, get, patch, post } from "./service_config";
-import Campeonato, { CampeonatoDetalhes, ExercicioCampeonato, UserProgresso } from "@/classes/campeonato";
+import Campeonato, { Atividade, CampeonatoDetalhes, ExercicioCampeonato, UserProgresso } from "@/classes/campeonato";
 
 export default function CampeonatoService(){
     const prefix = "/campeonato";
@@ -33,6 +33,11 @@ export default function CampeonatoService(){
         const promise = get<UserProgresso[]>(prefix +`/detalhes_progresso/${campeonatoId}`);
         return promise.then(res => res.data);
     }
+ 
+    const getAtividades = (campeonatoId: number) => {
+        const promise = get<Atividade[]>(prefix +`/atividades/${campeonatoId}`);
+        return promise.then(res => res.data);
+    }
     
     const addTreino = (params: {campeonatoId: number, exercicios_ids: number[]}) => {
         return post(prefix + "/add-treino", params);
@@ -52,5 +57,5 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);
     }
 
-    return {addCampeonato, sairCampeonato, entrarCampeonato, getCampeonatos, getCampeonatoDetalhes, addTreino, deleteCampeonato, getDetalhesProgresso, getCampeonatosPesquisa}
+    return {addCampeonato, sairCampeonato, entrarCampeonato, getAtividades, getCampeonatos, getCampeonatoDetalhes, addTreino, deleteCampeonato, getDetalhesProgresso, getCampeonatosPesquisa}
 }

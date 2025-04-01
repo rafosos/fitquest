@@ -60,3 +60,12 @@ export class UserProgresso{
     fullname: string | undefined;
     pontos: number | undefined;
 }
+
+export interface Atividade{
+    user_id: number;
+    fullname: string;
+    username: string;
+    exercicios: string;
+    pontos: number;
+    data: Date;
+}

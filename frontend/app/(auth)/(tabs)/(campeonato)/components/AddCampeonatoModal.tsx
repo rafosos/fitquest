@@ -11,10 +11,10 @@ import { colors } from "@/constants/Colors";
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import ExercicioService from "@/services/exercicio_service";
 import { errorHandlerDebug } from "@/services/service_config";
-import ErroInput from "./ErroInput";
-import StyledText from "./base/styledText";
+import ErroInput from "../../../../../components/ErroInput";
+import StyledText from "../../../../../components/base/styledText";
 import { fonts } from "@/constants/Fonts";
-import StyledTextInput from "./base/styledTextInput";
+import StyledTextInput from "../../../../../components/base/styledTextInput";
 
 const DUAS_SEMANAS = 12096e5;
 

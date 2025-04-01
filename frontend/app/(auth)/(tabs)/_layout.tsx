@@ -3,6 +3,7 @@ import React from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
 export default function TabLayout() {
+
   return (
     <Tabs
         screenOptions={{
@@ -17,7 +18,7 @@ export default function TabLayout() {
         initialRouteName='index'
     >
         <Tabs.Screen
-            name="competicoes"
+            name="(campeonato)"
             options={{
                 unmountOnBlur: true,
                 title: 'Competições',
@@ -45,7 +46,7 @@ export default function TabLayout() {
             }}
             />
         <Tabs.Screen
-            name="exercicios"
+            name="(rotina)"
             options={{
                 title: 'Treino',
                 tabBarIcon: ({ focused }) => (
