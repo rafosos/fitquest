@@ -1,7 +1,6 @@
-import { View, StyleSheet, FlatList, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
-import { AntDesign, Entypo, Feather, FontAwesome5 } from '@expo/vector-icons';
-import Checkbox from 'expo-checkbox';
+import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -16,6 +15,9 @@ import { HeaderPaginaDetalhes } from '../../../../components/base/headerModalPag
 import ErroInput from '../../../../components/ErroInput';
 import ModalConfirmacao from '@/components/ModalConfirmacao';
 import { ErrorHandler } from '@/utils/ErrorHandler';
+import ListaExercicios from './components/ListaExercicios';
+import ListaParticipantes from './components/ListaParticipantes';
+import ListaAtividades from './components/ListaAtividades';
 
 export default function DetalhesCampeonato() {
     const [campeonato, setCampeonato] = useState<CampeonatoDetalhes>();
@@ -75,17 +77,10 @@ export default function DetalhesCampeonato() {
         setNovoTreino(true);
     }
 
+    
     const cancelarTreino = () => {
         setNovoTreino(false);
         setCheckboxes([]);
-    }
-
-    const clearAndClose = () => {
-        setNovoTreino(false);
-        setCheckboxes([]);
-        setModalConfirma(false);
-        setIndex(0);
-        router.back();
     }
 
     const finalizarTreino = () => {
@@ -97,15 +92,17 @@ export default function DetalhesCampeonato() {
             .catch(err => errorHandler.handleError(err));
     }
 
+    const clearAndClose = () => {
+        setNovoTreino(false);
+        setModalConfirma(false);
+        setIndex(0);
+        router.back();
+    }
+
     const entrarCampeonato = () => {
         campeonatoService.entrarCampeonato(campeonatoId)
             .then(res => refresh())
             .catch(err => errorHandlerPadrao(err, setErro))
-    }
-
-    const checkExercicio = (value: boolean, index: number) => {
-        checkboxes[index] = value;
-        setCheckboxes([...checkboxes]);
     }
 
     const deletar = () => {
@@ -133,11 +130,6 @@ export default function DetalhesCampeonato() {
         else return `${dias} dias`;
     }
 
-    const abrirTelaAmigo = (amigoId: number | undefined) => 
-        amigoId == userId ?
-        router.navigate({pathname: '/(auth)/(tabs)/'})
-        :
-        router.navigate({pathname: '/(auth)/perfil', params:{userId: amigoId}});
 
     return (
         <View style={styles.containerAll}>
@@ -235,92 +227,18 @@ export default function DetalhesCampeonato() {
                 }
                 renderScene={SceneMap({
                     exercicios: () => 
-                        <FlatList
-                            data={campeonato?.exercicios}
-                            maintainVisibleContentPosition={{minIndexForVisible: 0, autoscrollToTopThreshold: 0}}
-                            contentContainerStyle={novoTreino ? styles.containerNovoTreino : styles.container}
-                            onStartShouldSetResponder={() => true}
-                            renderItem={({item, index}) => 
-                                <TouchableOpacity
-                                    activeOpacity={1}
-                                    style={styles.containerItem} 
-                                    onPress={() => novoTreino ? checkExercicio(!checkboxes[index], index) : null}
-                                >
-                                    {novoTreino && 
-                                        <View style={styles.containerCheckbox}>
-                                            <Checkbox 
-                                                value={checkboxes[index]}
-                                                onValueChange={(value) => checkExercicio(value, index)}
-                                            />
-                                        </View>
-                                    }
-
-                                    <View style={styles.card}>
-                                        <View style={styles.headerCard}>
-                                            <View style={styles.containerColumn}>
-                                                <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
-                                                <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</StyledText>
-                                            </View>
-                                        </View>
-
-                                        <View style={styles.containerCamposExec}>
-                                            <View style={styles.containerTxtCard}>
-                                                <StyledText style={styles.txtCard}>Séries: </StyledText>
-                                                <StyledText>{item.qtd_serie.toString()}</StyledText>
-                                            </View>
-
-                                            <View style={styles.containerTxtCard}>
-                                                <StyledText style={styles.txtCard}>Repetições: </StyledText>
-                                                <StyledText>{item.qtd_repeticoes.toString()}</StyledText>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            }
+                        <ListaExercicios
+                            exercicios={campeonato?.exercicios ?? []}
+                            novoTreino={novoTreino}
+                            checkboxes={checkboxes}
+                            setCheckboxes={setCheckboxes}
                         />,
 
                     atividades: () => 
-                        <FlatList
-                            data={atividades}
-                            renderItem={({item}) => 
-                                <View>
-                                    <StyledText>{item.fullname}</StyledText>
-                                </View>
-                            }
-                        />,
+                        <ListaAtividades atividades={atividades}/>,
 
-                    participantes: () => 
-                        <FlatList
-                            data={progresso}
-                            onStartShouldSetResponder={() => true}
-                            renderItem={({item, index}) => 
-                                <TouchableOpacity
-                                    activeOpacity={1}
-                                    style={styles.containerItem} 
-                                    onPress={() => abrirTelaAmigo(item.user_id)}
-                                >
-                                    <View>
-                                        <StyledText style={[styles.indexParticipante, index == 0 && styles.indexDourado]}>{index+1}</StyledText>
-                                    </View>
-
-                                    <View style={[styles.card, styles.headerCard]}>
-                                        <View style={styles.containerColumn}>
-                                            <View style={styles.containerUsername}>
-                                                {index == 0 && <FontAwesome5 name="crown" style={styles.iconeCoroa} />}
-                                                <StyledText style={styles.tituloExercicio}>{item.username}</StyledText>
-                                            </View>
-                                            <StyledText style={styles.subTituloExercicio}>{item.fullname}</StyledText>
-                                        </View>
-
-                                        <View style={styles.containerColumn}>
-                                            <StyledText style={[styles.numeroTreinos, index == 0 && styles.indexDourado]}>{item.pontos}</StyledText>
-                                            <StyledText style={[index == 0 && styles.indexDourado]}>pontos</StyledText>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            }
-                            ListEmptyComponent={<StyledText style={styles.txtListEmpty}>Faça um treino para aparecer na lista!</StyledText>}
-                        />
+                    participantes: () =>
+                        <ListaParticipantes progresso={progresso} />
                     })
                 }
             />
@@ -364,12 +282,6 @@ const styles = StyleSheet.create({
         color: colors.branco.padrao,
         textAlignVertical: 'center',
         marginRight:5
-    },
-    container:{
-        paddingHorizontal: 5
-    },
-    containerNovoTreino:{
-        paddingHorizontal: 5
     },
     txtCardHeader:{
         color: colors.branco.padrao
@@ -416,76 +328,6 @@ const styles = StyleSheet.create({
     },
     tabIndicator:{
         backgroundColor: colors.verde.padrao
-    },
-    containerItem:{
-        flexDirection: "row",
-        marginLeft: 5,
-        alignItems: "center"
-    },
-    indexParticipante:{
-        color: colors.branco.padrao
-    },
-    containerCheckbox:{
-    },
-    card:{
-        borderWidth: 1,
-        flexGrow: 1,
-        borderColor: colors.preto.padrao,
-        backgroundColor: colors.branco.padrao,
-        padding: 10,
-        margin: 10,
-        borderRadius: 4
-    },
-    headerCard:{
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-    containerColumn:{
-        flexDirection: "column"
-    },
-    containerUsername:{
-        flexDirection: "row",
-        alignItems: 'center'
-    },
-    iconeCoroa:{
-        color:colors.dourado.padrao,
-        marginRight: 5
-    },
-    tituloExercicio:{
-        fontSize: 18,
-        fontFamily: fonts.padrao.Bold700
-    },
-    subTituloExercicio:{
-        fontSize: 14,
-        fontFamily: fonts.padrao.Regular400,
-        color: colors.cinza.escuro
-    },
-    containerTxtCard:{
-        flex:1,
-        flexDirection: "row",
-        alignItems: "center"
-    },
-    txtCard:{
-        fontSize: 17
-    },
-    containerCamposExec: {
-        flexDirection: "row"
-    },
-    cardParticipantes:{
-        flexDirection: 'row'
-    },
-    numeroTreinos: {
-        textAlign: "center", 
-        fontSize: 20, 
-        fontFamily: fonts.padrao.Bold700
-    },
-    indexDourado:{
-        color: colors.dourado.padrao
-    },
-    txtListEmpty:{
-        color: colors.branco.padrao,
-        textAlign: 'center',
-        marginTop: 15
     },
     footerTreino:{
         flexDirection: "row",
