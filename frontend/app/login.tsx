@@ -13,6 +13,8 @@ import { errorHandlerDebug } from "@/services/service_config";
 import GradienteInicio from "@/components/GradienteInicio";
 import axios from "axios";
 
+const REGEX_SQLINJECTION = /(\s*([\0\b\'\"\n\r\t\%\_\\]*\s*(((select\s*.+\s*from\s*.+)|(insert\s*.+\s*into\s*.+)|(update\s*.+\s*set\s*.+)|(delete\s*.+\s*from\s*.+)|(drop\s*.+)|(truncate\s*.+)|(alter\s*.+)|(exec\s*.+)|(\s*(all|any|not|and|between|in|like|or|some|contains|containsall|containskey)\s*.+[\=\>\<=\!\~]+.+)|(let\s+.+[\=]\s*.*)|(begin\s*.*\s*end)|(\s*[\/\*]+\s*.*\s*[\*\/]+)|(\s*(\-\-)\s*.*\s+)|(\s*(contains|containsall|containskey)\s+.*)))(\s*[\;]\s*)*)+)/i;
+
 export default function Login() {
     const { signIn, setUser } = useSession();
     const userService = UserService();
@@ -30,6 +32,7 @@ export default function Login() {
         erroObj = {...erros,
             geral: false,
             inputLogin: !login,
+            regex: login && login.match(REGEX_SQLINJECTION),
             inputSenha: !senha,
         };
         setErros(erroObj);
@@ -76,7 +79,9 @@ export default function Login() {
                 <StyledTextInput 
                     placeholder="Email ou Username"
                     value={login}
-                    onChangeText={(txt) => setLogin(txt)} 
+                    onChangeText={(txt) => {
+                        console.log(txt.match(REGEX_SQLINJECTION))
+                        setLogin(txt)}} 
                     style={[styles.input, erros.inputLogin && styles.inputErro]}
                     enterKeyHint="next"
                     blurOnSubmit={false}
@@ -87,6 +92,10 @@ export default function Login() {
             <ErroInput
                 show={erros.inputLogin}
                 texto="O campo é obrigatório!"
+            />
+            <ErroInput
+                show={erros.regex}
+                texto="O usuário é inválido!"
             />
 
             <View style={[styles.txtInputIcon, erros.inputSenha && styles.inputErro]}>

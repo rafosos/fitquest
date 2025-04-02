@@ -2,11 +2,9 @@ import User, { PedidoAmizade, UserNaoAmigoDropbox, UserPerfil } from "@/classes/
 import { deletar, get, patch, post, put } from "./service_config";
 import { InformacoesUsuario } from "@/classes/streaks";
 import { LoginResponse } from "@/classes/loginResponse";
-import { useSession } from "@/app/ctx";
 
 export default function UserService(){
     const prefix = "/user";
-    const {id} = useSession();
 
     const cadastrar = (params: {
         username: string,
