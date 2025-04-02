@@ -76,7 +76,6 @@ export default function DetalhesCampeonato() {
         setIndex(0);
         setNovoTreino(true);
     }
-
     
     const cancelarTreino = () => {
         setNovoTreino(false);
@@ -181,13 +180,13 @@ export default function DetalhesCampeonato() {
                 </View>
                 <View style={styles.infoContainer}>
                     <View style={styles.itemInfo}>
-                        <StyledText style={styles.txtCardHeader}>Treinos</StyledText>
+                        <StyledText style={styles.txtCardHeader}>Seus pontos</StyledText>
                         <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.pontos ?? "..."}</StyledText>
                     </View>
                     
                     <View style={styles.itemInfo}>
-                        <StyledText style={styles.txtCardHeader}>Último treino</StyledText>
-                        <StyledText style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</StyledText> 
+                        <StyledText style={styles.txtCardHeader}>Seu último treino</StyledText>
+                        <StyledText style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</StyledText>
                     </View>
                 </View>
             </>}
@@ -284,6 +283,7 @@ const styles = StyleSheet.create({
         marginRight:5
     },
     txtCardHeader:{
+        textAlign: 'center',
         color: colors.branco.padrao
     },
     title: {

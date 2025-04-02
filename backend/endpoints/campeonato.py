@@ -204,7 +204,7 @@ def get_progresso(campeonato_id: int):
             func.coalesce(func.sum(ExercicioCampeonato.pontos), 0).label("pontos")
         ).select_from(user_campeonato)\
         .join(User, User.id == user_campeonato.c.user_id)\
-        .join(Treino, Treino.user_id == User.id, isouter=True)\
+        .join(Treino, and_(Treino.user_id == User.id, Treino.campeonato_id == user_campeonato.c.campeonato_id), isouter=True)\
         .join(UserExercicio, UserExercicio.treino_id == Treino.id, isouter=True)\
         .join(ExercicioCampeonato, UserExercicio.exec_campeonato_id == ExercicioCampeonato.id, isouter=True)\
         .where(user_campeonato.c.campeonato_id == campeonato_id)\
