@@ -3,16 +3,15 @@ import React, { useEffect, useState } from 'react';
 import * as Progress from 'react-native-progress';
 import { AntDesign, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-
 import { useSession } from '@/app/ctx';
 import Campeonato from '@/classes/campeonato';
-import AddCampeonatoModal from './components/AddCampeonatoModal';
+import AddCampeonatoModal from '@/components/campeonato/AddCampeonatoModal';
 import CampeonatoService from '@/services/campeonato_service';
 import { colors } from '@/constants/Colors';
 import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
 import { getProgress, showDiaMes } from '@/utils/functions';
-import PesquisarCampeonatoModal from './components/PesquisarCampeonatoModal ';
+import PesquisarCampeonatoModal from '@/components/campeonato/PesquisarCampeonatoModal ';
 
 export default function TabEventos() {
     const [addModal, setAddModal] = useState(false);
@@ -24,6 +23,7 @@ export default function TabEventos() {
     const campeonatoService = CampeonatoService();
 
     useEffect(() => refreshCampeonatos(), []);
+    
 
     const refreshCampeonatos = () => {        
         setRefreshing(true);
@@ -46,7 +46,7 @@ export default function TabEventos() {
     const abrirModal = () => setAddModal(true);
 
     const abrirTelaCampeonato = (campeonatoId: number) => 
-        router.navigate({pathname: './detalhes', params: {campeonatoId}});
+        router.navigate({pathname: '/(auth)/(tabs)/campeonato/[campeonatoId]/', params: {campeonatoId}});
     
     return (<>
         <AddCampeonatoModal

@@ -1,11 +1,9 @@
 from sqlalchemy import ForeignKey
-from datetime import date
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy.sql import func
 from .base_class import Base
 
-class UserExercicio(Base):
-    __tablename__ = "user_exercicio"
+class TreinoExercicio(Base):
+    __tablename__ = "treino_exercicio"
     id: Mapped[int] = mapped_column(primary_key=True)
     treino_id: Mapped[int] = mapped_column(ForeignKey("treino.id"))
     exec_rotina_id: Mapped[int] = mapped_column(ForeignKey("exercicio_rotina.id"), nullable=True)

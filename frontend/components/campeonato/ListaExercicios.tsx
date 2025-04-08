@@ -1,27 +1,48 @@
+import { ExercicioCampeonatoTreino } from "@/classes/campeonato"
 import Exercicio from "@/classes/exercicio"
 import StyledText from "@/components/base/styledText"
 import { colors } from "@/constants/Colors"
 import { fonts } from "@/constants/Fonts"
 import Checkbox from "expo-checkbox"
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native"
+import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native"
 
 interface Props{
-    exercicios: Exercicio[],
+    exercicios: Exercicio[] | ExercicioCampeonatoTreino[],
     novoTreino: boolean,
-    checkboxes: boolean[],
-    setCheckboxes: (valor: boolean[]) => void
+    checkboxes?: boolean[],
+    selecionados?: boolean,
+    refreshing?: boolean,
+    setCheckboxes?: (valor: boolean[]) => void
 }
 
-export default function ListaExercicios({exercicios, checkboxes, setCheckboxes, novoTreino}: Props){
+export default function ListaExercicios({exercicios, checkboxes = [], setCheckboxes = () => null, novoTreino, refreshing = false, selecionados = false}: Props){
+    
     const checkExercicio = (value: boolean, index: number) => {
-        checkboxes[index] = value;
+        checkboxes[index] = value;        
         setCheckboxes([...checkboxes]);
     }
 
+    const convertExercicioFlatlist = (e: Exercicio | ExercicioCampeonatoTreino) => {
+        return {
+            id: e.id, 
+            nome: e.nome, 
+            grupo_muscular_nome: e.grupo_muscular_nome, 
+            qtd_serie: e.qtd_serie,
+            qtd_repeticoes: e.qtd_repeticoes
+        }
+    }
+
+    const getData = () => {
+        if (selecionados)
+            return exercicios.filter((e, i) => checkboxes[i]).map(convertExercicioFlatlist)
+        return exercicios.map(convertExercicioFlatlist)
+    }
+    
+
     return (
         <FlatList
-            data={exercicios}
-            maintainVisibleContentPosition={{minIndexForVisible: 0, autoscrollToTopThreshold: 0}}
+            data={getData()}
+            maintainVisibleContentPosition={{minIndexForVisible: 7}} //TODO: fix this RN issue - make cards a component which hold their own state, and the list will be a list of components
             contentContainerStyle={styles.container}
             onStartShouldSetResponder={() => true}
             renderItem={({item, index}) => 
@@ -61,6 +82,7 @@ export default function ListaExercicios({exercicios, checkboxes, setCheckboxes, 
                     </View>
                 </TouchableOpacity>
             }
+            ListEmptyComponent={refreshing ? <ActivityIndicator style={styles.loading} color={colors.verde.padrao} size={"large"}/> :null}
         />
 
     )
@@ -111,5 +133,8 @@ const styles = StyleSheet.create({
     },
     txtCard:{
         fontSize: 17
+    },
+    loading:{
+        flex:1
     }
 })

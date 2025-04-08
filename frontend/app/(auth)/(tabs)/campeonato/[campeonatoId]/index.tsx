@@ -1,6 +1,6 @@
 import { View, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
-import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
+import { Entypo, Feather } from '@expo/vector-icons';
 import { useSession } from '@/app/ctx';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -8,23 +8,22 @@ import { colors } from '@/constants/Colors';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { Atividade, CampeonatoDetalhes, UserProgresso } from '@/classes/campeonato';
 import CampeonatoService from '@/services/campeonato_service';
-import StyledText from '../../../../components/base/styledText';
+import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
 import { errorHandlerPadrao, showDiaMes } from '@/utils/functions';
-import { HeaderPaginaDetalhes } from '../../../../components/base/headerModalPaginaDetalhes';
-import ErroInput from '../../../../components/ErroInput';
+import { HeaderPaginaDetalhes } from '@/components/base/headerModalPaginaDetalhes';
+import ErroInput from '@/components/ErroInput';
 import ModalConfirmacao from '@/components/ModalConfirmacao';
 import { ErrorHandler } from '@/utils/ErrorHandler';
-import ListaExercicios from './components/ListaExercicios';
-import ListaParticipantes from './components/ListaParticipantes';
-import ListaAtividades from './components/ListaAtividades';
+import ListaExercicios from '@/components/campeonato/ListaExercicios';
+import ListaParticipantes from '@/components/campeonato/ListaParticipantes';
+import ListaAtividades from '@/components/campeonato/ListaAtividades';
 
 export default function DetalhesCampeonato() {
     const [campeonato, setCampeonato] = useState<CampeonatoDetalhes>();
     const [progresso, setProgresso] = useState<UserProgresso[]>([]);
     const [atividades, setAtividades] = useState<Atividade[]>([]);
-    const [novoTreino, setNovoTreino] = useState(false);
-    const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
+    const [loadingDetalhes, setLoadingDetalhes] = useState(false);
     const [modalConfirma, setModalConfirma] = useState(false);
     const [erro, setErro] = useState("");
     const [index, setIndex] = useState(0);
@@ -42,13 +41,13 @@ export default function DetalhesCampeonato() {
 
     const navigation = useNavigation<BottomTabNavigationProp<any>>();
     useEffect(() => {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });  
+      navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'none' } });
       return () => {
-        navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
+        navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'flex' } });
       };
     }, [navigation]);
 
-    useEffect(() => refresh(), [campeonatoId]);
+    useEffect(() => refresh(), []);
     
     const refresh = () => {
         if (!campeonatoId) return
@@ -57,10 +56,13 @@ export default function DetalhesCampeonato() {
         getAtividades();
     }
     
-    const getDetalhes = () =>
+    const getDetalhes = () => {
+        setLoadingDetalhes(true);
         campeonatoService.getCampeonatoDetalhes(campeonatoId)
-            .then(res => setCampeonato(res))
-            .catch(err => errorHandler.handleError(err));
+        .then(res => setCampeonato(res))
+        .catch(err => errorHandler.handleError(err))
+        .finally(() => setLoadingDetalhes(false));
+    }
     
     const getProgresso = () => 
         campeonatoService.getDetalhesProgresso(campeonatoId)
@@ -73,26 +75,11 @@ export default function DetalhesCampeonato() {
             .catch(err => errorHandler.handleError(err));
 
     const iniciarNovoTreino = () => {
+        router.push({pathname: `/(auth)/(tabs)/campeonato/[campeonatoId]/treino`, params:{campeonatoId, campeonatoNome: campeonato?.nome}});
         setIndex(0);
-        setNovoTreino(true);
     }
     
-    const cancelarTreino = () => {
-        setNovoTreino(false);
-        setCheckboxes([]);
-    }
-
-    const finalizarTreino = () => {
-        campeonatoService.addTreino({
-            campeonatoId, 
-            exercicios_ids: campeonato?.exercicios?.filter((e, i) => checkboxes[i]).map(e => e.id).filter(e => e != undefined) ?? []
-        })
-            .then(res => clearAndClose())
-            .catch(err => errorHandler.handleError(err));
-    }
-
     const clearAndClose = () => {
-        setNovoTreino(false);
         setModalConfirma(false);
         setIndex(0);
         router.back();
@@ -109,7 +96,7 @@ export default function DetalhesCampeonato() {
         campeonatoService.deleteCampeonato(campeonato.id)
             .then(res => clearAndClose())
             .catch(err => errorHandlerPadrao(err, setErro))
-        }
+    }
         
     const sair = () => {
         if (!campeonato) return
@@ -128,7 +115,6 @@ export default function DetalhesCampeonato() {
         if (dias < 0) return "encerrado";
         else return `${dias} dias`;
     }
-
 
     return (
         <View style={styles.containerAll}>
@@ -167,41 +153,34 @@ export default function DetalhesCampeonato() {
                 setShow={setErro}
             />
 
-            {!novoTreino && <> 
-                <View style={styles.infoContainer}>
-                    <View style={styles.itemInfo}>
-                        <StyledText style={styles.txtCardHeader}>Dia final</StyledText>
-                        <StyledText style={styles.title}>{showDiaMes(campeonato?.duracao)}</StyledText>
-                    </View>
-                    <View style={styles.itemInfo}>
-                        <StyledText style={styles.txtCardHeader}>Dias restantes</StyledText>
-                        <StyledText style={styles.title}>{getDiasRestantes()}</StyledText>
-                    </View>
+            <View style={styles.infoContainer}>
+                <View style={styles.itemInfo}>
+                    <StyledText style={styles.txtCardHeader}>Dia final</StyledText>
+                    <StyledText style={styles.title}>{showDiaMes(campeonato?.duracao)}</StyledText>
                 </View>
-                <View style={styles.infoContainer}>
-                    <View style={styles.itemInfo}>
-                        <StyledText style={styles.txtCardHeader}>Seus pontos</StyledText>
-                        <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.pontos ?? "..."}</StyledText>
-                    </View>
-                    
-                    <View style={styles.itemInfo}>
-                        <StyledText style={styles.txtCardHeader}>Seu último treino</StyledText>
-                        <StyledText style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</StyledText>
-                    </View>
+                <View style={styles.itemInfo}>
+                    <StyledText style={styles.txtCardHeader}>Dias restantes</StyledText>
+                    <StyledText style={styles.title}>{getDiasRestantes()}</StyledText>
                 </View>
-            </>}
+            </View>
+            <View style={styles.infoContainer}>
+                <View style={styles.itemInfo}>
+                    <StyledText style={styles.txtCardHeader}>Seus pontos</StyledText>
+                    <StyledText style={styles.title}>{progresso.find(u => u.user_id == userId)?.pontos ?? "..."}</StyledText>
+                </View>
+                
+                <View style={styles.itemInfo}>
+                    <StyledText style={styles.txtCardHeader}>Seu último treino</StyledText>
+                    <StyledText style={styles.title}>{showDiaMes(campeonato?.ultimo_treino)}</StyledText>
+                </View>
+            </View>
 
             {!campeonato?.joined?
                 <TouchableOpacity style={styles.botaoTreino} onPress={entrarCampeonato}>
                     <Entypo name="login" style={styles.iconeBotaoTreino} />
                     <StyledText style={styles.txtBotaoNovoTreino}>ENTRAR NO CAMPEONATO</StyledText>
                 </TouchableOpacity>
-            : novoTreino ? 
-                <TouchableOpacity style={styles.botaoTreino} onPress={finalizarTreino}>
-                    <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                    <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
-                </TouchableOpacity>
-            :
+                :
                 <TouchableOpacity style={styles.botaoTreino} onPress={iniciarNovoTreino}>
                     <Entypo name="controller-play" style={styles.iconeBotaoTreino} />
                     <StyledText style={styles.txtBotaoNovoTreino}>INICIAR TREINO</StyledText>
@@ -213,9 +192,7 @@ export default function DetalhesCampeonato() {
                 onIndexChange={setIndex}
                 lazy={({ route }) => route.title === 'participantes'}
                 initialLayout={{width: layout.width}}
-                swipeEnabled={!novoTreino}
                 renderTabBar={(props) => 
-                    (novoTreino && props.navigationState.index == 0) ? <></> :
                     <TabBar 
                         {...props}
                         style={styles.tabs}
@@ -228,9 +205,8 @@ export default function DetalhesCampeonato() {
                     exercicios: () => 
                         <ListaExercicios
                             exercicios={campeonato?.exercicios ?? []}
-                            novoTreino={novoTreino}
-                            checkboxes={checkboxes}
-                            setCheckboxes={setCheckboxes}
+                            novoTreino={false}
+                            refreshing={loadingDetalhes}
                         />,
 
                     atividades: () => 
@@ -240,20 +216,7 @@ export default function DetalhesCampeonato() {
                         <ListaParticipantes progresso={progresso} />
                     })
                 }
-            />
-        
-            {novoTreino &&
-            <View style={styles.footerTreino}>
-                <TouchableOpacity style={[styles.botaoFooter, styles.botaoFooterCancelar]} onPress={cancelarTreino}>
-                    <AntDesign name="close" style={styles.iconeBotaoTreino} />
-                    <StyledText style={styles.txtBotaoNovoTreino}>CANCELAR</StyledText>
-                </TouchableOpacity>
-            
-                <TouchableOpacity style={styles.botaoFooter} onPress={finalizarTreino}>
-                    <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                    <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
-                </TouchableOpacity>
-            </View>}
+            />        
         </View>
     );
 }

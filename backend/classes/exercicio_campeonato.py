@@ -9,11 +9,11 @@ class ExercicioCampeonato(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     exercicio_id: Mapped[int] = mapped_column(ForeignKey("exercicio.id"))
     campeonato_id: Mapped[int] = mapped_column(ForeignKey("campeonato.id"), nullable=True)
-    data: Mapped[date] = mapped_column(server_default=func.now())
+    data: Mapped[date] = mapped_column(server_default=func.now()) # pq tem data??????????
     qtd_serie: Mapped[int]
     qtd_repeticoes: Mapped[int]
     pontos: Mapped[int] = mapped_column(server_default="0")
     
     exercicio: Mapped["Exercicio"] = relationship(back_populates="campeonatos")
     campeonato: Mapped["Campeonato"] = relationship(back_populates="exercicios")
-    execs_user: Mapped["UserExercicio"] = relationship(back_populates="exec_campeonato")
+    execs_user: Mapped["TreinoExercicio"] = relationship(back_populates="exec_campeonato")

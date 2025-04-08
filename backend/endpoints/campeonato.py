@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, Form
 from db.db import Session
 from typing import List, Annotated
 from sqlalchemy import select, func, case, and_, literal_column, or_, literal
@@ -10,7 +10,7 @@ from classes.exercicio_campeonato import ExercicioCampeonato
 from classes.grupo_muscular import GrupoMuscular
 from classes.exercicio import Exercicio
 from classes.treino import Treino, TipoTreino
-from classes.user_exercicio import UserExercicio
+from classes.treino_exercicio import TreinoExercicio
 from classes.user_campeonato import user_campeonato
 from classes.user import User
 from classes.status import Status, statuses
@@ -205,8 +205,8 @@ def get_progresso(campeonato_id: int):
         ).select_from(user_campeonato)\
         .join(User, User.id == user_campeonato.c.user_id)\
         .join(Treino, and_(Treino.user_id == User.id, Treino.campeonato_id == user_campeonato.c.campeonato_id), isouter=True)\
-        .join(UserExercicio, UserExercicio.treino_id == Treino.id, isouter=True)\
-        .join(ExercicioCampeonato, UserExercicio.exec_campeonato_id == ExercicioCampeonato.id, isouter=True)\
+        .join(TreinoExercicio, TreinoExercicio.treino_id == Treino.id, isouter=True)\
+        .join(ExercicioCampeonato, TreinoExercicio.exec_campeonato_id == ExercicioCampeonato.id, isouter=True)\
         .where(user_campeonato.c.campeonato_id == campeonato_id)\
         .group_by(user_campeonato.c.user_id, User.username, User.fullname)\
         .order_by(func.coalesce(func.sum(ExercicioCampeonato.pontos), 0).desc())
@@ -225,20 +225,20 @@ def get_atividades(campeonato_id: int):
             func.string_agg(Exercicio.nome, ', ').label("exercicios")
         ).select_from(Treino)\
         .join(User, User.id == Treino.user_id)\
-        .join(UserExercicio, UserExercicio.treino_id == Treino.id)\
-        .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id)\
+        .join(TreinoExercicio, TreinoExercicio.treino_id == Treino.id)\
+        .join(ExercicioCampeonato, ExercicioCampeonato.id == TreinoExercicio.exec_campeonato_id)\
         .join(Exercicio, Exercicio.id == ExercicioCampeonato.exercicio_id)\
         .where(Treino.campeonato_id == campeonato_id)\
         .group_by(Treino.user_id, Treino.data, User.fullname, User.username)
 
         return sess.execute(stmt).mappings().all()
 
-class TreinoModel(BaseModel):
-    campeonatoId: int
-    exercicios_ids: List[int]
-
 @router.post("/add-treino")
-def add_treino(model: TreinoModel, current_user: Annotated[User, Depends(get_current_user)]):
+async def add_treino(
+    current_user: Annotated[User, Depends(get_current_user)],
+    imagem: UploadFile = Form(...),
+    exercicios_ids: List[int] = Form(...), 
+):
     with Session() as sess:
         result = sess.execute(
             select(
@@ -247,9 +247,10 @@ def add_treino(model: TreinoModel, current_user: Annotated[User, Depends(get_cur
             )  
             .select_from(ExercicioCampeonato)
             .join(Campeonato, ExercicioCampeonato.campeonato_id == Campeonato.id)
-            .where(ExercicioCampeonato.id == model.exercicios_ids[0])).first()
-        treino = Treino(user_id=current_user.id, campeonato_id=result[0], nome=result[1], tipo=TipoTreino.campeonato)
-        exercicios = [UserExercicio(exec_campeonato_id=id) for id in model.exercicios_ids]
+            .where(ExercicioCampeonato.id == exercicios_ids[0])).first()
+        imagebytes = await imagem.read()
+        treino = Treino(user_id=current_user.id, campeonato_id=result[0], nome=result[1], tipo=TipoTreino.campeonato, imagem=imagebytes)
+        exercicios = [TreinoExercicio(exec_campeonato_id=id) for id in exercicios_ids]
         treino.exercicios = exercicios
         sess.add(treino)
         sess.commit()
@@ -302,3 +303,21 @@ def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(ge
             return True
         except Exception as e:
             raise HTTPException(status_code=500, detail="Erro ao sair do campeonato.")
+        
+@router.get("/exercicios/{campeonato_id}")
+def get_atividades(campeonato_id: int):
+    with Session() as sess:
+        stmt = select(
+            ExercicioCampeonato.id,
+            ExercicioCampeonato.exercicio_id,
+            Exercicio.nome,
+            GrupoMuscular.nome,
+            ExercicioCampeonato.qtd_serie,
+            ExercicioCampeonato.qtd_repeticoes,
+            ExercicioCampeonato.pontos
+        ).select_from(ExercicioCampeonato)\
+        .join(Exercicio, Exercicio.id == ExercicioCampeonato.exercicio_id)\
+        .join(GrupoMuscular, Exercicio.grupo_muscular_id == GrupoMuscular.id)\
+        .where(ExercicioCampeonato.campeonato_id == campeonato_id)
+
+        return sess.execute(stmt).mappings().all()

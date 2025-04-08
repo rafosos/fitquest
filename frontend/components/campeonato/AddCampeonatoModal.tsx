@@ -10,11 +10,11 @@ import { Feather } from "@expo/vector-icons";
 import { colors } from "@/constants/Colors";
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import ExercicioService from "@/services/exercicio_service";
-import { errorHandlerDebug } from "@/services/service_config";
-import ErroInput from "../../../../../components/ErroInput";
-import StyledText from "../../../../../components/base/styledText";
+import ErroInput from "../ErroInput";
+import StyledText from "../base/styledText";
 import { fonts } from "@/constants/Fonts";
-import StyledTextInput from "../../../../../components/base/styledTextInput";
+import StyledTextInput from "../base/styledTextInput";
+import { ErrorHandler } from "@/utils/ErrorHandler";
 
 const DUAS_SEMANAS = 12096e5;
 
@@ -30,6 +30,8 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
     const [loadingAmigos, setLoadingAmigos] = useState(false);
     const [loadingExercicios, setLoadingExercicios] = useState(false);
     const [amigos, setAmigos] = useState<AutocompleteDropdownItem[]>([]);
+
+    const errorHandler = ErrorHandler();
 
     const userService = UserService();
     const campeonatoService = CampeonatoService();
@@ -65,7 +67,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         setLoadingAmigos(true);
         userService.getAmigosFilter(f)
             .then(res => setAmigos(res.map(user => {return {id: user.id.toString(), title:user.fullname}})))
-            .catch(err => console.log(err))
+            .catch(err => errorHandler.handleError(err))
             .finally(() => setLoadingAmigos(false));
     }
 
@@ -92,7 +94,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                 exercicios
             })
             .then(res => clearAndClose())
-            .catch(err => errorHandlerDebug(err));
+            .catch(err => errorHandler.handleError(err));
     }
 
     const removerParticipante = (item: AutocompleteDropdownItem) => {
@@ -121,7 +123,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         setLoadingExercicios(true);
         exercicioService.getExercicioFiltro(f, exercicios.map(e => e.exercicio_id))
             .then(res => setResultados(res.map(exec => {return {...exec, id: exec.id, title:exec.nome}})))
-            .catch(error => errorHandlerDebug(error))
+            .catch(error => errorHandler.handleError(error))
             .finally(() => setLoadingExercicios(false));
     }
 

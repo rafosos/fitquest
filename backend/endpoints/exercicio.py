@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
 from classes.user import User
 from classes.exercicio import Exercicio
-from classes.user_exercicio import UserExercicio
+from classes.treino_exercicio import TreinoExercicio
 from classes.exercicio_rotina import ExercicioRotina
 from classes.exercicio_campeonato import ExercicioCampeonato
 from datetime import timedelta
@@ -70,9 +70,9 @@ def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)],
             Treino.tipo,
             func.string_agg(Exercicio.nome, ", ").label("exercicios"),
         ).select_from(Treino)\
-        .join(UserExercicio, UserExercicio.treino_id == Treino.id)\
-        .join(ExercicioRotina, ExercicioRotina.id == UserExercicio.exec_rotina_id, isouter=True)\
-        .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id, isouter=True)\
+        .join(TreinoExercicio, TreinoExercicio.treino_id == Treino.id)\
+        .join(ExercicioRotina, ExercicioRotina.id == TreinoExercicio.exec_rotina_id, isouter=True)\
+        .join(ExercicioCampeonato, ExercicioCampeonato.id == TreinoExercicio.exec_campeonato_id, isouter=True)\
         .join(Exercicio, or_(ExercicioCampeonato.exercicio_id == Exercicio.id, ExercicioRotina.exercicio_id == Exercicio.id))\
         .where(and_(Treino.user_id == user_id, Treino.status == StatusTreino.ativo))\
         .group_by(Treino.id,
@@ -202,9 +202,9 @@ def get_treinos_deletados(current_user: Annotated[User, Depends(get_current_user
             Treino.tipo,
             func.string_agg(Exercicio.nome, ", ").label("exercicios"),
         ).select_from(Treino)\
-        .join(UserExercicio, UserExercicio.treino_id == Treino.id)\
-        .join(ExercicioRotina, ExercicioRotina.id == UserExercicio.exec_rotina_id, isouter=True)\
-        .join(ExercicioCampeonato, ExercicioCampeonato.id == UserExercicio.exec_campeonato_id, isouter=True)\
+        .join(TreinoExercicio, TreinoExercicio.treino_id == Treino.id)\
+        .join(ExercicioRotina, ExercicioRotina.id == TreinoExercicio.exec_rotina_id, isouter=True)\
+        .join(ExercicioCampeonato, ExercicioCampeonato.id == TreinoExercicio.exec_campeonato_id, isouter=True)\
         .join(Exercicio, or_(ExercicioCampeonato.exercicio_id == Exercicio.id, ExercicioRotina.exercicio_id == Exercicio.id))\
         .where(and_(Treino.user_id == user_id, Treino.status == StatusTreino.deletado))\
         .group_by(Treino.id,

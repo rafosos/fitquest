@@ -59,9 +59,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    print(":()", flush=True)
-    logger.debug("asdasdasdasdasd")
-
     with Session() as sess:
         user = sess.scalar(select(User).where(User.username == "string"))
 

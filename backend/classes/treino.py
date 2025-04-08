@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Enum
+from sqlalchemy import ForeignKey, Enum, types
 from datetime import date
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -24,8 +24,9 @@ class Treino(Base):
     tipo = mapped_column(type_=Enum(TipoTreino))
     data: Mapped[date] = mapped_column(server_default=func.now())
     status = mapped_column(type_=Enum(StatusTreino), default=StatusTreino.ativo)
+    imagem = mapped_column(type_=types.LargeBinary, nullable=False)
     
     user: Mapped["User"] = relationship(back_populates="treinos")
     rotina: Mapped["Rotina"] = relationship(back_populates="treinos")
     campeonato: Mapped["Campeonato"] = relationship(back_populates="treinos")
-    exercicios: Mapped[List["UserExercicio"]] = relationship(back_populates="treino")
+    exercicios: Mapped[List["TreinoExercicio"]] = relationship(back_populates="treino", cascade="all,delete,delete-orphan")

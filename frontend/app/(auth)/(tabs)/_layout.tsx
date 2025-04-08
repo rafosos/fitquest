@@ -18,7 +18,7 @@ export default function TabLayout() {
         initialRouteName='index'
     >
         <Tabs.Screen
-            name="(campeonato)"
+            name="campeonato"
             options={{
                 unmountOnBlur: true,
                 title: 'Competições',
@@ -46,7 +46,7 @@ export default function TabLayout() {
             }}
             />
         <Tabs.Screen
-            name="(rotina)"
+            name="rotina"
             options={{
                 title: 'Treino',
                 tabBarIcon: ({ focused }) => (

@@ -36,6 +36,16 @@ export class ExercicioCampeonato{
     qtd_pontos: number = 0;
 }
 
+export interface ExercicioCampeonatoTreino{
+    id: number;
+    exercicio_id: number;
+    nome: string;
+    grupo_muscular_nome: string;
+    qtd_serie: number;
+    qtd_repeticoes: number;
+    qtd_pontos: number;
+}
+
 export class CampeonatoDetalhes{
     constructor(nome: string, duracao: Date, id: number = 0) {
         this.id = id;

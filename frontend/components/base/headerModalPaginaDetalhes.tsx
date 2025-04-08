@@ -16,7 +16,7 @@ export function HeaderPaginaDetalhes({onClose, titulo, onDelete, showDelete = tr
 
     return(
         <View style={styles.titleContainer}>
-            <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose} style={styles.iconeVoltar}/>
+            <AntDesign name="arrowleft" size={30} color={colors.branco.padrao} onPress={onClose} style={[styles.iconeVoltar, !showDelete && styles.fixedVoltar]}/>
             <StyledText style={styles.title}>{titulo}</StyledText>
             {showSair ? 
                 <Entypo name="log-out" style={styles.botaoApagar} onPress={onDelete}/>
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
     },
     iconeVoltar:{
 
@@ -41,10 +41,17 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.branco.padrao,
         fontFamily: fonts.padrao.Bold700,
-        textAlign: "center"
+        flex:1,
+        textAlignVertical: "center",
+        textAlign: "center",
     },
     botaoApagar:{
         color: colors.branco.padrao,
         fontSize: 24
     },
+    fixedVoltar:{
+        position: 'absolute',
+        top: 7,
+        left: 3
+    }
 })

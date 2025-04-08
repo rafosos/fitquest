@@ -11,4 +11,4 @@ from .treino import Treino
 from .exercicio_campeonato import ExercicioCampeonato
 from .exercicio_rotina import ExercicioRotina
 from .item import Item
-from .user_exercicio import UserExercicio
+from .treino_exercicio import TreinoExercicio

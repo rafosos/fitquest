@@ -5,7 +5,7 @@ from db.db import Session
 from sqlalchemy import select, and_, literal_column
 from pydantic import BaseModel
 from classes.exercicio import Exercicio
-from classes.user_exercicio import UserExercicio
+from classes.treino_exercicio import TreinoExercicio
 from classes.user import User
 from classes.treino import Treino, TipoTreino
 from classes.rotina import Rotina
@@ -161,7 +161,7 @@ def add_treino(model: TreinoModel, current_user: Annotated[User, Depends(get_cur
             .join(Rotina, Rotina.id == ExercicioRotina.rotina_id)
             .where(ExercicioRotina.id == model.ids_exercicios[0])).first()
         treino = Treino(user_id=current_user.id, rotina_id=result[0], nome=result[1], tipo=TipoTreino.rotina)
-        exercicios = [UserExercicio(exec_rotina_id=id) for id in model.ids_exercicios]
+        exercicios = [TreinoExercicio(exec_rotina_id=id) for id in model.ids_exercicios]
         treino.exercicios = exercicios
         sess.add(treino)
         sess.commit()
