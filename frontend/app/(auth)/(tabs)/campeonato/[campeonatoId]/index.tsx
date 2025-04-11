@@ -116,6 +116,9 @@ export default function DetalhesCampeonato() {
         else return `${dias} dias`;
     }
 
+    const abrirAtividade = (id:number) => 
+        router.navigate({pathname: "/(auth)/(tabs)/campeonato/[campeonatoId]/atividade/[id]", params:{campeonatoId, id}});
+
     return (
         <View style={styles.containerAll}>
             <ModalConfirmacao 
@@ -210,7 +213,7 @@ export default function DetalhesCampeonato() {
                         />,
 
                     atividades: () => 
-                        <ListaAtividades atividades={atividades}/>,
+                        <ListaAtividades atividades={atividades} abrirAtividade={abrirAtividade}/>,
 
                     participantes: () =>
                         <ListaParticipantes progresso={progresso} />

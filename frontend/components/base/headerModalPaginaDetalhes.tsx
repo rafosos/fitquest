@@ -32,22 +32,21 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
+        width: '100%'
     },
     iconeVoltar:{
-
     },
     title: {
         fontSize: 16,
         color: colors.branco.padrao,
         fontFamily: fonts.padrao.Bold700,
-        flex:1,
         textAlignVertical: "center",
         textAlign: "center",
     },
     botaoApagar:{
         color: colors.branco.padrao,
-        fontSize: 24
+        fontSize: 24,
     },
     fixedVoltar:{
         position: 'absolute',

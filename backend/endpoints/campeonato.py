@@ -5,6 +5,7 @@ from sqlalchemy import select, func, case, and_, literal_column, or_, literal
 from sqlalchemy.orm import selectinload, aliased
 from datetime import datetime
 from pydantic import BaseModel
+import base64
 from classes.campeonato import Campeonato
 from classes.exercicio_campeonato import ExercicioCampeonato
 from classes.grupo_muscular import GrupoMuscular
@@ -217,8 +218,10 @@ def get_progresso(campeonato_id: int):
 def get_atividades(campeonato_id: int):
     with Session() as sess:
         stmt = select(
+            Treino.id,
             Treino.user_id,
             Treino.data,
+            Treino.imagem,
             User.username,
             User.fullname,
             func.sum(ExercicioCampeonato.pontos).label("pontos"),
@@ -229,9 +232,66 @@ def get_atividades(campeonato_id: int):
         .join(ExercicioCampeonato, ExercicioCampeonato.id == TreinoExercicio.exec_campeonato_id)\
         .join(Exercicio, Exercicio.id == ExercicioCampeonato.exercicio_id)\
         .where(Treino.campeonato_id == campeonato_id)\
-        .group_by(Treino.user_id, Treino.data, User.fullname, User.username)
+        .group_by(Treino.id, Treino.user_id, Treino.imagem, Treino.data, User.fullname, User.username)
 
-        return sess.execute(stmt).mappings().all()
+        res = sess.execute(stmt).mappings().all()
+
+        resultMap = []
+        for row in res:
+            img = base64.b64encode(row["imagem"]).decode('utf-8')
+            resultMap.append({**row, "imagem": img})
+
+        return resultMap
+    
+@router.get("/atividade/{atividade_id}")
+def get_atividade_by_id(atividade_id: int):
+    with Session() as sess:
+        stmt = select(
+            Treino.id,
+            Treino.user_id,
+            Treino.data,
+            Treino.imagem,
+            User.username,
+            User.fullname,
+            ExercicioCampeonato.exercicio_id,
+            ExercicioCampeonato.qtd_repeticoes,
+            ExercicioCampeonato.qtd_serie,
+            ExercicioCampeonato.pontos,
+            Exercicio.nome
+        ).select_from(Treino)\
+        .join(User, User.id == Treino.user_id)\
+        .join(TreinoExercicio, TreinoExercicio.treino_id == Treino.id)\
+        .join(ExercicioCampeonato, ExercicioCampeonato.id == TreinoExercicio.exec_campeonato_id)\
+        .join(Exercicio, Exercicio.id == ExercicioCampeonato.exercicio_id)\
+        .where(Treino.id == atividade_id)
+
+        res = sess.execute(stmt).mappings().all()
+
+        resultMap = dict()
+        for row in res:
+            
+            if resultMap.get("id", None) is None:
+                img = base64.b64encode(row["imagem"]).decode('utf-8')
+                resultMap = {
+                    "id": row["id"],
+                    "user_id": row["user_id"],
+                    "data": row["data"], 
+                    "imagem": img,
+                    "pontos": 0, 
+                    "username": row["username"],
+                    "fullname": row["fullname"],
+                    "exercicios": []}
+
+            resultMap["pontos"] = resultMap["pontos"] + row["pontos"] 
+            resultMap["exercicios"].append({
+                "id": row["exercicio_id"], 
+                "pontos:": row["pontos"],
+                "qtd_repeticoes": row["qtd_repeticoes"],
+                "qtd_serie": row["qtd_serie"],
+                "nome": row["nome"]
+            })
+
+        return resultMap
 
 @router.post("/add-treino")
 async def add_treino(
@@ -305,7 +365,7 @@ def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(ge
             raise HTTPException(status_code=500, detail="Erro ao sair do campeonato.")
         
 @router.get("/exercicios/{campeonato_id}")
-def get_atividades(campeonato_id: int):
+def get_exercicios_treino(campeonato_id: int):
     with Session() as sess:
         stmt = select(
             ExercicioCampeonato.id,
@@ -314,10 +374,21 @@ def get_atividades(campeonato_id: int):
             GrupoMuscular.nome,
             ExercicioCampeonato.qtd_serie,
             ExercicioCampeonato.qtd_repeticoes,
-            ExercicioCampeonato.pontos
+            ExercicioCampeonato.pontos,
         ).select_from(ExercicioCampeonato)\
         .join(Exercicio, Exercicio.id == ExercicioCampeonato.exercicio_id)\
         .join(GrupoMuscular, Exercicio.grupo_muscular_id == GrupoMuscular.id)\
         .where(ExercicioCampeonato.campeonato_id == campeonato_id)
 
         return sess.execute(stmt).mappings().all()
+    
+@router.delete("/treino/{treino_id}")
+def delete_treino(treino_id: int):
+    with Session() as sess:
+        treino = sess.scalar(select(Treino)
+                                 .options(selectinload(Treino.exercicios))
+                                 .where(Treino.id == treino_id)
+                                )
+        sess.delete(treino)
+        sess.commit()
+    return "O treino foi deletado com sucesso"

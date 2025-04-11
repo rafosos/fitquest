@@ -1,10 +1,9 @@
-import { ExercicioCampeonatoTreino } from "@/classes/campeonato"
+import { ExercicioCampeonatoTreino, ExercicioCard } from "@/classes/campeonato"
 import Exercicio from "@/classes/exercicio"
-import StyledText from "@/components/base/styledText"
 import { colors } from "@/constants/Colors"
-import { fonts } from "@/constants/Fonts"
 import Checkbox from "expo-checkbox"
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native"
+import CardExercicio from "./CardExercicio"
 
 interface Props{
     exercicios: Exercicio[] | ExercicioCampeonatoTreino[],
@@ -22,7 +21,7 @@ export default function ListaExercicios({exercicios, checkboxes = [], setCheckbo
         setCheckboxes([...checkboxes]);
     }
 
-    const convertExercicioFlatlist = (e: Exercicio | ExercicioCampeonatoTreino) => {
+    const convertExercicioFlatlist = (e: Exercicio | ExercicioCampeonatoTreino): ExercicioCard => {
         return {
             id: e.id, 
             nome: e.nome, 
@@ -60,26 +59,9 @@ export default function ListaExercicios({exercicios, checkboxes = [], setCheckbo
                         </View>
                     }
 
-                    <View style={styles.card}>
-                        <View style={styles.headerCard}>
-                            <View style={styles.containerColumn}>
-                                <StyledText style={styles.tituloExercicio}>{item.nome}</StyledText>
-                                <StyledText style={styles.subTituloExercicio}>{item.grupo_muscular_nome}</StyledText>
-                            </View>
-                        </View>
+                    <CardExercicio item={item} />
 
-                        <View style={styles.containerCamposExec}>
-                            <View style={styles.containerTxtCard}>
-                                <StyledText style={styles.txtCard}>Séries: </StyledText>
-                                <StyledText>{item.qtd_serie.toString()}</StyledText>
-                            </View>
-
-                            <View style={styles.containerTxtCard}>
-                                <StyledText style={styles.txtCard}>Repetições: </StyledText>
-                                <StyledText>{item.qtd_repeticoes.toString()}</StyledText>
-                            </View>
-                        </View>
-                    </View>
+                    
                 </TouchableOpacity>
             }
             ListEmptyComponent={refreshing ? <ActivityIndicator style={styles.loading} color={colors.verde.padrao} size={"large"}/> :null}
@@ -97,42 +79,6 @@ const styles = StyleSheet.create({
     containerCheckbox:{},
     container:{
         paddingHorizontal: 5
-    },
-    card:{
-        borderWidth: 1,
-        flexGrow: 1,
-        borderColor: colors.preto.padrao,
-        backgroundColor: colors.branco.padrao,
-        padding: 10,
-        margin: 10,
-        borderRadius: 4
-    },
-    headerCard:{
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-    containerColumn:{
-        flexDirection: "column"
-    },
-    tituloExercicio:{
-        fontSize: 18,
-        fontFamily: fonts.padrao.Bold700
-    },
-    subTituloExercicio:{
-        fontSize: 14,
-        fontFamily: fonts.padrao.Regular400,
-        color: colors.cinza.escuro
-    },
-    containerCamposExec: {
-        flexDirection: "row"
-    },
-    containerTxtCard:{
-        flex:1,
-        flexDirection: "row",
-        alignItems: "center"
-    },
-    txtCard:{
-        fontSize: 17
     },
     loading:{
         flex:1

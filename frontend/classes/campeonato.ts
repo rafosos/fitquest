@@ -72,10 +72,31 @@ export class UserProgresso{
 }
 
 export interface Atividade{
+    id: number;
     user_id: number;
     fullname: string;
     username: string;
     exercicios: string;
     pontos: number;
+    imagem: string;
     data: Date;
+}
+
+export interface AtividadeDetalhada{
+    id: number;
+    user_id: number;
+    fullname: string;
+    username: string;
+    exercicios: ExercicioCampeonatoTreino[];
+    pontos: number;
+    imagem: string;
+    data: Date;
+}
+
+export interface ExercicioCard{
+    id: number, 
+    nome: string, 
+    grupo_muscular_nome: string, 
+    qtd_serie: number,
+    qtd_repeticoes: number
 }

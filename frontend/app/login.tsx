@@ -79,9 +79,7 @@ export default function Login() {
                 <StyledTextInput 
                     placeholder="Email ou Username"
                     value={login}
-                    onChangeText={(txt) => {
-                        console.log(txt.match(REGEX_SQLINJECTION))
-                        setLogin(txt)}} 
+                    onChangeText={(txt) => setLogin(txt)} 
                     style={[styles.input, erros.inputLogin && styles.inputErro]}
                     enterKeyHint="next"
                     blurOnSubmit={false}

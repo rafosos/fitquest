@@ -5,13 +5,14 @@ import { colors } from "@/constants/Colors";
 import { fonts } from "@/constants/Fonts";
 import { showDiaMes } from "@/utils/functions";
 import { router } from "expo-router";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface Props{
-    atividades: Atividade[]
+    atividades: Atividade[],
+    abrirAtividade?: (id:number) => void
 }
 
-export default function ListaAtividades({atividades}: Props){
+export default function ListaAtividades({atividades, abrirAtividade = (id: number) => null}: Props){
     const userId = Number(useSession().id);
 
     const abrirTelaAmigo = (amigoId: number | undefined) => 
@@ -23,17 +24,23 @@ export default function ListaAtividades({atividades}: Props){
         <FlatList
             data={atividades}
             renderItem={({item}) => 
-                <View style={styles.card}>
-                    <View style={styles.col}>
-                        <StyledText onPress={() => abrirTelaAmigo(item.user_id)} style={styles.username}>{item.username}</StyledText>
-                        <StyledText style={styles.fullname}>{item.fullname}</StyledText>
+                <TouchableOpacity style={styles.card} onPress={() => abrirAtividade(item.id)}>
+                    <View style={styles.containerImgTitle}>
+                        <Image 
+                            source={{uri: "data:image/png;base64," + item.imagem}}
+                            style={styles.imagem}
+                        />
+                        <View style={styles.col}>
+                            <StyledText onPress={() => abrirTelaAmigo(item.user_id)} style={styles.username}>{item.username}</StyledText>
+                            <StyledText style={styles.fullname}>{item.fullname}</StyledText>
+                        </View>
                     </View>
 
                     <View style={styles.containerPontosData}>
                         <StyledText>{item.pontos} pontos</StyledText>
                         <StyledText style={styles.data}>{showDiaMes(item.data)}</StyledText>
                     </View>
-                </View>
+                </TouchableOpacity>
             }
         />
     )
@@ -51,8 +58,18 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         justifyContent: 'space-between'
     },
+    containerImgTitle:{
+        flexDirection: 'row',
+        gap: 10,
+    },
+    imagem:{
+        borderRadius: 25,
+        width: 50,
+        height: 50
+    },
     col:{
-        flexDirection: "column"
+        flexDirection: "column",
+        justifyContent: 'center' 
     },
     containerPontosData:{
         flexDirection: 'column',

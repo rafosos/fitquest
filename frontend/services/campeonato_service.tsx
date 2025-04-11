@@ -1,6 +1,6 @@
 import { ImagePickerAsset } from "expo-image-picker";
 import { deletar, get, patch, post } from "./service_config";
-import Campeonato, { Atividade, CampeonatoDetalhes, ExercicioCampeonato, ExercicioCampeonatoTreino, UserProgresso } from "@/classes/campeonato";
+import Campeonato, { Atividade, AtividadeDetalhada, CampeonatoDetalhes, ExercicioCampeonato, ExercicioCampeonatoTreino, UserProgresso } from "@/classes/campeonato";
 
 export default function CampeonatoService(){
     const prefix = "/campeonato";
@@ -70,5 +70,14 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);
     }
 
-    return {addCampeonato, sairCampeonato, getExercicios, entrarCampeonato, getAtividades, getCampeonatos, getCampeonatoDetalhes, addTreino, deleteCampeonato, getDetalhesProgresso, getCampeonatosPesquisa}
+    const getAtividadeById = (atividadeId: Number) => {
+        const promise = get<AtividadeDetalhada>(prefix +`/atividade/${atividadeId}`);
+        return promise.then(res => res.data);
+    }
+
+    const deleteTreino = (treinoId: number) => {
+        return deletar(prefix + `/treino/${treinoId}`);
+    }
+
+    return {addCampeonato, deleteTreino, getAtividadeById, sairCampeonato, getExercicios, entrarCampeonato, getAtividades, getCampeonatos, getCampeonatoDetalhes, addTreino, deleteCampeonato, getDetalhesProgresso, getCampeonatosPesquisa}
 }

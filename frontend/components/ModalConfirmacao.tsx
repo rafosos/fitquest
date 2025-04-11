@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import BaseModal from "./base/modal";
 import { AntDesign } from "@expo/vector-icons";
 import { colors } from "@/constants/Colors";
@@ -13,6 +13,7 @@ export interface PropsModalConfirmacao{
     titulo: string;
     subtitulo?: string;
     botaoConfirmar?: ReactNode;
+    loading?: boolean;
 }
 
 export default function ModalConfirmacao({
@@ -21,13 +22,14 @@ export default function ModalConfirmacao({
     onConfirma,
     titulo,
     subtitulo,
-    botaoConfirmar
+    botaoConfirmar,
+    loading
 }: PropsModalConfirmacao) {
 
     return (
         <BaseModal 
             isVisible={show}
-            onClose={onClose}
+            onClose={loading ? () => null : onClose}
         >
             <View style={styles.container}>
                 <View style={styles.containerTitulo}>
@@ -41,9 +43,13 @@ export default function ModalConfirmacao({
                 }
 
                 <View style={styles.containerBotoes}>
-                    <TouchableOpacity style={{...styles.botao, ...styles.botaoCancelar}} onPress={onClose}>
-                        <AntDesign name="close" style={styles.icone} />
-                        <StyledText style={styles.txtBotao}>CANCELAR</StyledText>
+                    <TouchableOpacity style={{...styles.botao, ...styles.botaoCancelar}} onPress={loading ? () => null : onClose}>
+                        {!loading ? <>
+                            <AntDesign name="close" style={styles.icone} />
+                            <StyledText style={styles.txtBotao}>CANCELAR</StyledText>
+                            </>:
+                            <ActivityIndicator color={colors.cinza.escuro} size={"small"}/>
+                        }
                     </TouchableOpacity>
 
                     {botaoConfirmar ?? 
