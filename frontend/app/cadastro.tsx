@@ -11,7 +11,7 @@ import GradienteInicio from "@/components/GradienteInicio";
 import { colors } from "@/constants/Colors";
 import ErroInput from "@/components/ErroInput";
 import { AntDesign } from "@expo/vector-icons";
-import { showDiaMes } from "@/utils/functions";
+import { regexSqlInjectionVerify, showDiaMes } from "@/utils/functions";
 import { useToast } from "react-native-toast-notifications";
 
 export default function Cadastro() {    
@@ -48,8 +48,11 @@ export default function Cadastro() {
         erroObj = {...erros,
             geral: false,
             username: !username,
+            usernameRegex: username && regexSqlInjectionVerify(username),
             fullname: !fullname,
+            fullnameRegex: fullname && regexSqlInjectionVerify(fullname),
             email: !email,
+            emailRegex: email && regexSqlInjectionVerify(email),
             nascimento: !nascimento,
             senha: !senha
         };
@@ -121,6 +124,10 @@ export default function Cadastro() {
                 show={erros.username && !erros.geral}
                 texto="O username é obrigatório!"
             />
+            <ErroInput 
+                show={erros.usernameRegex && !erros.username && !erros.geral}
+                texto="O username inserido é invalido!"
+            />
 
             <StyledTextInput 
                 placeholder="Nome completo"
@@ -134,8 +141,12 @@ export default function Cadastro() {
                 onBlur={() => setErros({...erros, fullname: !fullname})}
             />
             <ErroInput 
-                show={erros.fullname}
+                show={erros.fullname && !erros.geral}
                 texto="O nome completo é obrigatório!"
+            />
+            <ErroInput 
+                show={erros.fullnameRegex && !erros.fullname && !erros.geral}
+                texto="O nome completo inserido é inválido!"
             />
 
             <StyledTextInput
@@ -152,6 +163,10 @@ export default function Cadastro() {
             <ErroInput 
                 show={erros.email && !erros.geral}
                 texto="O email é obrigatório!"
+            />
+            <ErroInput 
+                show={erros.emailRegex && !erros.email && !erros.geral}
+                texto="O email inserido é inválido!"
             />
 
             <TouchableOpacity

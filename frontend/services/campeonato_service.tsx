@@ -40,11 +40,11 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);
     }
     
-    const addTreino = (exercicios_ids: number[], imagem: ImagePickerAsset) => {
+    const addTreino = (exercicios_ids: number[], imagemUri: string) => {
         const form = new FormData();
         exercicios_ids.forEach(id => form.append("exercicios_ids", id.toString()));
         form.append("imagem", {
-            uri: imagem.uri,
+            uri: imagemUri,
             name: 'photo.jpg',
             type: 'image/jpeg',
         });

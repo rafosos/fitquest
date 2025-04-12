@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import CampeonatoService from "@/services/campeonato_service";
 import { ErrorHandler } from "@/utils/ErrorHandler";
 import StyledText from "@/components/base/styledText";
@@ -16,7 +17,8 @@ import { useToast } from "react-native-toast-notifications";
 
 export default function AddTreinoCampeonato(){
     const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
-    const [imagem, setImagem] = useState<ImagePicker.ImagePickerAsset | null>(null);
+    const [location, setLocation] = useState<number[]>([]);
+    const [imagem, setImagemUri] = useState<string>();
     const [loading, setLoading] = useState<boolean>(false);
     const [exercicios, setExercicios] = useState<ExercicioCampeonatoTreino[]>([]);
     const [index, setIndex] = useState(0);
@@ -46,17 +48,16 @@ export default function AddTreinoCampeonato(){
     }
     
     const finalizarTreino = () => {
-
-        if (imagem == null){
-            toast.show("A imagem é obrigatória para salvar o treino!", {type: "danger"});
-        }
-
-        campeonatoService.addTreino(
-            exercicios.filter((e, i) => checkboxes[i]).map(e => e.id).filter(e => e != undefined) ?? [],
-            imagem
-        )
+        if (imagem != null){
+            campeonatoService.addTreino(
+                exercicios.filter((e, i) => checkboxes[i]).map(e => e.id).filter(e => e != undefined) ?? [],
+                imagem
+            )
             .then(res => clearAndClose())
             .catch(err => errorHandler.handleError(err));
+        } else {
+            toast.show("A imagem é obrigatória para salvar o treino!", {type: "danger"});
+        }
     }
 
     const clearAndClose = () => {
@@ -70,11 +71,9 @@ export default function AddTreinoCampeonato(){
             aspect: [1,1],
             quality: 0.5,
         });
-    
-        console.log(result);
-    
+        
         if (!result.canceled) {
-            setImagem(result.assets[0]);
+            setImagemUri(result.assets[0].uri);
         }
     };
 
@@ -86,19 +85,31 @@ export default function AddTreinoCampeonato(){
             quality: 0.5,
         });
     
-        console.log(result);
-    
         if (!result.canceled) {
-            setImagem(result.assets[0].uri);
+            setImagemUri(result.assets[0].uri);
         }
     }
 
     const salvarExercicios = () => {
-        if(checkboxes.some(c => c))
+        if(checkboxes.some(c => c)){
             setIndex(1);
+            getLocation();
+        }
         else{
             toast.show("Você precisa escolher ao menos um exercício!", {type: "danger"});
         }
+    }
+
+    const getLocation = async () => {
+
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            toast.show('Permissão apra acesso à localização é necessária :(');
+            return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation([location.coords.latitude, location.coords.longitude]);
     }
 
     return (
@@ -170,6 +181,11 @@ export default function AddTreinoCampeonato(){
                             <StyledText style={styles.legendaBtn}>Abrir câmera</StyledText>
                         </TouchableOpacity>
                     </View>
+                </View>
+
+                <View style={styles.containerLocation}>
+                    <Entypo name="location-pin" size={24} color={colors.branco.padrao} />
+                    <StyledText style={styles.location}>{location.join(", ")}</StyledText>
                 </View>
 
                 <StyledText style={styles.titleExercicios}>Exercicios selecionados:</StyledText>
@@ -276,6 +292,19 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginTop: 15,
         fontSize: 50,
+        color: colors.branco.padrao
+    },
+    containerLocation:{
+        flexDirection: 'row',
+        borderColor: colors.branco.padrao,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 4,
+        padding: 10,
+        marginHorizontal: 50
+    },
+    location:{
         color: colors.branco.padrao
     },
     titleExercicios:{
