@@ -15,8 +15,14 @@ import StyledText from "../base/styledText";
 import { fonts } from "@/constants/Fonts";
 import StyledTextInput from "../base/styledTextInput";
 import { ErrorHandler } from "@/utils/ErrorHandler";
+import Checkbox from "expo-checkbox";
+import MapView, { Callout, Circle, LatLng, LongPressEvent, MapPressEvent, Marker, MarkerDragStartEndEvent, Region } from 'react-native-maps';
+import * as Location from "expo-location";
+import { useToast } from "react-native-toast-notifications";
 
 const DUAS_SEMANAS = 12096e5;
+const LATITUDE_DELTA_DEFAULT = 0.01898919495771878;
+const LONGITUDE_DELTA_DEFAULT = 0.010768063366413116;
 
 export default function AddCampeonatoModal({ isVisible = false, onClose = () => {} }) {
     const hoje = new Date();
@@ -28,17 +34,24 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
     const [dataFinal, setDataFinal] = useState(new Date(Date.now() + DUAS_SEMANAS));
     const [participantes, setParticipantes] = useState<AutocompleteDropdownItem[]>([]);
     const [loadingAmigos, setLoadingAmigos] = useState(false);
+    const [checkLoc, setCheckLoc] = useState(false);
     const [loadingExercicios, setLoadingExercicios] = useState(false);
     const [amigos, setAmigos] = useState<AutocompleteDropdownItem[]>([]);
+    const [localizacao, setLocalizacao] = useState<Region>();
+    const [mapa, setMapa] = useState<boolean>(false);
+    const [currentRegion, setCurrentRegion] = useState<Region>();
 
     const errorHandler = ErrorHandler();
 
+    const toast = useToast();
     const userService = UserService();
     const campeonatoService = CampeonatoService();
     const exercicioService = ExercicioService();
 
     const dropdownController = useRef<IAutocompleteDropdownRef | null>(null);
     const dropdownExecController = useRef<IAutocompleteDropdownRef | null>(null);
+
+    useEffect(() => setCurrentRegion(localizacao), [localizacao]);
 
     useEffect(() => {
         if (Platform.OS == "android" && datePicker)
@@ -163,6 +176,45 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         return Math.abs(Math.round((second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24))).toString();
     }
 
+    const abrirMapa = async () => {
+        if(!localizacao)
+            await getUserCurrentLocation();
+        
+        setMapa(true);
+    };
+
+    const getUserCurrentLocation = async () => {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            toast.show('Permissão apra acesso à localização é necessária :(');
+            return;
+        }
+
+        let {latitude, longitude} = (await Location.getCurrentPositionAsync({})).coords;
+        const region = {longitude, latitude, latitudeDelta: LATITUDE_DELTA_DEFAULT, longitudeDelta: LONGITUDE_DELTA_DEFAULT};
+        setLocalizacao(region);
+    }
+
+    const setLocFromEvent = (e: MapPressEvent | MarkerDragStartEndEvent) => {
+        const {latitude, longitude} = e.nativeEvent.coordinate;
+        let latitudeDelta = LATITUDE_DELTA_DEFAULT;
+        let longitudeDelta = LONGITUDE_DELTA_DEFAULT;
+        if(currentRegion){
+            longitudeDelta = currentRegion.longitudeDelta;
+            latitudeDelta = currentRegion.latitudeDelta;
+        }
+
+        setLocalizacao({latitude, longitude, latitudeDelta, longitudeDelta});
+    }
+
+    const selecionarLocal = () => {
+        fecharMapa();
+    }
+
+    const fecharMapa = () => {
+        setMapa(false);
+    }
+
     return (
         <Modal 
             visible={isVisible}
@@ -234,6 +286,53 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                                 editable={false}
                             />
                         </View>
+                    </View>
+
+                    <View style={styles.containerLocalizacao}>
+                        <View style={styles.containerCheckbox}>
+                            <Checkbox style={styles.checkLocalizacao} value={checkLoc} onValueChange={setCheckLoc} />
+                            <StyledText style={styles.txtLocalizacao}>Localização</StyledText>                            
+                        </View>
+
+                        {checkLoc ?
+                            <TouchableOpacity style={styles.btnMapa} onPress={abrirMapa}>
+                                <Feather name="map" size={20} color={colors.branco.padrao} />
+                                <StyledText style={styles.txtMapa}>{localizacao ? `${localizacao.latitude.toFixed(2)}, ${localizacao.longitude.toFixed(2)}` : "Abrir mapa"}</StyledText>
+                            </TouchableOpacity>
+                        : null}
+
+                        <Modal
+                            visible={mapa}
+                            transparent={false}
+                            onRequestClose={fecharMapa}
+                        >
+                            <MapView 
+                                style={{flex: 1}}
+                                initialRegion={localizacao}
+                                onRegionChangeComplete={(r) => setCurrentRegion(r)}
+                                onPress={(e) => setLocFromEvent(e)}
+                            >
+                                {localizacao ?<>
+                                        <Marker 
+                                            draggable 
+                                            onDragEnd={(e) => setLocFromEvent(e)}
+                                            coordinate={localizacao}
+                                        >
+                                            <Callout onPress={selecionarLocal}>
+                                                <StyledText>SELECIONAR LOCAL</StyledText>                                                    
+                                            </Callout>
+                                        </Marker>
+                                        <Circle
+                                            center={localizacao}
+                                            radius={100}
+                                            strokeWidth={2}
+                                            strokeColor={colors.roxo.uva}
+                                            fillColor={colors.roxo.fade[5]}
+                                        /> 
+                                    </> 
+                                : null}
+                            </MapView>
+                        </Modal>
                     </View>
 
                     <AutocompleteDropdown
@@ -429,6 +528,37 @@ const styles = StyleSheet.create({
     },
     inputErro:{
         borderColor: colors.vermelho.padrao
+    },
+    containerLocalizacao:{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    containerCheckbox:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 13,
+        gap: 10,
+        paddingVertical: 20 
+    },
+    checkLocalizacao:{
+
+    },
+    txtLocalizacao:{
+        color: colors.branco.padrao
+    },
+    btnMapa:{
+        flexDirection: 'row',
+        gap: 7,
+        backgroundColor: colors.verde.padrao,
+        padding: 10,
+        borderRadius: 25,
+        alignItems: 'center',
+        marginHorizontal: 10,
+        marginVertical: 10
+    },
+    txtMapa:{
+        color: colors.branco.padrao
     },
     containerChips:{
         flexDirection: 'row',
