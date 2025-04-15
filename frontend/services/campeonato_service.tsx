@@ -1,4 +1,3 @@
-import { ImagePickerAsset } from "expo-image-picker";
 import { deletar, get, patch, post } from "./service_config";
 import Campeonato, { Atividade, AtividadeDetalhada, CampeonatoDetalhes, ExercicioCampeonato, ExercicioCampeonatoTreino, UserProgresso } from "@/classes/campeonato";
 
@@ -9,7 +8,9 @@ export default function CampeonatoService(){
         nome:string,
         duracao:Date,
         participantes_ids: number[],
-        exercicios: ExercicioCampeonato[]
+        exercicios: ExercicioCampeonato[],
+        latitude?: number,
+        longitude?: number
     }) => {
         const promise = post<string>(`${prefix}/`, params);
         return promise.then(res => res.data);  
@@ -40,7 +41,7 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);
     }
     
-    const addTreino = (exercicios_ids: number[], imagemUri: string) => {
+    const addTreino = (exercicios_ids: number[], imagemUri: string, latitude: number, longitude: number) => {
         const form = new FormData();
         exercicios_ids.forEach(id => form.append("exercicios_ids", id.toString()));
         form.append("imagem", {
@@ -48,6 +49,10 @@ export default function CampeonatoService(){
             name: 'photo.jpg',
             type: 'image/jpeg',
         });
+
+        form.append("latitude", latitude.toString());
+        form.append("longitude", longitude.toString());
+        
         return post(prefix + "/add-treino", form, {headers: {'Content-Type': 'multipart/form-data'}});
     }
     

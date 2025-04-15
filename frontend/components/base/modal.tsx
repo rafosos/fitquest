@@ -1,12 +1,22 @@
+import { colors } from "@/constants/Colors";
 import React from "react";
-import { TouchableOpacity, TouchableWithoutFeedback, Modal, View, StyleSheet } from 'react-native';
+import { TouchableOpacity, TouchableWithoutFeedback, Modal, View, StyleSheet, ViewStyle } from 'react-native';
 import { AutocompleteDropdownContextProvider } from "react-native-autocomplete-dropdown";
+
+interface Props{
+    transparent?: boolean
+    isVisible: boolean
+    onClose: () => void
+    styleContainer?: ViewStyle
+    children: React.ReactNode
+}
 
 export default function BaseModal({ 
     transparent = true,
-    isVisible = false, 
-    onClose = () => {}, 
-    ...props }) {
+    isVisible, 
+    onClose,
+    styleContainer,
+    children }: Props) {
 
     return (
         <Modal 
@@ -23,8 +33,8 @@ export default function BaseModal({
                 onPressOut={onClose}
                 >
                 <TouchableWithoutFeedback>
-                    <View style={styles.modalContent} onTouchStart={() => {}}>
-                        {props.children}
+                    <View style={[styles.modalContent, styleContainer]} onTouchStart={() => {}}>
+                        {children}
                     </View>
                 </TouchableWithoutFeedback>
             </TouchableOpacity>
@@ -36,14 +46,14 @@ export default function BaseModal({
 const styles = StyleSheet.create({
     modalWrapper: {
         flex:1,
-        backgroundColor: "rgba(0,0,0,0.5)",
+        backgroundColor: colors.preto.fade[5],
         alignItems: "center",
         justifyContent: "center",
         paddingHorizontal: "5%",
     },
     modalContent: {
         width: '100%',
-        backgroundColor: '#fff',
+        backgroundColor: colors.branco.padrao,
         borderRadius: 18,
         padding: 5
     }

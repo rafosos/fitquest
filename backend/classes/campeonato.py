@@ -13,6 +13,8 @@ class Campeonato(Base):
     duracao: Mapped[datetime.datetime]
     data_criacao: Mapped[datetime.date] = mapped_column(server_default=func.now())
     criado_por_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    latitude: Mapped[float] = mapped_column(nullable=True)
+    longitude: Mapped[float] = mapped_column(nullable=True)
 
     exercicios: Mapped[List["ExercicioCampeonato"]] = relationship(back_populates="campeonato")
     treinos: Mapped[List["Treino"]] = relationship(back_populates="campeonato")

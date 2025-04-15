@@ -18,6 +18,7 @@ from classes.status import Status, statuses
 from classes.amizade import Amizade
 from fastapi import Depends
 from .login import get_current_user
+from assets.utils import verificar_coordenada_dentro
 
 router = APIRouter(
     dependencies=[Depends(get_current_user)],
@@ -37,7 +38,8 @@ class CampeonatoModel(BaseModel):
     duracao: datetime
     participantes_ids: list[int]
     exercicios: list[ExercicioModel]
-    # criador: int
+    latitude: float
+    longitude: float
 
 @router.post("/")
 def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends(get_current_user)]):
@@ -47,7 +49,7 @@ def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends
         participantes = sess.scalars(select(User).where(User.id.in_(model.participantes_ids))).all()
         exercicios = [ExercicioCampeonato(exercicio_id=e.exercicio_id, qtd_serie=e.qtd_serie, qtd_repeticoes=e.qtd_repeticoes, pontos=e.qtd_pontos) for e in model.exercicios]
 
-        camp = Campeonato(nome=model.nome, duracao=model.duracao, criado_por_id=model.participantes_ids[-1])
+        camp = Campeonato(nome=model.nome, duracao=model.duracao, criado_por_id=model.participantes_ids[-1], latitude=model.latitude, longitude=model.longitude)
         camp.users.extend(participantes)
         camp.exercicios.extend(exercicios)
         sess.add(camp)
@@ -298,16 +300,24 @@ async def add_treino(
     current_user: Annotated[User, Depends(get_current_user)],
     imagem: UploadFile = Form(...),
     exercicios_ids: List[int] = Form(...), 
+    latitude: float = Form(...),
+    longitude: float = Form(...)
 ):
     with Session() as sess:
         result = sess.execute(
             select(
                 ExercicioCampeonato.campeonato_id,
-                Campeonato.nome
+                Campeonato.nome,
+                Campeonato.latitude,
+                Campeonato.longitude
             )  
             .select_from(ExercicioCampeonato)
             .join(Campeonato, ExercicioCampeonato.campeonato_id == Campeonato.id)
             .where(ExercicioCampeonato.id == exercicios_ids[0])).first()
+        
+        if not verificar_coordenada_dentro(latC=result[2], lonC=result[3], lonT=longitude, latT=latitude):
+            raise HTTPException(400, "A coordenada está fora do raio do campeonato.")
+
         imagebytes = await imagem.read()
         treino = Treino(user_id=current_user.id, campeonato_id=result[0], nome=result[1], tipo=TipoTreino.campeonato, imagem=imagebytes)
         exercicios = [TreinoExercicio(exec_campeonato_id=id) for id in exercicios_ids]
@@ -332,11 +342,11 @@ def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(ge
     with Session() as sess:
         campeonato = sess.scalar(select(Campeonato).where(Campeonato.id == campeonato_id))
         if not campeonato:
-            raise HTTPException(status_code=402, detail="Campeonato não encontrado!")
+            raise HTTPException(status_code=400, detail="Campeonato não encontrado!")
 
         user = sess.scalar(select(User).where(User.id == current_user.id))
         if not user:
-            raise HTTPException(status_code=402, detail="Usuário não encontrado!")
+            raise HTTPException(status_code=400, detail="Usuário não encontrado!")
 
         user.campeonatos.append(campeonato)
         try:

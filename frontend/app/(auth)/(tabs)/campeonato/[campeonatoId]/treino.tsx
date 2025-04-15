@@ -51,7 +51,9 @@ export default function AddTreinoCampeonato(){
         if (imagem != null){
             campeonatoService.addTreino(
                 exercicios.filter((e, i) => checkboxes[i]).map(e => e.id).filter(e => e != undefined) ?? [],
-                imagem
+                imagem,
+                location[0],
+                location[1]
             )
             .then(res => clearAndClose())
             .catch(err => errorHandler.handleError(err));

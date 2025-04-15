@@ -16,9 +16,10 @@ import { fonts } from "@/constants/Fonts";
 import StyledTextInput from "../base/styledTextInput";
 import { ErrorHandler } from "@/utils/ErrorHandler";
 import Checkbox from "expo-checkbox";
-import MapView, { Callout, Circle, LatLng, LongPressEvent, MapPressEvent, Marker, MarkerDragStartEndEvent, Region } from 'react-native-maps';
+import MapView, { Circle, MapPressEvent, Marker, MarkerDragStartEndEvent, Region } from 'react-native-maps';
 import * as Location from "expo-location";
 import { useToast } from "react-native-toast-notifications";
+import BaseModal from "../base/modal";
 
 const DUAS_SEMANAS = 12096e5;
 const LATITUDE_DELTA_DEFAULT = 0.01898919495771878;
@@ -93,7 +94,8 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
         erroObj = {...erros, 
             exercicios: !exercicios.length,
             nome: !nome,
-            seriesRepeticoes: exercicios.some(exec => exec.qtd_repeticoes <= 0 || exec.qtd_serie <= 0)
+            seriesRepeticoes: exercicios.some(exec => exec.qtd_repeticoes <= 0 || exec.qtd_serie <= 0),
+            localizacao: checkLoc && !localizacao
         };
         setErros(erroObj);        
 
@@ -104,7 +106,9 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
             {nome, 
                 duracao: new Date(dataFinal), 
                 participantes_ids: [...participantes.map(p => Number(p.id))],
-                exercicios
+                exercicios,
+                latitude: localizacao?.latitude,
+                longitude: localizacao?.longitude
             })
             .then(res => clearAndClose())
             .catch(err => errorHandler.handleError(err));
@@ -301,27 +305,29 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                             </TouchableOpacity>
                         : null}
 
-                        <Modal
-                            visible={mapa}
-                            transparent={false}
-                            onRequestClose={fecharMapa}
+                        <BaseModal
+                            isVisible={mapa}
+                            onClose={fecharMapa}
+                            styleContainer={styles.containerModalMapa}
                         >
-                            <MapView 
-                                style={{flex: 1}}
-                                initialRegion={localizacao}
-                                onRegionChangeComplete={(r) => setCurrentRegion(r)}
-                                onPress={(e) => setLocFromEvent(e)}
-                            >
-                                {localizacao ?<>
+                            <View style={styles.conteudoModalMapa}>
+                                <View style={styles.cabecalhoModalMapa}>
+                                    <StyledText style={styles.tituloModalMapa}>Escolher local</StyledText>
+                                    <AntDesign name="close" onPress={fecharMapa} style={styles.iconeFecharModal} />
+                                </View>
+
+                                <MapView 
+                                    style={{flex:1}}
+                                    initialRegion={localizacao}
+                                    onRegionChangeComplete={(r) => setCurrentRegion(r)}
+                                    onPress={(e) => setLocFromEvent(e)}
+                                >
+                                    {localizacao ? <>
                                         <Marker 
                                             draggable 
                                             onDragEnd={(e) => setLocFromEvent(e)}
                                             coordinate={localizacao}
-                                        >
-                                            <Callout onPress={selecionarLocal}>
-                                                <StyledText>SELECIONAR LOCAL</StyledText>                                                    
-                                            </Callout>
-                                        </Marker>
+                                        />
                                         <Circle
                                             center={localizacao}
                                             radius={100}
@@ -329,11 +335,21 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
                                             strokeColor={colors.roxo.uva}
                                             fillColor={colors.roxo.fade[5]}
                                         /> 
-                                    </> 
-                                : null}
-                            </MapView>
-                        </Modal>
+                                    </> : null}
+                                </MapView>
+
+                                <TouchableOpacity style={styles.botaoSubmit} onPress={selecionarLocal}>
+                                    <StyledText style={styles.txtBotaoSubmit}>SELECIONAR LOCAL</StyledText>
+                                </TouchableOpacity>
+                            </View>
+                        </BaseModal>
                     </View>
+
+                    <ErroInput
+                        show={erros.localizacao}
+                        texto="A localização deve ser escolhida se o checkbox for selecionado!" 
+                    />
+
 
                     <AutocompleteDropdown
                         controller={controller => {
@@ -559,6 +575,28 @@ const styles = StyleSheet.create({
     },
     txtMapa:{
         color: colors.branco.padrao
+    },
+    containerModalMapa:{
+        marginVertical: "10%"
+    },
+    conteudoModalMapa:{
+        height: "100%", 
+        justifyContent: 'space-between'
+    },
+    cabecalhoModalMapa:{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        gap: 7, 
+        padding: 10
+    },
+    tituloModalMapa: {
+        fontSize: 20, 
+        textAlign: 'center'
+    },
+    iconeFecharModal:{
+        fontSize: 24, 
+        color: colors.preto.padrao
     },
     containerChips:{
         flexDirection: 'row',
