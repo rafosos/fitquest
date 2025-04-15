@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 import CampeonatoService from "@/services/campeonato_service";
 import { ErrorHandler } from "@/utils/ErrorHandler";
 import StyledText from "@/components/base/styledText";
-import { StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { Image, StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { AntDesign, Entypo, Feather } from "@expo/vector-icons";
 import ListaExercicios from "@/components/campeonato/ListaExercicios";
 import { colors } from "@/constants/Colors";
@@ -114,6 +114,8 @@ export default function AddTreinoCampeonato(){
         setLocation([location.coords.latitude, location.coords.longitude]);
     }
 
+    const removerImagem = () => setImagemUri("");
+
     return (
     <TabView
         navigationState={{index, routes}}
@@ -168,20 +170,25 @@ export default function AddTreinoCampeonato(){
                     />
                 </View>
 
-
                 <View style={styles.containerImages}>
-                    <StyledText style={styles.titleImagem}>Adicionar imagem</StyledText>
+                    <StyledText style={styles.titleImagem}>Adicionar imagem*</StyledText>
 
                     <View style={styles.containerOpcoes}>
-                        <TouchableOpacity onPress={pickImage} style={styles.containerIcone}>
-                            <Feather name="image" style={styles.iconeImagem}/>
-                            <StyledText  style={styles.legendaBtn}>Abrir galeria</StyledText>
-                        </TouchableOpacity>
+                        {imagem ? 
+                            <TouchableOpacity onPress={removerImagem}>
+                                <Image src={imagem} style={styles.imagem}/>
+                            </TouchableOpacity>
+                        : <>
+                            <TouchableOpacity onPress={pickImage} style={styles.containerIcone}>
+                                <Feather name="image" style={styles.iconeImagem}/>
+                                <StyledText  style={styles.legendaBtn}>Abrir galeria</StyledText>
+                            </TouchableOpacity>
 
-                        <TouchableOpacity onPress={openCamera} style={styles.containerIcone}>
-                            <Feather name="camera" style={styles.iconeImagem} />
-                            <StyledText style={styles.legendaBtn}>Abrir câmera</StyledText>
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={openCamera} style={styles.containerIcone}>
+                                <Feather name="camera" style={styles.iconeImagem} />
+                                <StyledText style={styles.legendaBtn}>Abrir câmera</StyledText>
+                            </TouchableOpacity>
+                        </>}
                     </View>
                 </View>
 
@@ -220,7 +227,7 @@ export default function AddTreinoCampeonato(){
 
 const styles = StyleSheet.create({
     header:{
-        paddingHorizontal: 10
+        padding: 10
     },
     botaoTreino:{
         marginVertical: 15,
@@ -283,6 +290,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
+    imagem:{
+        marginVertical: 10,
+        width: "95%",
+        height: "auto",
+        aspectRatio: 1,
+        borderRadius: 15
+    },
     containerIcone:{
         borderColor: colors.branco.padrao,
         borderWidth: 4,
@@ -304,7 +318,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 4,
         padding: 10,
-        marginHorizontal: 50
+        marginHorizontal: 50,
+        marginVertical: 10
     },
     location:{
         color: colors.branco.padrao

@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         width: '100%'
     },
     iconeVoltar:{
