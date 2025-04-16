@@ -1,5 +1,6 @@
 import { RotinaDetalhes, RotinaResumida } from "@/classes/rotina";
 import { deletar, get, post } from "./service_config";
+import { ExercicioCampeonatoTreino } from "@/classes/campeonato";
 
 export default function RotinaService(){
 
@@ -24,8 +25,20 @@ export default function RotinaService(){
         return promise.then(res => res.data);
     }
 
-    const addTreino = (treino: {rotinaId: number, ids_exercicios: number[]}) =>{
-        const promise = post<string>(`${prefix}/treino/`, treino);
+    const addTreino = (ids_exercicios: number[], imagemUri: string) =>{
+        const form = new FormData();
+        ids_exercicios.forEach(id => form.append("ids_exercicios", id.toString()));
+        form.append("imagem", {
+            uri: imagemUri,
+            name: 'photo.jpg',
+            type: 'image/jpeg',
+        });
+        
+        return post(prefix + "/treino/", form, {headers: {'Content-Type': 'multipart/form-data'}});    
+    }
+
+    const getExercicios = (rotinaId: Number) => {
+        const promise = get<ExercicioCampeonatoTreino[]>(prefix +`/exercicios/${rotinaId}`);
         return promise.then(res => res.data);
     }
 
@@ -34,5 +47,5 @@ export default function RotinaService(){
         return promise.then(res => res.data);
     }
 
-    return {addRotina, getRotinas, getDetalhesRotina, addTreino, deletarRotina}
+    return {addRotina, getRotinas, getDetalhesRotina, addTreino, deletarRotina, getExercicios}
 }

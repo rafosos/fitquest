@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, status, HTTPException, Depends
+from fastapi import APIRouter, Response, status, HTTPException, Depends, UploadFile, Form
 from typing import List, Annotated
 from collections import defaultdict
 from db.db import Session
@@ -153,19 +153,23 @@ class TreinoModel(BaseModel):
     ids_exercicios: List[int]
 
 @router.post("/treino/")
-def add_treino(model: TreinoModel, current_user: Annotated[User, Depends(get_current_user)], res: Response):
+async def add_treino(
+    current_user: Annotated[User, Depends(get_current_user)], 
+    imagem: UploadFile = Form(...),
+    ids_exercicios: List[int] = Form(...)
+):
     with Session() as sess:
         result = sess.execute(
             select(ExercicioRotina.rotina_id, Rotina.nome)
             .select_from(ExercicioRotina)
             .join(Rotina, Rotina.id == ExercicioRotina.rotina_id)
-            .where(ExercicioRotina.id == model.ids_exercicios[0])).first()
-        treino = Treino(user_id=current_user.id, rotina_id=result[0], nome=result[1], tipo=TipoTreino.rotina)
-        exercicios = [TreinoExercicio(exec_rotina_id=id) for id in model.ids_exercicios]
+            .where(ExercicioRotina.id == ids_exercicios[0])).first()
+        imagebytes = await imagem.read()
+        treino = Treino(user_id=current_user.id, rotina_id=result[0], nome=result[1], tipo=TipoTreino.rotina, imagem=imagebytes)
+        exercicios = [TreinoExercicio(exec_rotina_id=id) for id in ids_exercicios]
         treino.exercicios = exercicios
         sess.add(treino)
         sess.commit()
-    res.status_code = status.HTTP_200_OK
     return "O novo treino foi adicionado com sucesso."
 
 @router.delete("/{id}")
@@ -176,3 +180,20 @@ def delete_rotina(id: int, current_user: Annotated[User, Depends(get_current_use
         sess.commit()
     res.status_code = status.HTTP_200_OK
     return "A rotina foi deletada com sucesso."
+
+@router.get("/exercicios/{rotina_id}")
+def get_exercicios_treino(rotina_id: int):
+    with Session() as sess:
+        stmt = select(
+            ExercicioRotina.id,
+            ExercicioRotina.exercicio_id,
+            Exercicio.nome,
+            GrupoMuscular.nome,
+            ExercicioRotina.qtd_serie,
+            ExercicioRotina.qtd_repeticoes
+        ).select_from(ExercicioRotina)\
+        .join(Exercicio, Exercicio.id == ExercicioRotina.exercicio_id)\
+        .join(GrupoMuscular, Exercicio.grupo_muscular_id == GrupoMuscular.id)\
+        .where(ExercicioRotina.rotina_id == rotina_id)
+
+        return sess.execute(stmt).mappings().all()

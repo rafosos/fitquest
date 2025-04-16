@@ -1,104 +1,85 @@
-import { useSession } from '@/app/ctx';
-import { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import RotinaService from '@/services/rotina_service';
-import { RotinaDetalhes } from '@/classes/rotina';
-import { errorHandlerDebug } from '@/services/service_config';
-import { colors } from '@/constants/Colors';
-import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
-import Checkbox from 'expo-checkbox';
-import StyledText from './base/styledText';
-import { fonts } from '@/constants/Fonts';
-import { showDiaMes } from '@/utils/functions';
-import { HeaderPaginaDetalhes } from './base/headerModalPaginaDetalhes';
-import ModalPaginaDetalhes from './base/modalPaginaDetalhes';
+import { Entypo, Feather } from "@expo/vector-icons";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { RotinaDetalhes } from "@/classes/rotina";
+import { HeaderPaginaDetalhes } from "@/components/base/headerModalPaginaDetalhes";
+import StyledText from "@/components/base/styledText";
+import ModalConfirmacao from "@/components/ModalConfirmacao";
+import { colors } from "@/constants/Colors";
+import { fonts } from "@/constants/Fonts";
+import RotinaService from "@/services/rotina_service";
+import { ErrorHandler } from "@/utils/ErrorHandler";
+import { showDiaMes } from "@/utils/functions";
 
-interface Props {
-    isVisible: boolean;
-    onClose: () => void;
-    rotinaId: number;
-}
-
-export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Props) {
+export default function DetalhesRotina(){
     const [rotina, setRotina] = useState<RotinaDetalhes>();
-    const [novoTreino, setNovoTreino] = useState(false);
-    const [checkboxes, setCheckboxes] = useState<boolean[]>([]);
     const [modalConfirma, setModalConfirma] = useState(false);
+    const [loading, setLoading] = useState(false);
     const rotinaService = RotinaService();
-    const {id: userId} = JSON.parse(useSession().id ?? "{id:null}");
+
+    const errorHandler = ErrorHandler();
+    const rotinaId = Number(useLocalSearchParams().rotinaId);
 
     useEffect(() => refresh(), [rotinaId]);
+
+    const navigation = useNavigation<BottomTabNavigationProp<any>>();
+    useEffect(() => {
+        navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'none' } });
+        return () => {
+        navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'flex' } });
+        };
+    }, [navigation]);
     
     const refresh = () => {
+        setLoading(true);
         rotinaService.getDetalhesRotina(rotinaId)
             .then(res => setRotina(res))
-            .catch(err => errorHandlerDebug(err))
+            .catch(err => errorHandler.handleError(err))
+            .finally(() => setLoading(false));
     }
 
-    const iniciarNovoTreino = () => {
-        setNovoTreino(true);
-    }
-
-    const cancelarTreino = () => {
-        setNovoTreino(false);
-        setCheckboxes([]);
-    }
+    const iniciarNovoTreino = () => 
+        router.navigate({pathname: "/(auth)/(tabs)/rotina/[rotinaId]/treino", params: {rotinaId, rotinaNome: rotina?.nome}});
 
     const clearAndClose = () => {
-        setNovoTreino(false);
-        setCheckboxes([]);
-        onClose();
-    }
-
-    const finalizarTreino = () => {
-        rotinaService.addTreino({
-            rotinaId, 
-            ids_exercicios: rotina?.exercicios.filter((e, i) => checkboxes[i]).map(e => e.id) ?? []
-        })
-            .then(res => clearAndClose())
-            .catch(err => errorHandlerDebug(err))
-    } 
-
-    const checkExercicio = (value: boolean, index:number) => {
-        checkboxes[index] = value;
-        setCheckboxes([...checkboxes]);
+        router.back();
     }
 
     const deletar = () => {
         rotinaService.deletarRotina(rotinaId)
             .then(res => clearAndClose())
-            .catch(err => errorHandlerDebug(err));
+            .catch(err => errorHandler.handleError(err));
     }
 
     return (
-        <ModalPaginaDetalhes
-            visible={isVisible}
-            close={clearAndClose}
-            modalConfirmacaoProps={{
-                show: modalConfirma,
-                onConfirma: deletar,
-                onClose: () => setModalConfirma(false),
-                titulo: `Você tem certeza que deseja excluir a rotina ${rotina?.nome}?`,
-                subtitulo:"Essa ação não poderá ser desfeita",
-                botaoConfirmar: 
+        <>
+            <ModalConfirmacao
+                show={modalConfirma}
+                onConfirma={deletar}
+                onClose={() => setModalConfirma(false)}
+                titulo={`Você tem certeza que deseja excluir a rotina ${rotina?.nome}?`}
+                subtitulo={"Essa ação não poderá ser desfeita"}
+                botaoConfirmar={ 
                     <TouchableOpacity onPress={deletar} style={styles.botaoDeletar}>
                         <Feather name="trash-2" style={styles.iconeDeletar} />
                         <StyledText style={styles.txtBotaoDeletar}>EXCLUIR</StyledText>
                     </TouchableOpacity>                
-            }}
-        >
+                }
+            />
+            
             <FlatList
                 data={rotina?.exercicios}
-                contentContainerStyle={novoTreino ? styles.containerNovoTreino : styles.container}
+                contentContainerStyle={styles.container}
                 ListHeaderComponent={<>
-                    <HeaderPaginaDetalhes 
+                    <HeaderPaginaDetalhes
                         titulo={rotina?.nome ?? "..."}
                         onClose={clearAndClose}
                         onDelete={() => setModalConfirma(true)}
-                        showDelete={!novoTreino}
+                        showDelete
                     />
                     
-                    {!novoTreino && <> 
                     <View style={styles.infoContainer}>
                         <View style={styles.itemInfo}>
                             <StyledText style={styles.headerInfoTitle}>Dias por semana</StyledText>
@@ -110,35 +91,18 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                             <StyledText style={styles.valueHeaderInfo}>{showDiaMes(rotina?.ultimo_treino)}</StyledText>
                         </View>
                     </View>
-                    </>}
 
-                    {novoTreino ? 
-                        <TouchableOpacity style={styles.botaoTreino} onPress={finalizarTreino}>
-                            <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                            <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
-                        </TouchableOpacity>
-                    :
-                        <TouchableOpacity style={styles.botaoTreino} onPress={iniciarNovoTreino}>
-                            <Entypo name="controller-play" style={styles.iconeBotaoTreino} />
-                            <StyledText style={styles.txtBotaoNovoTreino}>INICIAR TREINO</StyledText>
-                        </TouchableOpacity>
-                    }
+                    <TouchableOpacity style={styles.botaoTreino} onPress={iniciarNovoTreino} disabled={loading}>
+                        <Entypo name="controller-play" style={styles.iconeBotaoTreino} />
+                        <StyledText style={styles.txtBotaoNovoTreino}>INICIAR TREINO</StyledText>
+                    </TouchableOpacity>
                 </>}
-                renderItem={({item, index}) => 
+                renderItem={({item}) => 
                     <TouchableOpacity
                         activeOpacity={1} 
                         style={styles.containerExercicio} 
-                        onPress={() => novoTreino ? checkExercicio(!checkboxes[index], index) : null}
+                        onPress={() => null}
                     >
-                        {novoTreino && 
-                            <View>
-                                <Checkbox 
-                                    value={checkboxes[index]}
-                                    onValueChange={(value) => checkExercicio(value, index)}
-                                />
-                            </View>
-                        }
-
                         <View style={styles.cardExercicio}>
                             <View style={styles.headerCard}>
                                 <View style={styles.containerTituloExercicio}>
@@ -161,21 +125,9 @@ export default function DetalhesRotinaModal({ isVisible, onClose, rotinaId}: Pro
                         </View>
                     </TouchableOpacity>
                 }
-                ListFooterComponent={novoTreino ?
-                    <View style={styles.footerTreino}>
-                        <TouchableOpacity style={[styles.botaoFooter]} onPress={cancelarTreino}>
-                            <AntDesign name="close" style={styles.iconeBotaoTreino} />
-                            <StyledText style={styles.txtBotaoNovoTreino}>CANCELAR</StyledText>
-                        </TouchableOpacity>
-                    
-                        <TouchableOpacity style={[styles.botaoFooter, {backgroundColor: colors.verde.padrao}]} onPress={finalizarTreino}>
-                            <Entypo name="controller-stop" style={styles.iconeBotaoTreino} />
-                            <StyledText style={styles.txtBotaoNovoTreino}>FINALIZAR TREINO</StyledText>
-                        </TouchableOpacity>
-                    </View>
-                :<></>}
+                ListEmptyComponent={loading ? <ActivityIndicator size={"large"} color={colors.verde.padrao} /> : null}
             />
-    </ModalPaginaDetalhes>
+    </>
     );
 }
 
@@ -197,9 +149,6 @@ const styles = StyleSheet.create({
         marginRight:5
     },
     container:{
-        paddingHorizontal: 5,
-    },
-    containerNovoTreino:{
         paddingHorizontal: 5,
     },
     headerInfoTitle:{
@@ -283,22 +232,6 @@ const styles = StyleSheet.create({
     },
     containerCamposExec: {
         flexDirection: "row"
-    },
-    footerTreino:{
-        flexDirection: "row",
-        justifyContent: "space-between"    
-    },
-    botaoFooter:{
-        flex:1,
-        marginVertical: 15,
-        marginHorizontal: 5,
-        padding: 5,
-        paddingHorizontal: 20,
-        borderRadius: 15,
-        flexDirection: "row",        
-        backgroundColor: colors.cinza.medio2,
-        alignItems: "center",
-        justifyContent: "center"
     }
 });
   

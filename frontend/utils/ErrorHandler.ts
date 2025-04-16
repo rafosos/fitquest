@@ -13,10 +13,9 @@ export const ErrorHandler = () => {
         if(isAxiosError(error)){
             error as AxiosError;
 
-            let tipo = {type: "danger"};
+            const tipo = {type: "danger"};
 
             if(error.response){
-
                 if (error.response.status == 401){
                     signOut();
                     toast.show("Você precisa logar novamente!", tipo);

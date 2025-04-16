@@ -6,15 +6,14 @@ import { RotinaResumida } from '@/classes/rotina';
 import AddRotinaModal from '@/components/AddRotinaModal';
 import RotinaService from '@/services/rotina_service';
 import { errorHandlerDebug } from '@/services/service_config';
-import DetalhesRotinaModal from '@/components/DetalhesRotinaModal';
 import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
+import { router } from 'expo-router';
 
 export default function TabTreino() {
     const [refreshing, setRefreshing] = useState(false);
     const [rotinas, setRotinas] = useState<RotinaResumida[]>([]);
     const [addRotina, setAddRotina] = useState(false);
-    const [detalhesModal, setDetahesModal] = useState({show: false, rotina_id:0});
     const rotinaService = RotinaService();
 
     useEffect(() => {
@@ -29,9 +28,11 @@ export default function TabTreino() {
             .finally(() => setRefreshing(false))
     }
 
+    const abrirRotina = (rotinaId: number) => 
+        router.navigate({pathname: '/(auth)/(tabs)/rotina/[rotinaId]/', params: {rotinaId}});
+
     const refresh = async () => {
         setAddRotina(false);
-        setDetahesModal({rotina_id: 0, show:false});
         setRefreshing(true);
         getRotinas();
     }
@@ -40,11 +41,6 @@ export default function TabTreino() {
         <View style={styles.container}>
             <AddRotinaModal 
                 isVisible={addRotina}
-                onClose={refresh}
-            />
-            <DetalhesRotinaModal
-                rotinaId={detalhesModal.rotina_id}
-                isVisible={detalhesModal.show}
                 onClose={refresh}
             />
             <FlatList 
@@ -61,7 +57,7 @@ export default function TabTreino() {
                 }
                 data={rotinas}
                 renderItem={({item}) => <>
-                    <TouchableOpacity style={styles.cardTreino} onPress={() => setDetahesModal({show: true, rotina_id: item.id})}>
+                    <TouchableOpacity style={styles.cardTreino} onPress={() => abrirRotina(item.id)}>
                         <StyledText style={styles.nomeRotina}>{item.nome}</StyledText>
                         <StyledText style={styles.diasRotina}>Dias na semana: {item.dias}</StyledText>
                         <StyledText style={styles.exercicios}>{item.exercicios}</StyledText>

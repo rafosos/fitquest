@@ -18,6 +18,7 @@ import { ErrorHandler } from '@/utils/ErrorHandler';
 import ListaExercicios from '@/components/campeonato/ListaExercicios';
 import ListaParticipantes from '@/components/campeonato/ListaParticipantes';
 import ListaAtividades from '@/components/campeonato/ListaAtividades';
+import { useToast } from 'react-native-toast-notifications';
 
 export default function DetalhesCampeonato() {
     const [campeonato, setCampeonato] = useState<CampeonatoDetalhes>();
@@ -32,10 +33,11 @@ export default function DetalhesCampeonato() {
         {key: 'atividades', title: "Atividades"},
         {key: 'participantes', title: "Participantes"}
     ]);
+
     const campeonatoService = CampeonatoService();
     const errorHandler = ErrorHandler();
     const layout = useWindowDimensions();
-
+    const toast = useToast();
     const userId = Number(useSession().id);
     const campeonatoId = Number(useLocalSearchParams().campeonatoId);
 
@@ -75,6 +77,10 @@ export default function DetalhesCampeonato() {
             .catch(err => errorHandler.handleError(err));
 
     const iniciarNovoTreino = () => {
+        if(getDiasRestantes() == 'encerrado'){
+            toast.show("Campeonato encerrado, não é possível adicionar mais treinos :(");
+            return;
+        }
         router.push({pathname: `/(auth)/(tabs)/campeonato/[campeonatoId]/treino`, params:{campeonatoId, campeonatoNome: campeonato?.nome}});
         setIndex(0);
     }
@@ -179,7 +185,7 @@ export default function DetalhesCampeonato() {
             </View>
 
             {!campeonato?.joined?
-                <TouchableOpacity style={styles.botaoTreino} onPress={entrarCampeonato}>
+                <TouchableOpacity style={styles.botaoTreino} onPress={entrarCampeonato} disabled={loadingDetalhes}>
                     <Entypo name="login" style={styles.iconeBotaoTreino} />
                     <StyledText style={styles.txtBotaoNovoTreino}>ENTRAR NO CAMPEONATO</StyledText>
                 </TouchableOpacity>

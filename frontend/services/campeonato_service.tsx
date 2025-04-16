@@ -41,7 +41,7 @@ export default function CampeonatoService(){
         return promise.then(res => res.data);
     }
     
-    const addTreino = (exercicios_ids: number[], imagemUri: string, latitude: number, longitude: number) => {
+    const addTreino = (exercicios_ids: number[], imagemUri: string, latitude?: number, longitude?: number) => {
         const form = new FormData();
         exercicios_ids.forEach(id => form.append("exercicios_ids", id.toString()));
         form.append("imagem", {
@@ -50,8 +50,10 @@ export default function CampeonatoService(){
             type: 'image/jpeg',
         });
 
-        form.append("latitude", latitude.toString());
-        form.append("longitude", longitude.toString());
+        if (longitude && latitude){
+            form.append("latitude", latitude.toString());
+            form.append("longitude", longitude.toString());
+        }
         
         return post(prefix + "/add-treino", form, {headers: {'Content-Type': 'multipart/form-data'}});
     }
