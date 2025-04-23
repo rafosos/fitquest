@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query, Response, status, HTTPException, Body
+from fastapi import APIRouter, Query, Response, status, HTTPException, Body, Request
+from fastapi_csrf_protect import CsrfProtect
 from typing import Annotated
 from db.db import Session
 from sqlalchemy import select, or_, and_, func, text, case, literal_column, Interval
@@ -14,6 +15,7 @@ from datetime import timedelta
 from classes.treino import Treino, StatusTreino
 from fastapi import Depends
 from .login import get_current_user
+import os
 
 router = APIRouter(
     tags=["exercicio"],
@@ -54,7 +56,9 @@ def get_exercicios(current_user: Annotated[User, Depends(get_current_user)], f: 
         return exercicios
 
 @router.get("/treinos_resumo/{amigoId}")
-def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)], amigoId: int):
+async def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)], amigoId: int, request: Request, csrf_protect: CsrfProtect = Depends()):
+    await csrf_protect.validate_csrf(request, "fastapi-csrf-token", os.environ["SECRET_KEY_CSRF"])
+
     if not amigoId:
         user_id = current_user.id
     else:

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import jwt
-from fastapi import APIRouter, Response, status, Depends, HTTPException
+from fastapi import APIRouter, Response, status, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from sqlalchemy import select, or_
@@ -11,6 +12,8 @@ from pydantic import BaseModel
 from jwt.exceptions import InvalidTokenError
 import os
 import logging
+from fastapi_csrf_protect import CsrfProtect
+from fastapi_csrf_protect.exceptions import CsrfProtectError
 
 SECRET_KEY = os.environ["SECRET_KEY"]
 ALGORITHM = "HS256"
@@ -20,6 +23,16 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 logger = logging.getLogger("api")
+
+class CsrfSettings(BaseModel):
+  secret_key:str = 'Kaakaww!'
+
+@CsrfProtect.load_config
+def get_csrf_config():
+  return CsrfSettings()
+
+def verify_scrf(request: Request, csrf_protect: CsrfProtect = Depends()):
+    csrf_protect.validate_csrf_in_cookies(request)
 
 router = APIRouter(
     tags=["conta"],
@@ -88,7 +101,8 @@ class CadastroModel(BaseModel):
     senha: str
     
 @router.post("/cadastro")
-def cadastro(form: CadastroModel):
+def cadastro(form: CadastroModel, request: Request):
+    print(request.headers, flush=True)
     with Session() as sess:
         email_ja_existe = sess.execute(select(User).where(User.email == form.email)).first()
         if (email_ja_existe is not None):
@@ -111,8 +125,9 @@ def cadastro(form: CadastroModel):
     return {"id": user.id}
 
 @router.post("/login")
-def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response):
+def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response, csrf_protect: CsrfProtect = Depends()):
     print("POST: login", flush=True)
+    csrf_protect.unset_csrf_cookie(res)
     with Session() as sess:
         stmt = select(User).where(or_(User.username == form.username, User.email == form.username))
         user = sess.scalar(stmt)
@@ -126,6 +141,17 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response):
                 data={"sub": user.username, "id": user.id}, 
                 expires_delta=access_token_expires
             )
-            return {"access_token": access_token, "token_type": "bearer", "username": user.username, "id": user.id}
+            token, signed_token = csrf_protect.generate_csrf_tokens(secret_key=os.environ["SECRET_KEY_CSRF"])
+            response = JSONResponse(status_code=200, content={"csrf_token": token,"access_token": access_token, "token_type": "bearer", "username": user.username, "id": user.id})
+            csrf_protect.set_csrf_cookie(signed_token, response)
+            return response
         else:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Senha incorreta")
+        
+@router.get("/csrftoken")
+async def get_csrf_token(csrf_protect: CsrfProtect = Depends()):
+    response = JSONResponse(status_code=200, content={'csrf_token':'cookie'})
+    token = csrf_protect.generate_csrf_tokens(secret_key=os.environ["SECRET_KEY_CSRF"])
+    csrf_protect.set_csrf_cookie(token, response)
+    print("so testando")
+    return response

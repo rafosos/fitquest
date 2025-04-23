@@ -15,7 +15,7 @@ export default function TabLayout() {
                 marginVertical: 5
             }  
         }}
-        initialRouteName='index'
+        initialRouteName='home'
     >
         <Tabs.Screen
             name="campeonato"
@@ -37,14 +37,14 @@ export default function TabLayout() {
             }}
         />
         <Tabs.Screen
-            name="index"
+            name="home"
             options={{
                 title: 'Avatar',
                 tabBarIcon: ({ focused }) => (
                     <TabBarIcon focused={focused} name='index' />
                 ),
             }}
-            />
+        />
         <Tabs.Screen
             name="rotina"
             options={{

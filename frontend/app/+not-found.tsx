@@ -1,12 +1,18 @@
-import { Link, Stack } from 'expo-router';
+import StyledText from '@/components/base/styledText';
+import { Link, router, Stack, usePathname } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function NotFoundScreen() {
+
+  const routeparam = usePathname();
+  useEffect(() => console.log(routeparam), []);
+
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
-        <Text>This screen doesn't exist.</Text>
+        <StyledText>This screen doesn't exist.</StyledText>
         <Link href="/" style={styles.link}>
           <Text>Go to home screen!</Text>
         </Link>

@@ -20,7 +20,7 @@ export default function UserService(){
         formData.append("username", login.trim());
         formData.append("password", senha.trim());
         const promise = post<LoginResponse>("/login", formData, {headers: {'Content-Type': 'multipart/form-data'}});
-        return promise.then(res => res.data);
+        return promise.then(res => res);
     }
 
     const addAmigo = (amigoId: number) =>{
@@ -93,5 +93,10 @@ export default function UserService(){
         return promise.then(res => res.data);
     }
 
-    return {cadastrar, getUserInfo, editarDado, login, addAmigo, getAmigos, getPerfilUsuario, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
+    const getcsrftoken = () => {
+        const promise = get<string>(`/csrftoken`);
+        return promise.then(res => res.data);
+    }
+
+    return {cadastrar, getcsrftoken, getUserInfo, editarDado, login, addAmigo, getAmigos, getPerfilUsuario, getAmigosFilter, getPedidosAmizade, getInformacoesUsuario, aceitarAmizade, getNaoAmigos, deletarAmizade, recusarAmizade, editarAltura, editarPeso}
 }

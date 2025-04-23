@@ -12,7 +12,8 @@ import ErroInput from "@/components/ErroInput";
 import { errorHandlerDebug } from "@/services/service_config";
 import GradienteInicio from "@/components/GradienteInicio";
 import axios from "axios";
-import { regexSqlInjectionVerify } from "@/utils/functions";
+import { getCookie, regexSqlInjectionVerify } from "@/utils/functions";
+import { ErrorHandler } from "@/utils/ErrorHandler";
 
 export default function Login() {
     const { signIn, setUser } = useSession();
@@ -23,6 +24,7 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
   
     const passRef = useRef<TextInput>(null);
+    const errorHandler = ErrorHandler();
 
     const handleLogin = () => {
         let erroObj = {...erros};
@@ -38,15 +40,24 @@ export default function Login() {
 
         // se algum erro existe, a função .some vai voltar true e não vai chamar submit
         if(Object.values(erroObj).some(err => err)) return;
+        
+        // userService.getcsrftoken()
+        // .then(res=> {
+        //     console.log("res csrf")
+        //     console.log(res)
+        // })
+        // .catch(err => errorHandler.handleError(err));
+
+        // return
 
         setLoading(true);
         userService.login(login, senha)
             .then(res => {
                 if (res){
-                    axios.defaults.headers.common = { "Authorization": `Bearer ${res.access_token}` }
-                    signIn(res);
+                    axios.defaults.headers.common = { "Authorization": `Bearer ${res.data.access_token}` }
+                    signIn(res.data);
                     setUser(JSON.stringify(res));
-                    router.replace("/");
+                    router.replace("/(auth)/(tabs)/home/");
                 } else {
                     setErros({...erroObj, geral: `Login e senha inválidos ou incompatíveis, confira as informações inseridas e tente novamente.`});
                 }

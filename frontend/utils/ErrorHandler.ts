@@ -8,7 +8,10 @@ export const ErrorHandler = () => {
 
     const checkError = (error: any) => {
         console.log("\n\nerror.toJson:  ################################################################################");
-        console.log(error.toJSON());
+
+        if (error.toJson){
+            console.log(error.toJSON());
+        }
 
         if(isAxiosError(error)){
             error as AxiosError;
