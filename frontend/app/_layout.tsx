@@ -24,7 +24,7 @@ import { ToastProvider } from 'react-native-toast-notifications'
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  initialRouteName: "bemvindo",
+  initialRouteName: "(auth)",
 };
 
 export default function RootLayout() {

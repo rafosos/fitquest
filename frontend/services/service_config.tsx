@@ -1,36 +1,24 @@
-import { useSession } from "@/app/ctx";
 import axios, { AxiosRequestConfig } from "axios";
 
-// const API_URL = "https://fitquest-production.up.railway.app";
-const API_URL = "http://192.168.0.14:8000";
+const API_URL = "https://fitquest-production.up.railway.app";
+// const API_URL = "http://192.168.210.82:8000";
 
 
 axios.defaults.baseURL = API_URL
 axios.defaults.paramsSerializer = { indexes:null }
-// axios.defaults.headers.common["X-CSRF-Token"] = "cookie"
-// axios.interceptors.request.use(config => {
-//     config.headers["X-CSRF-Token"] = "cookie"
-//     return config
-// });
 
-// IjZlOWY5Y2MyYjIwMGQwOGE0MWM4N2QxNzFlMzhmMTI5YjQwZGZhNzIi.aAj78g.oluVMiTB_7iTqF3bA9qa2Y0T5Uo
-
-axios.interceptors.response.use(async (res) => {
-    const csrf_token = res.data.csrf_token;
-    console.log("csrf_token: " + csrf_token)
-        // const cookieHeader = res.headers['set-cookie'] || res.headers['Set-Cookie'];
-        // const token = "('8bd172eb393bbc3f534b5e22d025391e256890df'\\054 'IjhiZDE3MmViMzkzYmJjM2Y1MzRiNWUyMmQwMjUzOTFlMjU2ODkwZGYi.aAf-KA.BW2Yuuv_kaYcyqCASJKPgDQAyW8')\"; HttpOnly; Max-Age=3600; Path=/; SameSite=lax"
-        // console.log(cookieHeader)
-        if (csrf_token) {
-            axios.interceptors.request.use(config => {
-                config.headers["X-CSRF-Token"] = csrf_token
-                return config
-            });
-        }
-        return res;
-    },
-    error => Promise.reject(error)
-)
+// axios.interceptors.response.use(async (res) => {
+//     const csrf_token = res.data.csrf_token;
+//         if (csrf_token) {
+//             axios.interceptors.request.use(config => {
+//                 config.headers["X-CSRF-Token"] = csrf_token
+//                 return config
+//             });
+//         }
+//         return res;
+//     },
+//     error => Promise.reject(error)
+// )
 
 const get = <T extends unknown>(endpoint: string, params: any = {}) => 
     axios.get<T>(endpoint, {params});

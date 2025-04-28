@@ -18,7 +18,7 @@ export default function TabEventos() {
     const [searchModal, setSearchModal] = useState(false);
     const [campeonatos, setCampeonatos] = useState<Campeonato[]>([]);
     const [refreshing, setRefreshing] = useState(false);
-    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
+    const userId = Number(useSession().id);
 
     const campeonatoService = CampeonatoService();
 

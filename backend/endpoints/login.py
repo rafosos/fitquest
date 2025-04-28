@@ -127,7 +127,7 @@ def cadastro(form: CadastroModel, request: Request):
 @router.post("/login")
 def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response, csrf_protect: CsrfProtect = Depends()):
     print("POST: login", flush=True)
-    csrf_protect.unset_csrf_cookie(res)
+    # csrf_protect.unset_csrf_cookie(res)
     with Session() as sess:
         stmt = select(User).where(or_(User.username == form.username, User.email == form.username))
         user = sess.scalar(stmt)
@@ -141,9 +141,8 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response, 
                 data={"sub": user.username, "id": user.id}, 
                 expires_delta=access_token_expires
             )
-            token, signed_token = csrf_protect.generate_csrf_tokens(secret_key=os.environ["SECRET_KEY_CSRF"])
-            response = JSONResponse(status_code=200, content={"csrf_token": token,"access_token": access_token, "token_type": "bearer", "username": user.username, "id": user.id})
-            csrf_protect.set_csrf_cookie(signed_token, response)
+            response = JSONResponse(status_code=200, content={"access_token": access_token, "token_type": "bearer", "username": user.username, "id": user.id})
+            # csrf_protect.set_csrf_cookie(signed_token, response)
             return response
         else:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Senha incorreta")

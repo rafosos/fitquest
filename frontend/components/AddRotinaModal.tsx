@@ -21,7 +21,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     const [resultados, setResultados] = useState<Exercicio[]>([]);
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<any>({});
-    const { id: userId } = JSON.parse(useSession().username ?? "{id: null}");
+    const userId = useSession().id;
 
     const rotinaService = RotinaService();
     const exercicioService = ExercicioService();

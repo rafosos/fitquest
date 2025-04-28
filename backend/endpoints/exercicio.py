@@ -56,8 +56,8 @@ def get_exercicios(current_user: Annotated[User, Depends(get_current_user)], f: 
         return exercicios
 
 @router.get("/treinos_resumo/{amigoId}")
-async def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)], amigoId: int, request: Request, csrf_protect: CsrfProtect = Depends()):
-    await csrf_protect.validate_csrf(request, "fastapi-csrf-token", os.environ["SECRET_KEY_CSRF"])
+async def get_treinos_resumo(current_user: Annotated[User, Depends(get_current_user)], amigoId: int, request: Request):
+    # await csrf_protect.validate_csrf(request, "fastapi-csrf-token", os.environ["SECRET_KEY_CSRF"])
 
     if not amigoId:
         user_id = current_user.id

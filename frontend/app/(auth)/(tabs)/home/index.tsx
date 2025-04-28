@@ -1,6 +1,5 @@
 import { useSession } from '@/app/ctx';
 import { InformacoesUsuario } from '@/classes/streaks';
-import User from '@/classes/user';
 import { StatusTreino, TipoTreino, TreinoResumo } from '@/classes/user_exercicio';
 import StyledText from '@/components/base/styledText';
 import ErroInput from '@/components/ErroInput';
@@ -13,8 +12,8 @@ import UserService from '@/services/user_service';
 import { ErrorHandler } from '@/utils/ErrorHandler';
 import { showDiaMes } from '@/utils/functions';
 import { Feather } from '@expo/vector-icons';
-import { Link } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { Link, router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Image, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 class DataFlatlist{
@@ -37,8 +36,7 @@ export default function TabAvatar() {
     const [modalConfirma, setModalConfirma] = useState<{show:boolean, treino: TreinoResumo | null}>({show: false, treino: null});
     const [refreshing, setRefreshing] = useState(false);
     const [erro, setErro] = useState<string>("");
-    const { username: userString } = useSession();
-    const user: User = useRef(JSON.parse(userString ?? "{}")).current;
+    const { username } = useSession();
 
     const errorHandler = ErrorHandler();
     
@@ -90,6 +88,10 @@ export default function TabAvatar() {
         getAtividades();
     }
 
+    const openTreino = (treinoId: number) => {
+      router.push({pathname: "/(auth)/(tabs)/home/[treinoId]/", params: {treinoId}})
+    }
+
     return (
     <View style={s.container}>
 
@@ -113,7 +115,7 @@ export default function TabAvatar() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
             ListHeaderComponent={<>
                 <View style={s.containerNomes}>
-                    <StyledText style={s.username}>{user.username}</StyledText>
+                    <StyledText style={s.username}>{username}</StyledText>
                     <Link href="/configuracoes">
                         <Feather name="settings" style={s.iconeConfigs} />
                     </Link>
@@ -157,6 +159,7 @@ new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_len
                 <StyledText style={s.tituloUltimasAtividades}>Últimas atividades</StyledText>
             </>}
             renderItem={({item}) => 
+                // <TouchableOpacity style={s.card} onPress={() => openTreino(item.id)}>
                 <View style={s.card}>
                     <View style={s.headerCard}>
                         <View>
@@ -178,6 +181,7 @@ new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_len
 
                     <StyledText>{item.exercicios}</StyledText>
                 </View>
+                // </TouchableOpacity>
             }
             ListEmptyComponent={<StyledText style={s.txtNenhumaAtividade}>Nenhuma atividade recente.</StyledText>}
         />
