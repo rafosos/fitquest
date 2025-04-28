@@ -29,11 +29,11 @@ async def lifespan(app_: FastAPI):
     log.info("Shutting down...")
 
 # dev
-app = FastAPI(debug=True) 
+# app = FastAPI(debug=True) 
 origins = ["*"]
 
 # prod
-# app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
