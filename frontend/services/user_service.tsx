@@ -29,7 +29,7 @@ export default function UserService(){
     }
 
     const getAmigos = () =>{
-        const promise = get<User[]>(`${prefix}/get-amigos/`);
+        const promise = get<User[]>(`${prefix}/get-amigos`);
         return promise.then(res => res.data);
     }
 
