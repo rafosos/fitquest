@@ -9,14 +9,13 @@ import { fonts } from "@/constants/Fonts";
 import StyledTextInput from "@/components/base/styledTextInput";
 import { Feather } from "@expo/vector-icons";
 import ErroInput from "@/components/ErroInput";
-import { errorHandlerDebug } from "@/services/service_config";
 import GradienteInicio from "@/components/GradienteInicio";
 import axios from "axios";
-import { getCookie, regexSqlInjectionVerify } from "@/utils/functions";
+import { regexSqlInjectionVerify } from "@/utils/functions";
 import { ErrorHandler } from "@/utils/ErrorHandler";
 
 export default function Login() {
-    const { signIn, setUser } = useSession();
+    const { signIn } = useSession();
     const userService = UserService();
     const [erros, setErros] = useState<any>({});
     const [login, setLogin] = useState("");
@@ -40,15 +39,6 @@ export default function Login() {
 
         // se algum erro existe, a função .some vai voltar true e não vai chamar submit
         if(Object.values(erroObj).some(err => err)) return;
-        
-        // userService.getcsrftoken()
-        // .then(res=> {
-        //     console.log("res csrf")
-        //     console.log(res)
-        // })
-        // .catch(err => errorHandler.handleError(err));
-
-        // return
 
         setLoading(true);
         userService.login(login, senha)
@@ -56,14 +46,13 @@ export default function Login() {
                 if (res){
                     axios.defaults.headers.common = { "Authorization": `Bearer ${res.data.access_token}` }
                     signIn(res.data);
-                    setUser(JSON.stringify(res));
                     router.replace("/(auth)/(tabs)/home/");
                 } else {
                     setErros({...erroObj, geral: `Login e senha inválidos ou incompatíveis, confira as informações inseridas e tente novamente.`});
                 }
             })
             .catch(err => {
-                errorHandlerDebug(err);
+                errorHandler.handleError(err);
                 if(err.response && err.response.status == 401)
                     setErros({...erroObj, geral: `Login e senha inválidos ou incompatíveis, confira as informações e tente novamente.`});
                 else if(err.message == "Network Error") //server is down

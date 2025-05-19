@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useReducer } from "react";
 import { Platform } from "react-native";
@@ -52,6 +53,8 @@ export function useStorageState(key: string): UseStateHook<string> {
       }
     } else {
       SecureStore.getItemAsync(key).then((value) => {
+        if(key == "session")
+          axios.defaults.headers.common = { "Authorization": `Bearer ${value}` }
         setState(value);
       });
     }

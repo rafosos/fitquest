@@ -8,11 +8,11 @@ import RotinaService from '@/services/rotina_service';
 import ExercicioService from '@/services/exercicio_service';
 import { Feather } from '@expo/vector-icons';
 import { colors } from '@/constants/Colors';
-import { errorHandlerDebug } from '@/services/service_config';
 import ErroInput from './ErroInput';
 import StyledText from './base/styledText';
 import StyledTextInput from './base/styledTextInput';
 import { fonts } from '@/constants/Fonts';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 
 export default function AddRotinaModal({ isVisible = false, onClose = () => {} }) {
     const [nome, setNome] = useState("");
@@ -22,6 +22,8 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<any>({});
     const userId = useSession().id;
+
+    const errorHandler = ErrorHandler();
 
     const rotinaService = RotinaService();
     const exercicioService = ExercicioService();
@@ -44,8 +46,8 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
 
         setLoading(true);
         exercicioService.getExercicioFiltro(f, exercicios.map(e => e.id))
-            .then(res => setResultados(res.map(exec => {return {...exec, id: exec.id, title:exec.nome}})))
-            .catch(error => errorHandlerDebug(error))
+            .then(res => setResultados(res.map(exec => {return {...exec, id: exec.exercicio_id, title:exec.nome}})))
+            .catch(error => errorHandler.handleError(error))
             .finally(() => setLoading(false));
     }
 
@@ -95,7 +97,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
             dias: duracao,
             exercicios: exercicios.map(e => { return {id: e.id, series: e.qtd_serie, repeticoes: e.qtd_repeticoes}})
         }).then(res => clearAndClose())
-        .catch(err => errorHandlerDebug(err));
+        .catch(err => errorHandler.handleError(err));
     }
 
     return (

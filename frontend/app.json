@@ -4,13 +4,12 @@
     "slug": "frontend",
     "backgroundColor": "#494949",
     "version": "1.0.0",
-    "jsengine": "hermes",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/logo.jpg",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -22,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.jpg",
+        "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#000000"
       },
       "package": "com.codeprotein.fitquest",
