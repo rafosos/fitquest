@@ -4,9 +4,10 @@ from db.db import Session
 from sqlalchemy import select, or_, case, and_
 from datetime import date
 from .exercicio import get_streaks_geral
-from classes.amizade import Amizade
-from classes.user import User
-from classes.status import Status, statuses
+from models.amizade import Amizade
+from models.user import User
+from models.status import Status
+from assets.dump_db import statuses
 from .login import get_current_user
 import logging
 logger = logging.getLogger("api")
@@ -15,7 +16,6 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)],
     tags=["user"],
     prefix='/user',
-    # responses={404: {"description": "Not found"}}
 )
 
 @router.post("/add-amigo/{amigo_id}")

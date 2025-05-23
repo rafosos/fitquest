@@ -4,13 +4,13 @@ from collections import defaultdict
 from db.db import Session
 from sqlalchemy import select, and_, literal_column
 from pydantic import BaseModel
-from classes.exercicio import Exercicio
-from classes.treino_exercicio import TreinoExercicio
-from classes.user import User
-from classes.treino import Treino, TipoTreino
-from classes.rotina import Rotina
-from classes.grupo_muscular import GrupoMuscular
-from classes.exercicio_rotina import ExercicioRotina
+from models.exercicio import Exercicio
+from models.treino_exercicio import TreinoExercicio
+from models.user import User
+from models.treino import Treino, TipoTreino
+from models.rotina import Rotina
+from models.grupo_muscular import GrupoMuscular
+from models.exercicio_rotina import ExercicioRotina
 from .login import get_current_user
 
 router = APIRouter(

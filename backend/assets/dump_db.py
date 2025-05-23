@@ -1,28 +1,7 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
-from typing import List
-from .base_class import Base
+from models.exercicio import Exercicio
+from models.grupo_muscular import GrupoMuscular
+from models.status import Status
 
-class Exercicio(Base):
-    __tablename__ = "exercicio"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    nome: Mapped[str]
-    grupo_muscular_id = mapped_column(ForeignKey("grupo_muscular.id"))
-    criado_por = mapped_column(ForeignKey("user.id"), nullable=True)
-
-    grupo_muscular: Mapped["GrupoMuscular"] = relationship(back_populates="exercicios")
-    user: Mapped["User"] = relationship(back_populates="exercicios_custom")
-    campeonatos: Mapped["ExercicioCampeonato"] = relationship(back_populates="exercicio")
-    rotinas: Mapped[List["ExercicioRotina"]] = relationship(back_populates="exercicio")
-
-    def add_by_name_array(self, name_array):
-        new_values = [Exercicio(nome=n["nome"], grupo_muscular_id=n["grupo_muscular_id"]) for n in name_array]
-        self.add_all(new_values=new_values)
-
-    def __repr__(self) -> str:
-        return f"Exercicio(id={self.id!r}, nome={self.nome!r}, grupo_muscular_id={self.grupo_muscular_id!r})"
-    
 exercicios = [
     {"nome": "Supino reto", "grupo_muscular_id": 1},
     {"nome": "Supino inclinado", "grupo_muscular_id": 1},
@@ -81,6 +60,28 @@ exercicios = [
     {"nome": "Elevação de pernas", "grupo_muscular_id": 8},
     {"nome": "Elevação de quadril", "grupo_muscular_id": 8}
 ]
+
+grupos_musculares = [
+    "Peito",           # 1
+    "Costas",          # 2
+    "Ombros",          # 3
+    "Tríceps",         # 4
+    "Bíceps",          # 5
+    "Pernas",          # 6
+    "Panturrilha",     # 7
+    "Abdômen",         # 8
+    "Cardio",          # 9
+]
+
+statuses = ["Ativa", "Pendente", "Bloqueado"]
+
+def insert_statuses():
+    if not Status.select_one(Status):
+        Status.add_by_name_array(Status, statuses)
+
+def insert_grupos_musculares():
+    if not GrupoMuscular.select_one(GrupoMuscular):
+        GrupoMuscular.add_by_name_array(GrupoMuscular, grupos_musculares)
 
 def insert_exercicios():
     if not Exercicio.select_one(Exercicio):

@@ -7,7 +7,7 @@ from typing import Annotated
 from sqlalchemy import select, or_
 from db.db import Session
 from passlib.context import CryptContext
-from classes.user import User
+from models.user import User
 from pydantic import BaseModel
 from jwt.exceptions import InvalidTokenError
 import os
@@ -125,9 +125,8 @@ def cadastro(form: CadastroModel, request: Request):
     return {"id": user.id}
 
 @router.post("/login")
-def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response, csrf_protect: CsrfProtect = Depends()):
+def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], res: Response):
     print("POST: login", flush=True)
-    # csrf_protect.unset_csrf_cookie(res)
     with Session() as sess:
         stmt = select(User).where(or_(User.username == form.username, User.email == form.username))
         user = sess.scalar(stmt)

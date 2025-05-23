@@ -17,19 +17,3 @@ class GrupoMuscular(Base):
 
     def __repr__(self) -> str:
         return f"GrupoMuscular(id={self.id!r}, nome={self.nome!r})"
-
-grupos_musculares = [
-    "Peito",           # 1
-    "Costas",          # 2
-    "Ombros",          # 3
-    "Tríceps",         # 4
-    "Bíceps",          # 5
-    "Pernas",          # 6
-    "Panturrilha",     # 7
-    "Abdômen",          # 8
-    "Cardio",          # 9
-]
-
-def insert_grupos_musculares():
-    if not GrupoMuscular.select_one(GrupoMuscular):
-        GrupoMuscular.add_by_name_array(GrupoMuscular, grupos_musculares)

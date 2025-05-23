@@ -1,48 +1,24 @@
-from fastapi import APIRouter, HTTPException, UploadFile, Form
-from db.db import Session
-from typing import List, Annotated
-from sqlalchemy import select, func, case, and_, literal_column, or_, literal
-from sqlalchemy.orm import selectinload, aliased
-from datetime import datetime
-from pydantic import BaseModel
-import base64
-from classes.campeonato import Campeonato
-from classes.exercicio_campeonato import ExercicioCampeonato
-from classes.grupo_muscular import GrupoMuscular
-from classes.exercicio import Exercicio
-from classes.treino import Treino, TipoTreino
-from classes.treino_exercicio import TreinoExercicio
-from classes.user_campeonato import user_campeonato
-from classes.user import User
-from classes.status import Status, statuses
-from classes.amizade import Amizade
-from fastapi import Depends
-from .login import get_current_user
+from dtos.campeonato_model import CampeonatoModel
+from fastapi import UploadFile, HTTPException
 from assets.utils import verificar_coordenada_dentro
+from models.user import User
+from db.db import Session
+import base64
+from models.exercicio_campeonato import ExercicioCampeonato
+from models.campeonato import Campeonato
+from models.status import Status
+from models.amizade import Amizade
+from models.treino import Treino, TipoTreino
+from typing import List
+from models.exercicio import Exercicio
+from models.grupo_muscular import GrupoMuscular
+from models.user_campeonato import user_campeonato
+from models.treino_exercicio import TreinoExercicio
+from assets.dump_db import statuses
+from sqlalchemy.orm import selectinload, aliased
+from sqlalchemy import select, func, and_, case, or_, literal, literal_column
 
-router = APIRouter(
-    dependencies=[Depends(get_current_user)],
-    tags=["campeonato"],
-    prefix='/campeonato',
-    responses={404: {"description": "Not found"}}
-)
-
-class ExercicioModel(BaseModel):
-    exercicio_id: int
-    qtd_serie: int
-    qtd_repeticoes: int
-    qtd_pontos: int
-
-class CampeonatoModel(BaseModel):
-    nome: str
-    duracao: datetime
-    participantes_ids: list[int]
-    exercicios: list[ExercicioModel]
-    latitude: float
-    longitude: float
-
-@router.post("/")
-def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends(get_current_user)]):
+def add_campeonato(model: CampeonatoModel, current_user: User):
     model.participantes_ids.append(current_user.id)
     
     with Session() as sess:
@@ -56,8 +32,7 @@ def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends
         sess.commit()
         return camp.id
 
-@router.get("/")
-def get_campeonato(current_user: Annotated[User, Depends(get_current_user)]):
+def get_campeonato(current_user: User):
     user_id = current_user.id
     with Session() as sess:
         participantes = aliased(User)
@@ -78,9 +53,8 @@ def get_campeonato(current_user: Annotated[User, Depends(get_current_user)]):
             .where(or_(criador.id == user_id, participantes.id == user_id)) #check this with a 3rd user
             ).mappings().all()
         return campeonatos
-    
-@router.get("/pesquisa/{termo}")
-def get_campeonato(current_user: Annotated[User, Depends(get_current_user)], termo: str):
+
+def get_campeonato(current_user: User, termo: str):
     user_id = current_user.id
     with Session() as sess:
         participantes = aliased(User)
@@ -123,8 +97,7 @@ def get_campeonato(current_user: Annotated[User, Depends(get_current_user)], ter
             ).mappings().all()
         return campeonatos
 
-@router.get("/detalhes/{campeonato_id}")
-def get_campeonato_detalhes(current_user: Annotated[User, Depends(get_current_user)], campeonato_id: int):
+def get_campeonato_detalhes(current_user: User, campeonato_id: int):
     user_id = current_user.id
     cte_ultimo_treino = select(Treino.data.label("ultimo_treino"), Treino.campeonato_id)\
         .where(
@@ -197,7 +170,6 @@ def get_campeonato_detalhes(current_user: Annotated[User, Depends(get_current_us
 
     return campeonato
 
-@router.get("/detalhes_progresso/{campeonato_id}")
 def get_progresso(campeonato_id: int):
     with Session() as sess:
         stmt = select(
@@ -215,8 +187,7 @@ def get_progresso(campeonato_id: int):
         .order_by(func.coalesce(func.sum(ExercicioCampeonato.pontos), 0).desc())
     
         return sess.execute(stmt).mappings().all()
-
-@router.get("/atividades/{campeonato_id}")
+    
 def get_atividades(campeonato_id: int):
     with Session() as sess:
         stmt = select(
@@ -245,7 +216,6 @@ def get_atividades(campeonato_id: int):
 
         return resultMap
     
-@router.get("/atividade/{atividade_id}")
 def get_atividade_by_id(atividade_id: int):
     with Session() as sess:
         stmt = select(
@@ -294,14 +264,13 @@ def get_atividade_by_id(atividade_id: int):
             })
 
         return resultMap
-
-@router.post("/add-treino")
+    
 async def add_treino(
-    current_user: Annotated[User, Depends(get_current_user)],
-    imagem: UploadFile = Form(...),
-    exercicios_ids: List[int] = Form(...), 
-    latitude: float = Form(...),
-    longitude: float = Form(...)
+    current_user: User,
+    imagem: UploadFile,
+    exercicios_ids: List[int], 
+    latitude: float,
+    longitude: float
 ):
     with Session() as sess:
         result = sess.execute(
@@ -326,7 +295,6 @@ async def add_treino(
         sess.commit()
     return "O novo treino foi adicionado com sucesso."
 
-@router.delete("/{campeonato_id}")
 def delete_campeonato(campeonato_id: int):
     with Session() as sess:
         campeonato = sess.scalar(select(Campeonato)
@@ -337,8 +305,7 @@ def delete_campeonato(campeonato_id: int):
         sess.commit()
     return "O campeonato foi deletado com sucesso"
 
-@router.patch("/entrar/{campeonato_id}")
-def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+def sair_campeonato(campeonato_id: int, current_user: User):
     with Session() as sess:
         campeonato = sess.scalar(select(Campeonato).where(Campeonato.id == campeonato_id))
         if not campeonato:
@@ -353,11 +320,9 @@ def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(ge
             sess.commit()
             return True
         except Exception as e:
-            print(e)
             raise HTTPException(status_code=500, detail="Erro ao entrar no campeonato.")
 
-@router.patch("/sair/{campeonato_id}")
-def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+def sair_campeonato(campeonato_id: int, current_user: User):
     with Session() as sess:
         campeonato = sess.scalar(select(Campeonato).where(Campeonato.id == campeonato_id))
         if not campeonato:
@@ -373,8 +338,7 @@ def sair_campeonato(campeonato_id: int, current_user: Annotated[User, Depends(ge
             return True
         except Exception as e:
             raise HTTPException(status_code=500, detail="Erro ao sair do campeonato.")
-        
-@router.get("/exercicios/{campeonato_id}")
+
 def get_exercicios_treino(campeonato_id: int):
     with Session() as sess:
         stmt = select(
@@ -392,7 +356,6 @@ def get_exercicios_treino(campeonato_id: int):
 
         return sess.execute(stmt).mappings().all()
     
-@router.delete("/treino/{treino_id}")
 def delete_treino(treino_id: int):
     with Session() as sess:
         treino = sess.scalar(select(Treino)

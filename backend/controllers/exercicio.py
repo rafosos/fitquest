@@ -6,13 +6,13 @@ from sqlalchemy import select, or_, and_, func, text, case, literal_column, Inte
 from sqlalchemy.sql.expression import bindparam
 from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
-from classes.user import User
-from classes.exercicio import Exercicio
-from classes.treino_exercicio import TreinoExercicio
-from classes.exercicio_rotina import ExercicioRotina
-from classes.exercicio_campeonato import ExercicioCampeonato
+from models.user import User
+from models.exercicio import Exercicio
+from models.treino_exercicio import TreinoExercicio
+from models.exercicio_rotina import ExercicioRotina
+from models.exercicio_campeonato import ExercicioCampeonato
 from datetime import timedelta
-from classes.treino import Treino, StatusTreino
+from models.treino import Treino, StatusTreino
 from fastapi import Depends
 from .login import get_current_user
 import os

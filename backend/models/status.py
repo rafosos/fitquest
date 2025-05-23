@@ -11,9 +11,3 @@ class Status(Base):
         self.add_all(new_values=new_values)
 
     amizades: Mapped["Amizade"] = relationship(back_populates="status")
-
-statuses = ["Ativa", "Pendente", "Bloqueado"]
-
-def insert_statuses():
-    if not Status.select_one(Status):
-        Status.add_by_name_array(Status, statuses)
