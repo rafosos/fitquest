@@ -32,8 +32,7 @@ def add_campeonato(model: CampeonatoModel, current_user: User):
         sess.commit()
         return camp.id
 
-def get_campeonato(current_user: User):
-    user_id = current_user.id
+def get_campeonato(user_id: int):
     with Session() as sess:
         participantes = aliased(User)
         criador = aliased(User)
@@ -54,7 +53,7 @@ def get_campeonato(current_user: User):
             ).mappings().all()
         return campeonatos
 
-def get_campeonato(current_user: User, termo: str):
+def get_campeonato_filtro(current_user: User, termo: str):
     user_id = current_user.id
     with Session() as sess:
         participantes = aliased(User)

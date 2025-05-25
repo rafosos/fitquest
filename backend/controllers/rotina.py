@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, UploadFile, Form
 from typing import List, Annotated
 from models.user import User
-from .login import get_current_user
+from services.login_service import get_current_user
 from dtos.rotina_model import RotinaModel
 from services import rotina_service
 

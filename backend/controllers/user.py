@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Depends
 from typing import Annotated
 from models.user import User
-from .login import get_current_user
+from services.login_service import get_current_user
 from services import user_service
 import logging
 logger = logging.getLogger("api")
@@ -22,7 +22,7 @@ def get_amigos(current_user: Annotated[User, Depends(get_current_user)]):
     
 @router.get("/get-amigos/{filtro}")
 def get_amigos(current_user: Annotated[User, Depends(get_current_user)], filtro):
-    return user_service.get_amigos(current_user.id, filtro)
+    return user_service.get_amigos_filtro(current_user.id, filtro)
     
 @router.get("/get-nao-amigos/{filtro}")
 def get_nao_amigos(current_user: Annotated[User, Depends(get_current_user)], filtro):
@@ -33,8 +33,8 @@ def get_pedidos_amizade(current_user: Annotated[User, Depends(get_current_user)]
     return user_service.get_pedidos_amizade(current_user.id)
     
 @router.get("/informacoes/")
-def get_informacoes_usuario(current_user: Annotated[User, Depends(get_current_user)]):
-    return user_service.get_informacoes_usuario(current_user.id)
+async def get_informacoes_usuario(current_user: Annotated[User, Depends(get_current_user)]):
+    return await user_service.get_informacoes_usuario(current_user.id)
     
 @router.put("/status-pedido-amizade/")
 def change_status_pedido_amizade(

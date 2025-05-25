@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Body, Response, status, HTTPException, Depends
-from typing import Annotated
+from fastapi import HTTPException
 from db.db import Session
 from sqlalchemy import select, or_, case, and_
 from datetime import date
@@ -8,8 +7,6 @@ from models.amizade import Amizade
 from models.user import User
 from models.status import Status
 from assets.dump_db import statuses
-from controllers.login import get_current_user
-
 
 def add_amigo(amigo_id: int, user_id: int):
     with Session() as sess:
@@ -59,7 +56,7 @@ def get_amigos(user_id: int):
         amigos = sess.scalars(stmt).all()
         return amigos
     
-def get_amigos(user_id: int, filtro: str):
+def get_amigos_filtro(user_id: int, filtro: str):
     filtro_string = f"%%{filtro}%%"
 
     with Session() as sess:
@@ -123,7 +120,7 @@ def get_pedidos_amizade(user_id: int):
         amigos = sess.execute(stmt).mappings().all()
         return amigos
     
-def get_informacoes_usuario(user_id: int):
+async def get_informacoes_usuario(user_id: int):
     with Session() as sess:
         infos = sess.execute(
             select(

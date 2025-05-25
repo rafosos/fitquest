@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, Form
 from typing import List, Annotated
 from models.user import User
 from fastapi import Depends
-from .login import get_current_user
+from services.login_service import get_current_user
 from dtos.campeonato_model import CampeonatoModel
 from services import campeonato_service
 
@@ -19,11 +19,11 @@ def add_campeonato(model: CampeonatoModel, current_user: Annotated[User, Depends
 
 @router.get("/")
 def get_campeonato(current_user: Annotated[User, Depends(get_current_user)]):
-    return campeonato_service.get_campeonato(current_user)
+    return campeonato_service.get_campeonato(current_user.id)
 
 @router.get("/pesquisa/{termo}")
 def get_campeonato(current_user: Annotated[User, Depends(get_current_user)], termo: str):
-    return campeonato_service.get_campeonato(current_user, termo)
+    return campeonato_service.get_campeonato_filtro(current_user, termo)
 
 @router.get("/detalhes/{campeonato_id}")
 def get_campeonato_detalhes(current_user: Annotated[User, Depends(get_current_user)], campeonato_id: int):
