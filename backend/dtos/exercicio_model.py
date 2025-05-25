@@ -9,3 +9,8 @@ class ExercicioCampeonatoModel(BaseModel):
 class ExercicioModel(BaseModel):
     nome: str
     dificuldade_id: int
+
+class ExercicioRotinaModel(BaseModel):
+    id: int
+    series: int
+    repeticoes: int
