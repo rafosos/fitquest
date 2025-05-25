@@ -106,10 +106,12 @@ export default function Login() {
                         }
                         errors={[
                             <ErroInput
+                                key={"erroLogin"}
                                 show={erros.inputLogin}
                                 texto="O campo é obrigatório!"
                             />,
                             <ErroInput
+                                key={"erroregex"}
                                 show={erros.regex}
                                 texto="O usuário é inválido!"
                             />
@@ -137,6 +139,7 @@ export default function Login() {
                         }
                         errors={[
                             <ErroInput
+                                key={"errosenha"}
                                 show={erros.inputSenha}
                                 texto="O campo é obrigatório!"
                             />

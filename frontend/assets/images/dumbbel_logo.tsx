@@ -2,7 +2,7 @@ import React from 'react';
 import { View, ViewProps } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-export default function DumbbelLogo (props: ViewProps){
+export default function DumbbelLogo(props: ViewProps){
     return (    
         <View {...props}>
             <Svg width="112" height="112" viewBox="0 0 112 112" fill="none">

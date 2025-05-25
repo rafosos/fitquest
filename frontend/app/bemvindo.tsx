@@ -20,19 +20,19 @@ export default function BemVindo(){
             <View style={styles.containerCards}>
                 <CardSplashInicial
                     title="Campeonatos"
-                    icone={<Trofeu />}
+                    icone={<Trofeu cor={colors.dourado.padrao2}/>}
                     text="Participe de desafios e ganhe recompensas"
                 />
 
                 <CardSplashInicial
                     title="Amigos"
-                    icone={<Amigos />}
+                    icone={<Amigos cor={colors.roxo.escuro}/>}
                     text="Conecte-se e compita com seus amigos"
                 />
 
                 <CardSplashInicial
                     title="Loja"
-                    icone={<Loja />}
+                    icone={<Loja cor={colors.roxo.lilas}/>}
                     text="Personalize seu avatar com itens exclusivos"
                 />
             </View>

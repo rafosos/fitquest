@@ -32,7 +32,8 @@ export const colors = {
     escuro: "#111827"
   },
   dourado:{
-    padrao: '#daa520'
+    padrao: '#daa520',
+    padrao2: "#F59E0B"
   },
   verde:{
     padrao: '#3EBA52',
@@ -70,6 +71,8 @@ export const colors = {
   },
   roxo:{
     uva: "#841584",
+    escuro: "#535EEE",
+    lilas: "#CC00C5",
     fade:{
       1: "rgba(132, 21, 132, 0.1)",
       2: "rgba(132, 21, 132, 0.2)",
