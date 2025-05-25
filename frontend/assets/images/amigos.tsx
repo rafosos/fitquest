@@ -1,13 +1,9 @@
+import { SvgIconProps } from '@/components/base/svgBase';
 import React from 'react';
-import { View, ViewProps } from 'react-native';
+import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-interface Props{
-    containerProps?: ViewProps
-    cor: string
-}
-
-export default function Amigos({containerProps, cor}: Props){
+export default function Amigos({containerProps, cor}: SvgIconProps){
     return (    
         <View {...containerProps}>
             <Svg width="100%" height="100%" viewBox="0 0 150 150" fill="none">

@@ -193,7 +193,7 @@ const s = StyleSheet.create({
   container:{
     flex:1,
     flexDirection: 'column',
-    backgroundColor: colors.cinza.background
+    backgroundColor: colors.preto.padrao
   },
   botaoConfirmarModal:{
     backgroundColor: colors.vermelho.padrao,

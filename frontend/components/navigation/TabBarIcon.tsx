@@ -1,25 +1,29 @@
-
+import Amigos from '@/assets/images/amigos';
+import Dumbbell from '@/assets/images/dumbbell';
+import HomeSvg from '@/assets/images/home';
+import Loja from '@/assets/images/loja';
+import Trofeu from '@/assets/images/trofeu';
 import { colors } from '@/constants/Colors';
-import { FontAwesome6 } from '@expo/vector-icons';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { ComponentProps, useEffect } from 'react';
-import { StyleProp, StyleSheet, Text, View } from 'react-native';
-import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useSharedValue, withSpring } from 'react-native-reanimated';
 
 interface PropsTabICon{
   focused: boolean,
-  name: string
+  name: "competicoes" | "amigos" | "index" | "exercicios" | "loja"
 }
 
 const icons = {
-  "competicoes": (focused: boolean) => <Ionicons style={[styles.icon, focused? styles.iconFocused : styles.iconNotFocused]} name="podium" />,
-  "amigos": (focused: boolean) => <Ionicons style={[styles.icon, focused? styles.iconFocused : styles.iconNotFocused]} name="people" />,
-  "index": (focused: boolean) => <Ionicons style={[styles.icon, focused? styles.iconFocused : styles.iconNotFocused]} name="home" />,
-  "exercicios": (focused: boolean) => <FontAwesome6 style={[styles.icon, focused? styles.iconFocused : styles.iconNotFocused]} name="dumbbell" />,
-  "loja": (focused: boolean) => <Ionicons style={[styles.icon, focused? styles.iconFocused : styles.iconNotFocused]} name="basket" />
+  "competicoes": Trofeu,
+  "amigos": Amigos,
+  "index": HomeSvg,
+  "exercicios": Dumbbell,
+  "loja": Loja
 }
+
 export function TabBarIcon({ name, focused }: PropsTabICon) {
   const marginBottom = useSharedValue(0);
+  const Icone = icons[name];
   
   useEffect(() => {
     if(focused)
@@ -30,14 +34,8 @@ export function TabBarIcon({ name, focused }: PropsTabICon) {
 
   return (
     <View style={[focused ? styles.focused : styles.notFocused]}>
-        {icons[name](focused)}
+        <Icone cor={focused ? colors.verde.padrao2 : colors.cinza.medio2} containerProps={{style:{width: 35, aspectRatio: 1}}}/>
     </View>
-    // <View style={{ marginBottom: 18}}>
-    //   {/* <Animated.Text style={{ marginBottom }}><Ionicons name={name} size={28} /></Animated.Text> */}
-    //   {/* <Text style={{ paddingBottom: 18 }}> */}
-    //     <Ionicons style={{alignSelf: 'center'}} name={name} size={28} />
-    //   {/* </Text> */}
-    // </View>
   )
 }
 
@@ -51,7 +49,7 @@ const styles = StyleSheet.create({
     borderRadius: 25
   },
   notFocused:{
-    backgroundColor: colors.branco.padrao
+    backgroundColor: colors.preto.padrao
   },
   icon:{
     alignSelf: 'center',

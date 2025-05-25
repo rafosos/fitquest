@@ -16,10 +16,10 @@ export default function AppLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: {"backgroundColor": colors.cinza.background} }} />
-      <Stack.Screen name="configuracoes" options={{ headerShown: false, presentation: 'modal', contentStyle: {"backgroundColor": colors.cinza.background} }} />
-      <Stack.Screen name="perfil" options={{ headerShown: false, presentation: 'modal', contentStyle: {"backgroundColor": colors.cinza.background} }} />
-      <Stack.Screen name="lixeira" options={{ headerShown: false, presentation: 'modal', contentStyle: {"backgroundColor": colors.cinza.background} }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: {"backgroundColor": colors.preto.padrao} }} />
+      <Stack.Screen name="configuracoes" options={{ headerShown: false, presentation: 'modal', contentStyle: {"backgroundColor": colors.preto.padrao} }} />
+      <Stack.Screen name="perfil" options={{ headerShown: false, presentation: 'modal', contentStyle: {"backgroundColor": colors.preto.padrao} }} />
+      <Stack.Screen name="lixeira" options={{ headerShown: false, presentation: 'modal', contentStyle: {"backgroundColor": colors.preto.padrao} }} />
     </Stack>
   )
 }

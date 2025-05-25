@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { colors } from '@/constants/Colors';
 
 export default function TabLayout() {
 
@@ -10,8 +11,13 @@ export default function TabLayout() {
             tabBarShowLabel: false,
             tabBarActiveTintColor: 'light',
             headerShown: false,
-            tabBarStyle: {overflow: 'visible'},
-            tabBarItemStyle:{
+            tabBarStyle: {
+                overflow: 'visible', 
+                backgroundColor: colors.preto.padrao,
+                borderTopColor: colors.verde.padrao2,
+                borderTopWidth: 2
+            },
+            tabBarItemStyle: {
                 marginVertical: 5
             }  
         }}

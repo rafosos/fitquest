@@ -1,14 +1,8 @@
-import SvgBase from '@/components/base/svgBase';
+import SvgBase, { SvgIconProps } from '@/components/base/svgBase';
 import React from 'react';
-import { ViewProps } from 'react-native';
 import { Path } from 'react-native-svg';
 
-interface Props{
-    cor: string
-    containerProps?: ViewProps
-}
-
-export default function Trofeu ({cor, containerProps}: Props){
+export default function Trofeu ({cor, containerProps}: SvgIconProps){
     return (
         <SvgBase
             containerProps={containerProps}

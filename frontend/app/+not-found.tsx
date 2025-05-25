@@ -1,12 +1,20 @@
 import StyledText from '@/components/base/styledText';
-import { Link, router, Stack, usePathname } from 'expo-router';
+import { Link, router, Stack, useNavigation, usePathname } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function NotFoundScreen() {
 
+  const nav = useNavigation();
   const routeparam = usePathname();
-  useEffect(() => console.log(routeparam), []);
+  useEffect(() => {
+    console.log(routeparam)
+    const state = nav.getState()
+    console.log(state.history);
+    console.log(state.routes);
+    
+    
+  }, []);
 
   return (
     <>

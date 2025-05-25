@@ -7,6 +7,11 @@ interface Props{
     containerProps?: ViewProps
 }
 
+export interface SvgIconProps{
+    cor: string
+    containerProps?: ViewProps
+}
+
 export default function SvgBase({containerProps, path}:Props){
     return (    
         <View {...containerProps}>

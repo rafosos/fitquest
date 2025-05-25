@@ -1,14 +1,8 @@
-import SvgBase from '@/components/base/svgBase';
+import SvgBase, { SvgIconProps } from '@/components/base/svgBase';
 import React from 'react';
-import { ViewProps } from 'react-native';
 import { Path } from 'react-native-svg';
 
-interface Props{
-    containerProps?: ViewProps
-    cor: string
-}
-
-export default function Loja({containerProps, cor}:Props){
+export default function Loja({containerProps, cor}: SvgIconProps){
     return (    
         <SvgBase
             containerProps={containerProps}
