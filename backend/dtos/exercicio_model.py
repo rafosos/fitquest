@@ -1,7 +1,11 @@
 from pydantic import BaseModel
 
-class ExercicioModel(BaseModel):
+class ExercicioCampeonatoModel(BaseModel):
     exercicio_id: int
     qtd_serie: int
     qtd_repeticoes: int
     qtd_pontos: int
+
+class ExercicioModel(BaseModel):
+    nome: str
+    dificuldade_id: int
