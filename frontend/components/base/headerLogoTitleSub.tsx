@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     subtitle:{
+        textAlign: 'center',
         color: colors.cinza.medio3
     },
 });

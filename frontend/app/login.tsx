@@ -1,7 +1,7 @@
 import { ActivityIndicator, StatusBar, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { useSession } from "./ctx";
 import StyledText from "@/components/base/styledText";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import UserService from "@/services/user_service";
 import { useRef, useState } from "react";
 import { colors } from "@/constants/Colors";
@@ -26,6 +26,7 @@ export default function Login() {
   
     const passRef = useRef<TextInput>(null);
     const errorHandler = ErrorHandler();
+    const navigation = useNavigation();
 
     const handleLogin = () => {
         let erroObj = {...erros};
@@ -48,7 +49,10 @@ export default function Login() {
                 if (res){
                     axios.defaults.headers.common = { "Authorization": `Bearer ${res.data.access_token}` }
                     signIn(res.data);
-                    router.replace("/(auth)/(tabs)/home/");
+                    navigation.reset({
+                        index: 0,
+                        routes: [{name: "(auth)"}]
+                    });
                 } else {
                     setErros({...erroObj, geral: `Login e senha inválidos ou incompatíveis, confira as informações inseridas e tente novamente.`});
                 }

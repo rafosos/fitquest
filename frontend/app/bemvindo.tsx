@@ -1,42 +1,75 @@
-import StyledText from "@/components/base/styledText";
-import GradienteInicio from "@/components/GradienteInicio";
 import { Feather } from "@expo/vector-icons";
-import { Dimensions, Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { router } from "expo-router";
 import { colors } from "@/constants/Colors";
-import { fonts } from "@/constants/Fonts";
+import HeaderLogoTitleSubTitle from "@/components/base/headerLogoTitleSub";
+import ActionButton from "@/components/ActionButton";
+import CardSplashInicial from "@/components/CardSplashInicial";
+import Trofeu from "@/assets/images/trofeu";
+import Amigos from "@/assets/images/amigos";
+import Loja from "@/assets/images/loja";
 
 export default function BemVindo(){
     return (
-        <View style={styles.containerSplash}>
-            <GradienteInicio semImagem/>
-            <StyledText style={styles.title}>Bem-vindo ao FitQuest</StyledText>
-            <Image style={styles.avatarSplash} resizeMode="contain" source={require("@/assets/images/avatar-splash.png")}/>
-            <Feather onPress={() => router.replace("/login")} name="chevrons-right" style={styles.iconeChevron} />
+        <View style={styles.container}>
+            <HeaderLogoTitleSubTitle
+                title="FitQuest"
+                subtitle="Transforme seus treinos em desafios divertidos e conecte-se com amigos  apra alcançar seus objetivos fitness"
+            />
+            
+            <View style={styles.containerCards}>
+                <CardSplashInicial
+                    title="Campeonatos"
+                    icone={<Trofeu />}
+                    text="Participe de desafios e ganhe recompensas"
+                />
+
+                <CardSplashInicial
+                    title="Amigos"
+                    icone={<Amigos />}
+                    text="Conecte-se e compita com seus amigos"
+                />
+
+                <CardSplashInicial
+                    title="Loja"
+                    icone={<Loja />}
+                    text="Personalize seu avatar com itens exclusivos"
+                />
+            </View>
+
+            <View style={styles.containerBotoes}>
+                <ActionButton
+                    text="Entrar"
+                    onPress={() => router.push("/login")}
+                    cor="verde"
+                />
+
+                <ActionButton
+                    text="Criar conta"
+                    onPress={() => router.push("/cadastro")}
+                    cor="cinza"
+                />
+            </View>
+
+            
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    containerSplash: {
-        backgroundColor: colors.branco.padrao,
+    container: {
+        backgroundColor: colors.preto.padrao,
         flex:1,
+        paddingHorizontal: "10%",
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        gap: 20
     },
-    avatarSplash: {
-        height: Dimensions.get('window').height * 0.7
+    containerCards:{
+        gap: 15,
+        width: '100%'
     },
-    iconeChevron:{
-        fontSize: 40, 
-        color: colors.preto.padrao, 
-        position: 'absolute', 
-        right: 10,
-        alignSelf: 'center'
-    },
-    title: {
-        fontSize: 40,
-        fontFamily: fonts.padrao.Medium500,
-        textAlign: 'center'
+    containerBotoes:{
+        width: '100%',
     }
-})
+});

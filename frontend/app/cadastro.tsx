@@ -259,7 +259,7 @@ export default function Cadastro() {
             />
 
             <StyledText style={styles.txtLogin}>Já tem conta?
-                <StyledText style={styles.txtBotaoLogin} onPress={() => navigator.goBack()}> Entrar</StyledText>
+                <StyledText style={styles.txtBotaoLogin} onPress={() => router.replace("/login")}> Entrar</StyledText>
             </StyledText>
     </ScrollView>
   );

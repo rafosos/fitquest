@@ -62,7 +62,8 @@ export const colors = {
     medio: "#ccc",
     medio2: '#757575',
     escuro: "#444",
-    medio3: "#6B7280"
+    medio3: "#6B7280",
+    medio4: "#1F2937"
   },
   branco: {
     padrao: "#fff"
