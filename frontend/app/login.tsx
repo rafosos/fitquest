@@ -13,6 +13,8 @@ import axios from "axios";
 import { regexSqlInjectionVerify } from "@/utils/functions";
 import { ErrorHandler } from "@/utils/ErrorHandler";
 import DumbbelLogo from "@/assets/images/dumbbel_logo";
+import BackgroundInputs from "@/components/BackgroundInputs";
+import LabeledInput from "@/components/base/labeledInput";
 
 export default function Login() {
     const { signIn } = useSession();
@@ -77,60 +79,73 @@ export default function Login() {
                 texto={erros.geral}
             />
 
-            <View style={styles.containerInputs}>
-
-                <View style={styles.containerInput}>
-                    <StyledText style={[styles.label, erros.inputLogin && styles.inputErro]}>Email ou username</StyledText>
-                    <View style={[styles.txtInputIcon, erros.inputLogin && styles.inputErro]}>
-                        <Feather name="mail" style={[styles.iconeTxtInput, erros.inputLogin && styles.inputErro]}/>
-                        <StyledTextInput 
-                            placeholder="Ex.: seu@email.com"
-                            value={login}
-                            onChangeText={(txt) => setLogin(txt)} 
-                            style={[styles.input, erros.inputLogin && styles.inputErro]}
-                            enterKeyHint="next"
-                            blurOnSubmit={false}
-                            onBlur={() => setErros({...erros, "inputLogin": !login})}
-                            onSubmitEditing={() => passRef.current && passRef.current.focus()}
-                        />
-                    </View>
-                    <ErroInput
-                        show={erros.inputLogin}
-                        texto="O campo é obrigatório!"
-                    />
-                    <ErroInput
-                        show={erros.regex}
-                        texto="O usuário é inválido!"
-                    />
-                </View>
-
-                <View style={styles.containerInput}>
-                    <StyledText style={[styles.label, erros.inputSenha && styles.inputErro]}>Senha</StyledText>
-                    <View style={[styles.txtInputIcon, erros.inputSenha && styles.inputErro]}>
-                        <Feather name="lock" style={[styles.iconeTxtInput, erros.inputSenha && styles.inputErro]}/>
-                        <StyledTextInput
-                            placeholder="Senha"
-                            secureTextEntry
-                            value={senha}
-                            onBlur={() => setErros({...erros, "inputSenha": !senha})}
-                            onChangeText={(txt) => setSenha(txt)}
-                            style={styles.input}
-                            ref={passRef}
-                            onSubmitEditing={() => handleLogin()} 
+            <BackgroundInputs
+                inputList={[
+                    <LabeledInput
+                        erroStyle={erros.inputLogin && styles.inputErro}
+                        label="Email ou username"
+                        key="Email ou username"
+                        inputComponent={
+                            <View style={[styles.txtInputIcon, erros.inputLogin && styles.inputErro]}>
+                                <Feather name="mail" style={[styles.iconeTxtInput, erros.inputLogin && styles.inputErro]}/>
+                                <StyledTextInput 
+                                    placeholder="Ex.: seu@email.com"
+                                    value={login}
+                                    onChangeText={(txt) => setLogin(txt)} 
+                                    style={[styles.input, erros.inputLogin && styles.inputErro]}
+                                    enterKeyHint="next"
+                                    blurOnSubmit={false}
+                                    onBlur={() => setErros({...erros, "inputLogin": !login})}
+                                    onSubmitEditing={() => passRef.current && passRef.current.focus()}
+                                />
+                            </View>
+                        }
+                        errors={[
+                            <ErroInput
+                                show={erros.inputLogin}
+                                texto="O campo é obrigatório!"
+                            />,
+                            <ErroInput
+                                show={erros.regex}
+                                texto="O usuário é inválido!"
                             />
-                    </View>
-                    <ErroInput
-                        show={erros.inputSenha}
-                        texto="O campo é obrigatório!"
-                    />
-                </View>
+                        ]}
+                    />,
 
-                <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
-                {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
-                    <StyledText style={styles.txtBotaoEntrar}>Entrar</StyledText>}
-                </TouchableOpacity>
-            </View>
-            
+                    <LabeledInput
+                        key={"senha"}
+                        label="Senha"
+                        erroStyle={erros.inputSenha && styles.inputErro}
+                        inputComponent={
+                            <View style={[styles.txtInputIcon, erros.inputSenha && styles.inputErro]}>
+                                <Feather name="lock" style={[styles.iconeTxtInput, erros.inputSenha && styles.inputErro]}/>
+                                <StyledTextInput
+                                    placeholder="Senha"
+                                    secureTextEntry
+                                    value={senha}
+                                    onBlur={() => setErros({...erros, "inputSenha": !senha})}
+                                    onChangeText={(txt) => setSenha(txt)}
+                                    style={styles.input}
+                                    ref={passRef}
+                                    onSubmitEditing={() => handleLogin()} 
+                                />
+                            </View>
+                        }
+                        errors={[
+                            <ErroInput
+                                show={erros.inputSenha}
+                                texto="O campo é obrigatório!"
+                            />
+                        ]}
+                    />
+                ]}
+                botao={
+                    <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
+                    {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
+                        <StyledText style={styles.txtBotaoEntrar}>Entrar</StyledText>}
+                    </TouchableOpacity>
+                }
+            />
 
             <StyledText style={styles.txtCadastro}>Ainda não tem conta?
                 <StyledText style={styles.txtBotaoCadastro} onPress={() => router.push("/cadastro")}> Criar conta</StyledText>
@@ -176,7 +191,6 @@ const styles = StyleSheet.create({
         color: colors.cinza.medio3
     },
     txtInputIcon:{
-        width: "80%",
         flexDirection: "row",
         borderWidth: 1,
         backgroundColor: colors.cinza.medio3,

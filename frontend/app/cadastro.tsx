@@ -1,18 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, TextInput, View, TouchableOpacity, Platform, ActivityIndicator } from "react-native";
+import { StyleSheet, TextInput, View, TouchableOpacity, Platform, ActivityIndicator, ScrollView } from "react-native";
 import { router, useNavigation } from "expo-router";
 import StyledText from "@/components/base/styledText";
 import StyledTextInput from "@/components/base/styledTextInput";
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
-
 import UserService from "@/services/user_service";
-import { fonts } from "@/constants/Fonts";
-import GradienteInicio from "@/components/GradienteInicio";
 import { colors } from "@/constants/Colors";
 import ErroInput from "@/components/ErroInput";
 import { AntDesign } from "@expo/vector-icons";
 import { regexSqlInjectionVerify, showDiaMes } from "@/utils/functions";
 import { useToast } from "react-native-toast-notifications";
+import HeaderLogoTitleSubTitle from "@/components/base/headerLogoTitleSub";
+import LabeledInput from "@/components/base/labeledInput";
+import BackgroundInputs from "@/components/BackgroundInputs";
+import { fonts } from "@/constants/Fonts";
 
 export default function Cadastro() {    
     const [username, setUsername] = useState("");
@@ -97,140 +98,189 @@ export default function Cadastro() {
     }
 
     return (
-        <View style={styles.container}>
-            <GradienteInicio image={require("@/assets/images/avatar-cadastro.png")} />
-
+        <ScrollView contentContainerStyle={styles.container}>
             <AntDesign name="arrowleft" onPress={() => navigator.goBack()} style={styles.iconeVoltar} />
             
-            <StyledText style={styles.title}>Cadastro</StyledText>
-            <View style={styles.separator} />
+            <HeaderLogoTitleSubTitle 
+                title="Crie sua conta"
+                subtitle="Começe sua jornada fitness hoje mesmo!"
+            />
 
             <ErroInput
+                style={styles.erroGeral}
                 show={erros.geral} 
                 texto={erros.geral}
             />
-            
-            <StyledTextInput 
-                placeholder="Username"
-                value={username}
-                onChangeText={(txt) => setUsername(txt)} 
-                style={[styles.input, erros.username && styles.inputErro]}
-                enterKeyHint="next"
-                blurOnSubmit={false}
-                onBlur={() => setErros({...erros, username: !username})}
-                onSubmitEditing={() => fullnameRef.current && fullnameRef.current.focus()}
-            />
-            <ErroInput 
-                show={erros.username && !erros.geral}
-                texto="O username é obrigatório!"
-            />
-            <ErroInput 
-                show={erros.usernameRegex && !erros.username && !erros.geral}
-                texto="O username inserido é invalido!"
-            />
 
-            <StyledTextInput 
-                placeholder="Nome completo"
-                value={fullname}
-                onChangeText={(txt) => setFullname(txt)} 
-                enterKeyHint="next"
-                style={[styles.input, erros.fullname && styles.inputErro]}
-                blurOnSubmit={false}
-                ref={fullnameRef}
-                onSubmitEditing={() => emailRef.current && emailRef.current.focus()}
-                onBlur={() => setErros({...erros, fullname: !fullname})}
-            />
-            <ErroInput 
-                show={erros.fullname && !erros.geral}
-                texto="O nome completo é obrigatório!"
-            />
-            <ErroInput 
-                show={erros.fullnameRegex && !erros.fullname && !erros.geral}
-                texto="O nome completo inserido é inválido!"
-            />
+            <BackgroundInputs
+                inputList={[
+                    <LabeledInput
+                        key={"Username"}
+                        label="Username"
+                        inputComponent={
+                            <StyledTextInput 
+                                placeholder="Username"
+                                value={username}
+                                onChangeText={(txt) => setUsername(txt)} 
+                                style={[styles.input, erros.username && styles.inputErro]}
+                                enterKeyHint="next"
+                                blurOnSubmit={false}
+                                onBlur={() => setErros({...erros, username: !username})}
+                                onSubmitEditing={() => fullnameRef.current && fullnameRef.current.focus()}
+                            />
+                        }
+                        errors={[
+                            <ErroInput 
+                                show={erros.username && !erros.geral}
+                                texto="O username é obrigatório!"
+                            />,
+                            <ErroInput 
+                                show={erros.usernameRegex && !erros.username && !erros.geral}
+                                texto="O username inserido é invalido!"
+                            />
+                        ]}
+                    />,
 
-            <StyledTextInput
-                autoComplete="email"
-                keyboardType="email-address"
-                placeholder="Email"
-                value={email}
-                onChangeText={(txt) => setEmail(txt)} 
-                enterKeyHint="next"
-                ref={emailRef}
-                style={[styles.input, erros.email && styles.inputErro]}
-                onBlur={() => setErros({...erros, email: !email})}
-            />
-            <ErroInput 
-                show={erros.email && !erros.geral}
-                texto="O email é obrigatório!"
-            />
-            <ErroInput 
-                show={erros.emailRegex && !erros.email && !erros.geral}
-                texto="O email inserido é inválido!"
-            />
+                    <LabeledInput
+                        key={"nome completo"}
+                        label="Nome completo"
+                        inputComponent={
+                            <StyledTextInput 
+                                placeholder="Nome completo"
+                                value={fullname}
+                                onChangeText={(txt) => setFullname(txt)} 
+                                enterKeyHint="next"
+                                style={[styles.input, erros.fullname && styles.inputErro]}
+                                blurOnSubmit={false}
+                                ref={fullnameRef}
+                                onSubmitEditing={() => emailRef.current && emailRef.current.focus()}
+                                onBlur={() => setErros({...erros, fullname: !fullname})}
+                            />
+                        }
+                        errors={[
+                            <ErroInput 
+                                show={erros.fullname && !erros.geral}
+                                texto="O nome completo é obrigatório!"
+                            />,
+                            <ErroInput 
+                                show={erros.fullnameRegex && !erros.fullname && !erros.geral}
+                                texto="O nome completo inserido é inválido!"
+                            />
+                        ]}
+                    />,
 
-            <TouchableOpacity
-                style={[styles.input, erros.nascimento && styles.inputErro]}
-                onPress={() => setDatePicker(true)}
-            >
-                <StyledTextInput 
-                    placeholder="Data de nascimento"
-                    value={showDiaMes(nascimento) == "..." ? undefined : showDiaMes(nascimento)}
-                    editable={false}
-                    style={{color: colors.preto.padrao}}
-                />
-            </TouchableOpacity>
-            {(datePicker && Platform.OS != "android") &&
-                <RNDateTimePicker 
-                    mode="date"
-                    onChange={handleDatePickerChange}
-                    value={nascimento ?? new Date()}
-                />
-            }
-            <ErroInput 
-                show={erros.nascimento}
-                texto="O campo Data de nascimento é obrigatório."
-            />
+                    <LabeledInput
+                        key={"email"}
+                        label="Email"
+                        inputComponent={
+                            <StyledTextInput
+                                autoComplete="email"
+                                keyboardType="email-address"
+                                placeholder="Email"
+                                value={email}
+                                onChangeText={(txt) => setEmail(txt)} 
+                                enterKeyHint="next"
+                                ref={emailRef}
+                                style={[styles.input, erros.email && styles.inputErro]}
+                                onBlur={() => setErros({...erros, email: !email})}
+                            />
+                        }
+                        errors={[
+                            <ErroInput 
+                                show={erros.email && !erros.geral}
+                                texto="O email é obrigatório!"
+                            />,
+                            <ErroInput 
+                                show={erros.emailRegex && !erros.email && !erros.geral}
+                                texto="O email inserido é inválido!"
+                            />
+                        ]}
+                    />,
 
-            <StyledTextInput
-                placeholder="Senha"
-                secureTextEntry
-                value={senha}
-                onChangeText={(txt) => setSenha(txt)}
-                onBlur={() => setErros({...erros, senha: !senha})} 
-                style={[styles.input, erros.senha && styles.inputErro]}
-            />
-            <ErroInput
-                show={erros.senha}
-                texto="O campo senha é obrigatório."
-            />
+                    <LabeledInput
+                        key={"data nascimento"}
+                        label="Data de nascimento"
+                        inputComponent={<>
+                            <TouchableOpacity
+                                style={[styles.input, erros.nascimento && styles.inputErro]}
+                                onPress={() => setDatePicker(true)}
+                                >
+                                <StyledTextInput 
+                                    placeholder="Data de nascimento"
+                                    value={showDiaMes(nascimento) == "..." ? undefined : showDiaMes(nascimento)}
+                                    editable={false}
+                                    style={{color: colors.preto.padrao}}
+                                    />
+                            </TouchableOpacity>
+                            {(datePicker && Platform.OS != "android") &&
+                                <RNDateTimePicker 
+                                mode="date"
+                                onChange={handleDatePickerChange}
+                                value={nascimento ?? new Date()}
+                                />
+                            }
+                        </>}
+                        errors={[  
+                            <ErroInput 
+                                show={erros.nascimento}
+                                texto="O campo Data de nascimento é obrigatório."
+                            />
+                        ]}
+                    />,
 
-            <TouchableOpacity style={styles.botaoEnviar} onPress={handleCadastrar}>
-                {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
-                    <StyledText style={styles.textBotaoEnviar}>CADASTRAR</StyledText>
+                    <LabeledInput
+                        key={"senha"}
+                        label="Senha"
+                        inputComponent={
+                            <StyledTextInput
+                                placeholder="Senha"
+                                secureTextEntry
+                                value={senha}
+                                onChangeText={(txt) => setSenha(txt)}
+                                onBlur={() => setErros({...erros, senha: !senha})} 
+                                style={[styles.input, erros.senha && styles.inputErro]}
+                            />
+                        }
+                        errors={[
+                            <ErroInput
+                                show={erros.senha}
+                                texto="O campo senha é obrigatório."
+                            />
+                        ]}
+                    />
+                ]}
+                botao={
+                    <TouchableOpacity style={styles.botaoEnviar} onPress={handleCadastrar}>
+                        {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
+                            <StyledText style={styles.textBotaoEnviar}>Criar conta</StyledText>
+                        }
+                    </TouchableOpacity>
                 }
-            </TouchableOpacity>
-    </View>
+            />
+
+            <StyledText style={styles.txtLogin}>Já tem conta?
+                <StyledText style={styles.txtBotaoLogin} onPress={() => navigator.goBack()}> Entrar</StyledText>
+            </StyledText>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.branco.padrao,
+        backgroundColor: colors.preto.padrao,
         alignItems: "center",
         justifyContent: "center",
     },
     iconeVoltar:{
         fontSize: 30, 
-        color: colors.preto.padrao, 
+        color: colors.cinza.medio3, 
         position: 'absolute', 
         top: 15, 
         left: 15
     },
-    title: {
-        fontSize: 40,
-        fontFamily: fonts.padrao.Medium500,
+    erroGeral: {
+        marginVertical: 15
     },
     paragraph: {
         margin: 24,
@@ -243,27 +293,34 @@ const styles = StyleSheet.create({
         width: "80%",
     },
     input: {
-        width: "80%",
         borderWidth: 1,
-        backgroundColor: colors.branco.padrao,
+        backgroundColor: colors.cinza.medio3,
         borderColor: colors.preto.padrao,
         padding: 10,
-        margin: 10,
-        borderRadius: 20,
+        borderRadius: 15,
     },
     inputErro:{
         borderColor: colors.vermelho.erro,
         color: colors.vermelho.erro
     },
     botaoEnviar:{
-        backgroundColor: colors.cinza.escuro,
+        width: '100%',
+        backgroundColor: colors.verde.padrao,
         alignItems: 'center',
-        borderRadius: 20,
-        marginTop: 5,
+        borderRadius: 15,
         padding: 10,
         paddingHorizontal: 25
     },
     textBotaoEnviar:{
-        color: colors.branco.padrao
+        color: colors.preto.padrao,
+        fontFamily: fonts.padrao.Bold700
+    },
+    txtLogin:{
+        color: colors.cinza.medio3,
+        marginTop: 25
+    },
+    txtBotaoLogin:{
+        color: colors.verde.padrao2
     }
+
 });
