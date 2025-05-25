@@ -146,8 +146,7 @@ def get_streak_semana(current_user: User):
     # from public.user_exercicio as t
     # where date_part('week', data) = date_part('week', current_date)
 
-def get_streaks_geral(current_user: User):
-    user_id = current_user.id
+def get_streaks_geral(user_id: int):
     with Session() as sess:
         dia = sess.execute(query_streak_dia(user_id)).mappings().first()
         semana = sess.execute(query_streak_semana(user_id)).mappings().first()

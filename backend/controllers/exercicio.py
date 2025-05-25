@@ -36,7 +36,7 @@ def get_streak_semana(current_user: Annotated[User, Depends(get_current_user)]):
 
 @router.get("/streak_geral/")
 def get_streaks_geral(current_user: Annotated[User, Depends(get_current_user)]):
-    return exercicio_service.get_streaks_geral(current_user)
+    return exercicio_service.get_streaks_geral(current_user.id)
     
 @router.patch("/{treino_id}")
 def atualizar_status_treino(treino_id: int, status: StatusTreino = Body(..., embed=True)):
