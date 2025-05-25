@@ -12,6 +12,7 @@ import StyledText from '@/components/base/styledText';
 import { fonts } from '@/constants/Fonts';
 import { router } from 'expo-router';
 import { ModalPedidosAmizade } from '@/components/ModalPedidosAmizade';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 
 export default function TabAmigos() {
     const [addModal, setAddModal] = useState(false);
@@ -22,8 +23,9 @@ export default function TabAmigos() {
 
     const userService = UserService();
 
-    useEffect(() => 
-    refreshFriendList(), []);
+    const errorHandler = ErrorHandler();
+
+    useEffect(() => refreshFriendList(), []);
 
     const refreshFriendList = () => {
         refreshAmigos();
@@ -33,7 +35,7 @@ export default function TabAmigos() {
         setLoadingAmigos(true);
         userService.getAmigos()
             .then(res => setAmigos(res))
-            .catch(err => console.log(err))
+            .catch(err => errorHandler.handleError(err))
             .finally(() => setLoadingAmigos(false));          
     }
         

@@ -28,11 +28,15 @@ export const colors = {
     cinzaClaro: '#757575',
     cinzaEscuro: '#494949',
   },
+  azul:{
+    escuro: "#111827"
+  },
   dourado:{
     padrao: '#daa520'
   },
   verde:{
-    padrao: '#3EBA52'
+    padrao: '#3EBA52',
+    padrao2: '#10B981'
   },
   vermelho:{
     padrao: "#d50000",
@@ -58,6 +62,7 @@ export const colors = {
     medio: "#ccc",
     medio2: '#757575',
     escuro: "#444",
+    medio3: "#6B7280"
   },
   branco: {
     padrao: "#fff"

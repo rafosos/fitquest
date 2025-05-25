@@ -71,7 +71,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   AndroidSafeArea: {
     flex: 1,
-    backgroundColor: colors.cinza.background,
+    backgroundColor: colors.preto.padrao,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   }
 });

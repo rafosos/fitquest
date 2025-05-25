@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StatusBar, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { useSession } from "./ctx";
 import StyledText from "@/components/base/styledText";
 import { router } from "expo-router";
@@ -9,10 +9,10 @@ import { fonts } from "@/constants/Fonts";
 import StyledTextInput from "@/components/base/styledTextInput";
 import { Feather } from "@expo/vector-icons";
 import ErroInput from "@/components/ErroInput";
-import GradienteInicio from "@/components/GradienteInicio";
 import axios from "axios";
 import { regexSqlInjectionVerify } from "@/utils/functions";
 import { ErrorHandler } from "@/utils/ErrorHandler";
+import DumbbelLogo from "@/assets/images/dumbbel_logo";
 
 export default function Login() {
     const { signIn } = useSession();
@@ -65,66 +65,76 @@ export default function Login() {
 
     return (
         <View style={styles.container}>
-            <GradienteInicio espelharGradiente image={require("@/assets/images/avatar-login.png")} />
-            <StyledText style={styles.title}>Login</StyledText>
-            <View style={styles.separator} />
+            <StatusBar barStyle={"dark-content"} backgroundColor={colors.preto.padrao}/>
+            
+            <DumbbelLogo style={styles.logo}/>
+            <StyledText style={styles.title}>Bem-vindo de volta!</StyledText>
+            <StyledText style={styles.subtitle}>Entre para continuar sua jornada fitness</StyledText>
             
             <ErroInput
+                style={styles.erroGeral}
                 show={erros.geral}
                 texto={erros.geral}
             />
-            <View style={[styles.txtInputIcon, erros.inputLogin && styles.inputErro]}>
-                <Feather name="mail" style={[styles.iconeTxtInput, erros.inputLogin && styles.inputErro]}/>
-                <StyledTextInput 
-                    placeholder="Email ou Username"
-                    value={login}
-                    onChangeText={(txt) => setLogin(txt)} 
-                    style={[styles.input, erros.inputLogin && styles.inputErro]}
-                    enterKeyHint="next"
-                    blurOnSubmit={false}
-                    onBlur={() => setErros({...erros, "inputLogin": !login})}
-                    onSubmitEditing={() => passRef.current && passRef.current.focus()}
-                />
+
+            <View style={styles.containerInputs}>
+
+                <View style={styles.containerInput}>
+                    <StyledText style={[styles.label, erros.inputLogin && styles.inputErro]}>Email ou username</StyledText>
+                    <View style={[styles.txtInputIcon, erros.inputLogin && styles.inputErro]}>
+                        <Feather name="mail" style={[styles.iconeTxtInput, erros.inputLogin && styles.inputErro]}/>
+                        <StyledTextInput 
+                            placeholder="Ex.: seu@email.com"
+                            value={login}
+                            onChangeText={(txt) => setLogin(txt)} 
+                            style={[styles.input, erros.inputLogin && styles.inputErro]}
+                            enterKeyHint="next"
+                            blurOnSubmit={false}
+                            onBlur={() => setErros({...erros, "inputLogin": !login})}
+                            onSubmitEditing={() => passRef.current && passRef.current.focus()}
+                        />
+                    </View>
+                    <ErroInput
+                        show={erros.inputLogin}
+                        texto="O campo é obrigatório!"
+                    />
+                    <ErroInput
+                        show={erros.regex}
+                        texto="O usuário é inválido!"
+                    />
+                </View>
+
+                <View style={styles.containerInput}>
+                    <StyledText style={[styles.label, erros.inputSenha && styles.inputErro]}>Senha</StyledText>
+                    <View style={[styles.txtInputIcon, erros.inputSenha && styles.inputErro]}>
+                        <Feather name="lock" style={[styles.iconeTxtInput, erros.inputSenha && styles.inputErro]}/>
+                        <StyledTextInput
+                            placeholder="Senha"
+                            secureTextEntry
+                            value={senha}
+                            onBlur={() => setErros({...erros, "inputSenha": !senha})}
+                            onChangeText={(txt) => setSenha(txt)}
+                            style={styles.input}
+                            ref={passRef}
+                            onSubmitEditing={() => handleLogin()} 
+                            />
+                    </View>
+                    <ErroInput
+                        show={erros.inputSenha}
+                        texto="O campo é obrigatório!"
+                    />
+                </View>
+
+                <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
+                {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
+                    <StyledText style={styles.txtBotaoEntrar}>Entrar</StyledText>}
+                </TouchableOpacity>
             </View>
-            <ErroInput
-                show={erros.inputLogin}
-                texto="O campo é obrigatório!"
-            />
-            <ErroInput
-                show={erros.regex}
-                texto="O usuário é inválido!"
-            />
-
-            <View style={[styles.txtInputIcon, erros.inputSenha && styles.inputErro]}>
-                <Feather name="lock" style={[styles.iconeTxtInput, erros.inputSenha && styles.inputErro]}/>
-                <StyledTextInput
-                    placeholder="Senha"
-                    secureTextEntry
-                    value={senha}
-                    onBlur={() => setErros({...erros, "inputSenha": !senha})}
-                    onChangeText={(txt) => setSenha(txt)}
-                    style={styles.input}
-                    ref={passRef}
-                    onSubmitEditing={() => handleLogin()} 
-                />
-            </View>
-            <ErroInput
-                show={erros.inputSenha}
-                texto="O campo é obrigatório!"
-            />
-
-            <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
-            {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
-                <StyledText style={styles.txtBotaoEntrar}>ENTRAR</StyledText>}
-            </TouchableOpacity>
-
-            <View style={styles.separator} />
             
-            <StyledText>Ainda não tem conta?</StyledText>
 
-            <TouchableOpacity style={styles.botaoEntrar} onPress={() => router.push("/cadastro")}>
-                <StyledText style={styles.txtBotaoEntrar}>CADASTRE-SE AGORA!</StyledText>
-            </TouchableOpacity>
+            <StyledText style={styles.txtCadastro}>Ainda não tem conta?
+                <StyledText style={styles.txtBotaoCadastro} onPress={() => router.push("/cadastro")}> Criar conta</StyledText>
+            </StyledText>
         </View>
     );
 }
@@ -134,32 +144,46 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: colors.branco.padrao,
+        backgroundColor: colors.preto.padrao,
+    },
+    logo: {
+        marginBottom: 25, 
     },
     title: {
-        fontSize: 40,
+        fontSize: 25,
         fontFamily: fonts.padrao.Medium500,
+        color: colors.branco.padrao,
         textAlign: 'center'
     },
-    paragraph: {
-        margin: 24,
-        fontSize: 18,
-        textAlign: "center",
+    subtitle:{
+        color: colors.cinza.medio3
     },
-    separator: {
-        marginVertical: 30,
-        height: 1,
-        width: "80%",
+    erroGeral:{
+        marginVertical: 15
+    },
+    containerInputs:{
+        backgroundColor: colors.azul.escuro,
+        borderRadius: 15,
+        paddingVertical: 15,
+        gap: 10,
+        marginTop: 25,
+        paddingHorizontal: 20,
+    },
+    containerInput:{
+        width: '100%'
+    },
+    label:{
+        color: colors.cinza.medio3
     },
     txtInputIcon:{
         width: "80%",
         flexDirection: "row",
         borderWidth: 1,
-        backgroundColor: colors.branco.padrao,
+        backgroundColor: colors.cinza.medio3,
         borderColor: colors.preto.padrao,
         padding: 10,
-        margin: 10,
-        borderRadius: 20,
+        borderRadius: 15,
+        marginBottom: 5
     },
     iconeTxtInput:{
         alignSelf: 'center',
@@ -175,14 +199,22 @@ const styles = StyleSheet.create({
         color: colors.vermelho.padrao
     },
     botaoEntrar:{
-        backgroundColor: colors.cinza.escuro,
-        padding:10,
+        backgroundColor: colors.verde.padrao2,
+        padding: 10,
         paddingHorizontal: 25,
         alignItems: 'center',
-        borderRadius: 25,
+        borderRadius: 15,
         marginTop: 5
     },
     txtBotaoEntrar:{
-        color: colors.branco.padrao,
+        fontFamily: fonts.padrao.Bold700,
+        color: colors.preto.padrao,
+    },
+    txtCadastro:{
+        color: colors.cinza.medio3,
+        marginTop: 25
+    },
+    txtBotaoCadastro:{
+        color: colors.verde.padrao2
     }
 });

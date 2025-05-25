@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { colors } from '@/constants/Colors';
 import StyledText from './base/styledText';
 import { AntDesign } from '@expo/vector-icons';
@@ -6,13 +6,14 @@ import { AntDesign } from '@expo/vector-icons';
 interface PropsErroInput{
     texto: string,
     show: boolean,
-    setShow?: (value: any) => void
+    setShow?: (value: any) => void,
+    style?: ViewStyle
 }
 
-export default function ErroInput({ texto, show, setShow }: PropsErroInput) {
+export default function ErroInput({ texto, show, setShow, style }: PropsErroInput) {
     return (
         show ?
-        <View style={styles.container}>
+        <View style={[styles.container, style]}>
             <StyledText style={styles.txtErroInput}>{texto}</StyledText>
             {setShow && <AntDesign name="close" onPress={() => setShow(false)} style={styles.icone} />}
         </View>
