@@ -39,10 +39,7 @@ export default function TabLoja() {
 
 const styles = StyleSheet.create({
     container:{
-        backgroundColor: colors.cinza.background,
-        // flex: 1,
-        // paddingHorizontal: 5,
-        // alignItems: 'center',
+        backgroundColor: colors.preto.padrao,
         paddingLeft: 10
     },
     title:{

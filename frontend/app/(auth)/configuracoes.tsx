@@ -9,9 +9,9 @@ import { fonts } from '@/constants/Fonts';
 import { showDiaMes } from '@/utils/functions';
 import StyledTextInput from '@/components/base/styledTextInput';
 import UserService from '@/services/user_service';
-import { errorHandlerDebug } from '@/services/service_config';
 import ErroInput from '@/components/ErroInput';
 import User from '@/classes/user';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 
 enum campos {
     fullname,
@@ -33,6 +33,8 @@ export default function Configuracoes() {
 
     const inputRef = useRef<TextInput>(null);
 
+    const errorHandler = ErrorHandler();
+
     useEffect(() => getUserInfo(), []);
 
     const getUserInfo = () => {
@@ -40,7 +42,7 @@ export default function Configuracoes() {
         userService.getUserInfo()
             .then(res => {
                 setUserRef(res)})
-            .catch(err => errorHandlerDebug(err))
+            .catch(err => errorHandler.handleError(err))
             .finally(() => setLoading(false));
     }
 
@@ -60,12 +62,12 @@ export default function Configuracoes() {
         userService.editarDado(campos[campo], valorNovo)
             .then(res => {
                 setUserRef(res);
-                setUser(JSON.stringify(res));
+                setUser(res.username);
                 setCampoEditar(undefined);
                 setErro("");
             })
             .catch(err => {
-                errorHandlerDebug(err);
+                errorHandler.handleError(err);
                 if (err.response){
                     setErro(err.response.data.detail)}
                 else

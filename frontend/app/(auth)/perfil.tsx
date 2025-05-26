@@ -190,7 +190,7 @@ const s = StyleSheet.create({
     container:{
         flex:1,
         flexDirection: 'column',
-        backgroundColor: colors.cinza.background
+        backgroundColor: colors.preto.padrao
     },
     txtErroUsuario:{
         color: colors.branco.padrao, 

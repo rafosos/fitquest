@@ -127,7 +127,7 @@ export default function TabAmigos() {
 
 const styles = StyleSheet.create({
     container:{
-        backgroundColor: colors.cinza.background,
+        backgroundColor: colors.preto.padrao,
         flex:1
     },
     containerAmigos:{

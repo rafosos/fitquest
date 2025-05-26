@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
     tabs:{
-        backgroundColor: colors.cinza.background,
+        backgroundColor: colors.preto.padrao,
     },
     footerTreino:{
         flexDirection: "row",

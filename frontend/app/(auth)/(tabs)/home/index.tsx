@@ -115,7 +115,10 @@ export default function TabAvatar() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh}/>}
             ListHeaderComponent={<>
                 <View style={s.containerNomes}>
-                    <StyledText style={s.username}>{username}</StyledText>
+                    <View>
+                      <StyledText style={s.username}>Olá, {username}</StyledText>
+                      <StyledText style={s.subnome}>Vamos treinar hoje?</StyledText>
+                    </View>
                     <Link href="/configuracoes">
                         <Feather name="settings" style={s.iconeConfigs} />
                     </Link>
@@ -125,7 +128,7 @@ export default function TabAvatar() {
                     <Image style={s.gifAvatar} source={require('@/assets/images/avatar-home.png')} />
                 </View>
 
-                <ErroInput 
+                <ErroInput
                     show={!!erro}
                     texto={erro}
                     setShow={setErro}
@@ -147,12 +150,12 @@ export default function TabAvatar() {
 {/* new DataFlatlist('Streak semanal', informacoesUsuario?.streak_semanal?.streak_length, false),
 new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_length, false), */}
 
-                <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+                <View style={s.streaksContainer}>
                   <View style={[s.card, s.cardInformacoesPessoais]}>
-                      <StyledText>Streak semanal: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_semanal?.streak_length}</StyledText></StyledText> 
+                      <StyledText style={s.txtChip}>Streak semanal: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_semanal?.streak_length}</StyledText></StyledText> 
                   </View>
                   <View style={[s.card, s.cardInformacoesPessoais]}>
-                      <StyledText>Streak diário: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_diario?.streak_length}</StyledText></StyledText> 
+                      <StyledText  style={s.txtChip}>Streak diário: <StyledText style={s.txtStreak}>{informacoesUsuario?.streak_diario?.streak_length}</StyledText></StyledText> 
                   </View>
                 </View>
 
@@ -179,7 +182,7 @@ new DataFlatlist('Streak diário', informacoesUsuario?.streak_diario?.streak_len
 
                     </View>
 
-                    <StyledText>{item.exercicios}</StyledText>
+                    <StyledText style={s.txtChip}>{item.exercicios}</StyledText>
                 </View>
                 // </TouchableOpacity>
             }
@@ -207,7 +210,7 @@ const s = StyleSheet.create({
     marginLeft: 5
   },
   containerFlatlist:{
-    padding: 10,
+    padding: 20,
   },
   containerNomes:{
     flexDirection: "row",
@@ -216,8 +219,11 @@ const s = StyleSheet.create({
   },
   username:{
     color: colors.branco.padrao,
-    fontSize: 30,
-    fontFamily: fonts.padrao.Regular400
+    fontSize: 24,
+    fontFamily: fonts.padrao.Bold700
+  },
+  subnome:{
+    color: colors.cinza.medio3
   },
   iconeConfigs:{
     color: colors.branco.padrao,
@@ -233,11 +239,12 @@ const s = StyleSheet.create({
     height: '100%',
     alignSelf: "center"
   },
-    status:{
-        backgroundColor: colors.branco.padrao,
-        borderRadius: 10,
-        padding:10
-    },
+  status:{
+    backgroundColor: colors.cinza.medio4,
+    borderRadius: 10,
+    padding:10,
+    color: colors.branco.padrao
+  },
   streaksContainer:{
     flexDirection: 'row',
     justifyContent: 'space-between'
@@ -259,8 +266,7 @@ const s = StyleSheet.create({
   },
   card:{
     marginVertical: 5,
-    borderColor: colors.cinza.escuro,
-    backgroundColor: colors.branco.padrao,
+    backgroundColor: colors.cinza.medio4,
     borderWidth: 2,
     borderRadius: 10,
     padding: 10
@@ -268,24 +274,28 @@ const s = StyleSheet.create({
   cardInformacoesPessoais:{
     flexDirection: 'row',
     justifyContent: "space-between",
-    borderRadius: 20,
-    paddingHorizontal: 15
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    flex:1
   },
   headerCard:{
     flexDirection:"row",
     justifyContent: "space-between"
   },
   nomeTreino:{
-    fontFamily: fonts.padrao.SemiBold600
+    fontFamily: fonts.padrao.SemiBold600,
+    color: colors.branco.padrao
   },
   data:{
+    color: colors.branco.padrao,
     fontSize: 12
   },
   chip:{
 
   },
   txtChip:{
-    fontFamily: fonts.padrao.Light300
+    fontFamily: fonts.padrao.Light300,
+    color: colors.branco.padrao
   },
   txtNenhumaAtividade:{
     color: colors.branco.padrao,

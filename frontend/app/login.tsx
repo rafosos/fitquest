@@ -225,7 +225,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
         alignItems: 'center',
         borderRadius: 15,
-        marginTop: 5
+        marginTop: 5,
+        width: '100%'
     },
     txtBotaoEntrar:{
         fontFamily: fonts.padrao.Bold700,

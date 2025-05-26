@@ -24,14 +24,21 @@ export default function DetalhesRotina(){
 
     useEffect(() => refresh(), [rotinaId]);
 
+    const tabBarStyle = {
+        overflow: 'visible', 
+        backgroundColor: colors.preto.padrao,
+        borderTopColor: colors.verde.padrao2,
+        borderTopWidth: 2
+    };
+
     const navigation = useNavigation<BottomTabNavigationProp<any>>();
     useEffect(() => {
-        navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'none' } });
+        navigation.getParent("/(auth)/(tabs)")?.setOptions({tabBarStyle: {...tabBarStyle, display: 'none'}});
         return () => {
-        navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'flex' } });
+            navigation.getParent("/(auth)/(tabs)")?.setOptions({tabBarStyle: {...tabBarStyle, display: 'flex'}});
         };
     }, [navigation]);
-    
+ 
     const refresh = () => {
         setLoading(true);
         rotinaService.getDetalhesRotina(rotinaId)
@@ -150,6 +157,8 @@ const styles = StyleSheet.create({
     },
     container:{
         paddingHorizontal: 5,
+        backgroundColor: colors.preto.padrao,
+        // flex: 1
     },
     headerInfoTitle:{
         color:colors.branco.padrao

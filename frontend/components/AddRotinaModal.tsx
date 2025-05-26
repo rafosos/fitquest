@@ -249,7 +249,7 @@ export default function AddRotinaModal({ isVisible = false, onClose = () => {} }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: colors.cinza.background, 
+        backgroundColor: colors.preto.padrao, 
         flex:1,
         padding:10 
     },

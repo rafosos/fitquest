@@ -106,7 +106,7 @@ export default function PesquisarCampeonatoModal({visible, onClose}: Props){
 
 const styles = StyleSheet.create({
     container:{
-        backgroundColor: colors.cinza.background,
+        backgroundColor: colors.preto.padrao,
         padding: 10,
         flex:1
     },

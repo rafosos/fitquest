@@ -52,6 +52,7 @@ export default function TabTreino() {
 
                         <TouchableOpacity style={styles.botaoAddRotina} onPress={() => setAddRotina(true)}>
                             <Ionicons name="add-circle" style={styles.iconeAdd} />
+                            <StyledText style={styles.txtBotaoAdd}>Novo</StyledText>
                         </TouchableOpacity>
                     </View>
                 }
@@ -73,10 +74,9 @@ export default function TabTreino() {
 
 const styles = StyleSheet.create({
     container:{
-        paddingHorizontal: 15, 
-        paddingVertical: 7, 
+        padding: 18,
         flex: 1,
-        backgroundColor: colors.cinza.background
+        backgroundColor: colors.preto.padrao
     },
     header:{
         flexDirection: "row",
@@ -85,13 +85,14 @@ const styles = StyleSheet.create({
         marginTop: 5
     },
     headerTitulo:{
-        fontSize: 25,
+        fontSize: 24,
         fontFamily: fonts.padrao.Bold700,
-        color: colors.branco.padrao
+        color: colors.branco.padrao,
     },
     botaoAddRotina: {
-        backgroundColor: colors.cinza.medio,
-        borderRadius: 25,
+        backgroundColor: colors.verde.padrao2,
+        borderRadius: 10,
+        gap: 5,
         flexDirection: "row",
         paddingHorizontal: 5,
         alignItems: "center"
@@ -104,23 +105,26 @@ const styles = StyleSheet.create({
         fontSize: 24,
         color: colors.preto.padrao,
     },
+    txtBotaoAdd:{
+        fontFamily: fonts.padrao.Bold700
+    },
     cardTreino:{
-        backgroundColor: colors.branco.padrao,
+        backgroundColor: colors.cinza.medio4,
         borderWidth:2,
-        borderColor: colors.cinza.escuro,
         borderRadius: 15,
         padding: 10,
         marginVertical: 5
     },
     nomeRotina:{
         fontSize: 20,
-        fontFamily: fonts.padrao.Medium500
+        fontFamily: fonts.padrao.Medium500,
+        color: colors.branco.padrao
     },
     diasRotina:{
-        
+        color: colors.branco.padrao    
     },
     exercicios:{
-        
+        color: colors.branco.padrao    
     },
     listEmptyContainer:{
         flex:1,

@@ -41,11 +41,18 @@ export default function DetalhesCampeonato() {
     const userId = Number(useSession().id);
     const campeonatoId = Number(useLocalSearchParams().campeonatoId);
 
+    const tabBarStyle = {
+        overflow: 'visible', 
+        backgroundColor: colors.preto.padrao,
+        borderTopColor: colors.verde.padrao2,
+        borderTopWidth: 2
+    };
+
     const navigation = useNavigation<BottomTabNavigationProp<any>>();
     useEffect(() => {
-      navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'none' } });
+      navigation.getParent("/(auth)/(tabs)")?.setOptions({tabBarStyle: {...tabBarStyle, display: 'none'}});
       return () => {
-        navigation.getParent("/(auth)/(tabs)")?.setOptions({ tabBarStyle: { display: 'flex' } });
+        navigation.getParent("/(auth)/(tabs)")?.setOptions({tabBarStyle: {...tabBarStyle, display: 'flex'}});
       };
     }, [navigation]);
 
@@ -233,7 +240,7 @@ export default function DetalhesCampeonato() {
 const styles = StyleSheet.create({
     containerAll:{
         flex:1,
-        backgroundColor: colors.cinza.background
+        backgroundColor: colors.preto.padrao
     },
     header:{
         paddingHorizontal: 10
@@ -296,7 +303,7 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
     tabs:{
-        backgroundColor: colors.cinza.background,
+        backgroundColor: colors.preto.padrao,
     },
     tabIndicator:{
         backgroundColor: colors.verde.padrao

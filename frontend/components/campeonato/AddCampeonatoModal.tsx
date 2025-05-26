@@ -511,7 +511,7 @@ export default function AddCampeonatoModal({ isVisible = false, onClose = () => 
 const styles = StyleSheet.create({
     container:{
         flex:1,
-        backgroundColor: colors.cinza.background
+        backgroundColor: colors.preto.padrao
     },
     titleContainer: {
         flexDirection: "row",

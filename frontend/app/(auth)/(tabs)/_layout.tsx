@@ -3,6 +3,13 @@ import React from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { colors } from '@/constants/Colors';
 
+export const tabBarStyle = {
+    overflow: 'visible', 
+    backgroundColor: colors.preto.padrao,
+    borderTopColor: colors.verde.padrao2,
+    borderTopWidth: 2
+}
+
 export default function TabLayout() {
 
   return (

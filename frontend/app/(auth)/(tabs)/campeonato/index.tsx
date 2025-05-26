@@ -109,8 +109,8 @@ export default function TabEventos() {
 const styles = StyleSheet.create({
     containerCampeonatos:{
         flex:1,
-        padding:14,
-        backgroundColor: colors.cinza.background
+        padding:18,
+        backgroundColor: colors.preto.padrao
     },
     header:{
         flexDirection: "row",
@@ -151,23 +151,24 @@ const styles = StyleSheet.create({
         color: colors.preto.padrao,
     },
     card:{
-        backgroundColor: colors.branco.padrao,
-        borderColor: colors.cinza.escuro,
+        backgroundColor: colors.cinza.medio4,
         borderWidth: 2,
-        borderRadius: 25,
+        borderRadius: 15,
         padding: 10,
         marginVertical: 2
     },
     nomeCampeonato:{
         fontSize: 17,
-        fontFamily: fonts.padrao.Bold700
+        fontFamily: fonts.padrao.Bold700,
+        color: colors.branco.padrao
     },
     containerCriadoCampeonato:{
         flexDirection: 'row', 
         justifyContent: 'space-between'
     },
     txtProgresso: {
-        fontFamily: fonts.padrao.Light300
+        fontFamily: fonts.padrao.Light300,
+        color: colors.branco.padrao
     },
     progressBar:{
         marginTop: 8, 
@@ -175,7 +176,8 @@ const styles = StyleSheet.create({
         height: 8
     },
     itemCompeticao:{
-        fontFamily: fonts.padrao.Medium500
+        fontFamily: fonts.padrao.Medium500,
+        color: colors.branco.padrao
     },
     containerSemCampeonatos:{
         flex: 1,
