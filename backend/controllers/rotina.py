@@ -30,7 +30,8 @@ async def add_treino(
     imagem: UploadFile = Form(...),
     ids_exercicios: List[int] = Form(...)
 ):
-    return rotina_service.add_treino(current_user, imagem, ids_exercicios)
+    print("oiiii", flush=True)
+    return await rotina_service.add_treino(current_user, imagem, ids_exercicios)
 
 @router.delete("/{id}")
 def delete_rotina(id: int, current_user: Annotated[User, Depends(get_current_user)]):

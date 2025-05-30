@@ -34,7 +34,7 @@ export function TabBarIcon({ name, focused }: PropsTabICon) {
 
   return (
     <View style={[focused ? styles.focused : styles.notFocused]}>
-        <Icone cor={focused ? colors.verde.padrao2 : colors.cinza.medio2} containerProps={{style:{width: 35, aspectRatio: 1}}}/>
+        <Icone cor={focused ? colors.verde.padrao2 : colors.cinza.medio2} containerProps={{style:{width: 30, aspectRatio: 1}}}/>
     </View>
   )
 }

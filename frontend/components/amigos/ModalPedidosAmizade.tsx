@@ -1,16 +1,15 @@
 import UserService from "@/services/user_service";
-import BaseModal from "./base/modal";
+import BaseModal from "../base/modal";
 import { useEffect, useState } from "react";
-import StyledText from "./base/styledText";
+import StyledText from "../base/styledText";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
-import { useSession } from "@/app/ctx";
 import { colors } from "@/constants/Colors";
 import { fonts } from "@/constants/Fonts";
-import ErroInput from "./ErroInput";
+import ErroInput from "../ErroInput";
 import { errorHandlerDebug } from "@/services/service_config";
 import User, { PedidoAmizade } from "@/classes/user";
 import { router } from "expo-router";
-import ModalConfirmacao from "./ModalConfirmacao";
+import ModalConfirmacao from "../ModalConfirmacao";
 import { Feather } from "@expo/vector-icons";
 
 export enum TipoModalPesoAltura{
