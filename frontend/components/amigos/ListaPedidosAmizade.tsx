@@ -1,7 +1,7 @@
 import UserService from "@/services/user_service";
 import { useEffect, useState } from "react";
 import StyledText from "@/components/base/styledText";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from "react-native";
 import { colors } from "@/constants/Colors";
 import { fonts } from "@/constants/Fonts";
 import ErroInput from "@/components/ErroInput";
@@ -31,11 +31,6 @@ export function ListaPedidosAmizade(){
     useEffect(() => {
         getPedidos();
     }, []);
-
-    const close = () =>{
-        setLoading(false);
-        setPedidos([]);
-    }
 
     const getPedidos = () => {
         setLoading(true);
@@ -117,7 +112,7 @@ export function ListaPedidosAmizade(){
 
             <FlatList
                 data={pedidos}
-                // refreshControl={<RefreshControl refreshing={loading} onRefresh={getPedidos}/>}
+                refreshControl={<RefreshControl refreshing={loading} onRefresh={getPedidos}/>}
                 onRefresh={() => setLoading(true)}
                 refreshing={loading}
                 contentContainerStyle={styles.containerAmigos}
@@ -138,16 +133,12 @@ export function ListaPedidosAmizade(){
                         </View>
                     </TouchableOpacity>
                 }
-                ListEmptyComponent={<>
+                ListEmptyComponent={loading ? null :
                     <StyledText style={styles.textoSemPedidos}>Você não tem pedidos pendentes.</StyledText>
-                </>}
+                }
             />
-
-                <TouchableOpacity onPress={close} style={[styles.botao]}>
-                    <StyledText>FECHAR</StyledText> 
-                </TouchableOpacity>
-            </View>
-        </>
+        </View>
+    </>
 )};
 
 const styles = StyleSheet.create({
@@ -232,7 +223,8 @@ const styles = StyleSheet.create({
         backgroundColor: colors.verde.padrao
     },
     textoSemPedidos:{
-        textAlign: 'center'
+        textAlign: 'center',
+        color: colors.branco.padrao
     },
     botaoConfirmaDeletar:{
         backgroundColor: colors.vermelho.padrao,

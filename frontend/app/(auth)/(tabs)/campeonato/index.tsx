@@ -63,20 +63,21 @@ export default function TabEventos() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshCampeonatos}/>}
             data={campeonatos}
             contentContainerStyle={styles.containerCampeonatos}
-            ListHeaderComponent={
+            ListHeaderComponent={<>
                 <View style={styles.header}>
-                    <StyledText style={styles.titulo}>Campeonatos</StyledText>
-                    <View style={styles.botoesHeaderContainer}>
+                    <StyledText style={styles.headerTitulo}>Campeonatos</StyledText>
+                    <View style={styles.containerBotoesHeader}>
                         <TouchableOpacity style={styles.botaoPesquisa} onPress={() => setSearchModal(true)}>
                             <FontAwesome5 name="search" style={styles.iconePesquisa} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.botaoAdd} onPress={() => setAddModal(true)}>
+                        <TouchableOpacity style={styles.botaoAddCampeonato} onPress={() => setAddModal(true)}>
                             <Ionicons name="add-circle" style={styles.iconeAdd} />
+                            <StyledText style={styles.txtBotaoAdd}>Novo</StyledText>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-            }
+            </>}
             renderItem={({item:campeonato}) =>
                 <TouchableOpacity style={styles.card} onPress={() => abrirTelaCampeonato(campeonato.id)}>
                     <StyledText style={styles.nomeCampeonato}>{campeonato.nome}</StyledText>
@@ -99,7 +100,9 @@ export default function TabEventos() {
             ListEmptyComponent={
                 <TouchableOpacity onPress={abrirModal} style={styles.containerSemCampeonatos}>
                     <StyledText style={styles.textoSemCampeonatos}>Nenhum campeonato encontrado, clique para adicionar um novo!</StyledText>
-                    <AntDesign name="plus" style={styles.iconeAddCampeonato} />
+                    <TouchableOpacity style={styles.containerBtnVazio} onPress={() => setAddModal(true)}>
+                            <Ionicons name="add-circle" style={styles.iconeBtnVazio} />
+                    </TouchableOpacity>
                 </TouchableOpacity>
             }
         />
@@ -112,43 +115,49 @@ const styles = StyleSheet.create({
         padding:18,
         backgroundColor: colors.preto.padrao
     },
-    header:{
+    containerBotoesHeader:{
+        gap: 10,
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 20,
-    },
-    titulo:{
-        color: colors.branco.padrao,
-        fontSize: 25,
-        fontFamily: fonts.padrao.Bold700
-    },
-    botoesHeaderContainer:{
-        backgroundColor: colors.cinza.medio,
-        borderRadius: 25,
-        flexDirection: "row",
-        paddingHorizontal: 5,
         alignItems: "center"
     },
     botaoPesquisa:{
         marginLeft: 8
     },
-    botaoAdd: {
-        backgroundColor: colors.cinza.medio,
-        borderRadius: 25,
+    iconePesquisa:{
+        fontSize: 20,
+        color: colors.branco.padrao,
+    },
+    header:{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: 'center',
+        marginBottom: 20,
+        marginTop: 5
+    },
+    headerTitulo:{
+        fontSize: 24,
+        fontFamily: fonts.padrao.Bold700,
+        color: colors.branco.padrao,
+    },
+    botaoAddCampeonato: {
+        backgroundColor: colors.verde.padrao2,
+        borderRadius: 10,
+        gap: 5,
         flexDirection: "row",
         paddingHorizontal: 5,
         alignItems: "center"
     },
     textoAdd:{
+        fontSize: 15,
         fontFamily: fonts.padrao.Regular400
-    },
-    iconePesquisa:{
-        fontSize: 20,
-        color: colors.preto.padrao,
     },
     iconeAdd:{
         fontSize: 24,
         color: colors.preto.padrao,
+    },
+    txtBotaoAdd:{
+        fontFamily: fonts.padrao.Bold700
     },
     card:{
         backgroundColor: colors.cinza.medio4,
@@ -190,13 +199,17 @@ const styles = StyleSheet.create({
         color: colors.branco.padrao,
         textAlign: 'center'
     },
-    iconeAddCampeonato:{
+    containerBtnVazio:{
         fontSize: 30,
         color: colors.branco.padrao,
-        backgroundColor: colors.cinza.claro,
-        padding: 10,
+        backgroundColor: colors.verde.padrao2,
+        padding: 5,
         borderRadius: 25,
         marginTop: 5
+    },
+    iconeBtnVazio:{
+        fontSize: 30,
+        color: colors.preto.padrao,
     }
 })
   

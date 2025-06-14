@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, TextInput, View, TouchableOpacity, Platform, ActivityIndicator, ScrollView } from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, Platform, ActivityIndicator, ScrollView } from "react-native";
 import { router, useNavigation } from "expo-router";
 import StyledText from "@/components/base/styledText";
 import StyledTextInput from "@/components/base/styledTextInput";
@@ -8,7 +8,7 @@ import UserService from "@/services/user_service";
 import { colors } from "@/constants/Colors";
 import ErroInput from "@/components/ErroInput";
 import { AntDesign } from "@expo/vector-icons";
-import { regexSqlInjectionVerify, showDiaMes } from "@/utils/functions";
+import { regexSqlInjectionVerify, showDiaMes, showDiaMesAno } from "@/utils/functions";
 import { useToast } from "react-native-toast-notifications";
 import HeaderLogoTitleSubTitle from "@/components/base/headerLogoTitleSub";
 import LabeledInput from "@/components/base/labeledInput";
@@ -207,7 +207,7 @@ export default function Cadastro() {
                                 >
                                 <StyledTextInput 
                                     placeholder="Data de nascimento"
-                                    value={showDiaMes(nascimento) == "..." ? undefined : showDiaMes(nascimento)}
+                                    value={showDiaMesAno(nascimento) == "..." ? undefined : showDiaMesAno(nascimento)}
                                     editable={false}
                                     style={{color: colors.preto.padrao}}
                                     />
@@ -250,7 +250,7 @@ export default function Cadastro() {
                     />
                 ]}
                 botao={
-                    <TouchableOpacity style={styles.botaoEnviar} onPress={handleCadastrar}>
+                    <TouchableOpacity style={styles.botaoEnviar} onPress={handleCadastrar} key={"btncriarconta"}>
                         {loading ? <ActivityIndicator size={"small"} color={colors.verde.padrao}/> : 
                             <StyledText style={styles.textBotaoEnviar}>Criar conta</StyledText>
                         }

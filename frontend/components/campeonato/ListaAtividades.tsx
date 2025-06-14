@@ -5,14 +5,15 @@ import { colors } from "@/constants/Colors";
 import { fonts } from "@/constants/Fonts";
 import { showDiaMes } from "@/utils/functions";
 import { router } from "expo-router";
-import { FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface Props{
     atividades: Atividade[],
-    abrirAtividade?: (id:number) => void
+    loading: boolean,
+    abrirAtividade?: (id:number) => void,
 }
 
-export default function ListaAtividades({atividades, abrirAtividade = (id: number) => null}: Props){
+export default function ListaAtividades({atividades, loading, abrirAtividade = (id: number) => null}: Props){
     const userId = Number(useSession().id);
 
     const abrirTelaAmigo = (amigoId: number | undefined) => 
@@ -42,6 +43,7 @@ export default function ListaAtividades({atividades, abrirAtividade = (id: numbe
                     </View>
                 </TouchableOpacity>
             }
+            ListEmptyComponent={loading ? <ActivityIndicator color={colors.verde.padrao2} size={'large'}/> :null}
         />
     )
 }

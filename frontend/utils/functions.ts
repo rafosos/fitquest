@@ -15,6 +15,16 @@ export const showDiaMes = (data:string |Date |null|undefined) => {
     return `${dia}/${data.getMonth()+1}/${data.getFullYear()}`;
 }
 
+export const showDiaMesAno = (data:string |Date |null|undefined) => {
+    if (!data) return "..."
+    data = new Date(data);
+    data.setUTCHours(12)
+
+    const dia = data.getDate().toString().padStart(2, '0');
+        
+    return `${dia}/${data.getMonth()+1}/${data.getFullYear()}`;
+}
+
 export const errorHandlerPadrao = (err: any, setErro: (erro: string) => void) => {
     errorHandlerDebug(err);
     if (err.response){

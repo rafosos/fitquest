@@ -25,6 +25,7 @@ export default function DetalhesCampeonato() {
     const [progresso, setProgresso] = useState<UserProgresso[]>([]);
     const [atividades, setAtividades] = useState<Atividade[]>([]);
     const [loadingDetalhes, setLoadingDetalhes] = useState(false);
+    const [loadingAtividades, setLoadingAtividades] = useState(false);
     const [modalConfirma, setModalConfirma] = useState(false);
     const [erro, setErro] = useState("");
     const [index, setIndex] = useState(0);
@@ -78,10 +79,13 @@ export default function DetalhesCampeonato() {
             .then(res => setProgresso(res))
             .catch(err => errorHandler.handleError(err));
             
-    const getAtividades = () =>
+    const getAtividades = () =>{
+        setLoadingAtividades(true);
         campeonatoService.getAtividades(campeonatoId)
             .then(res => setAtividades(res))
-            .catch(err => errorHandler.handleError(err));
+            .catch(err => errorHandler.handleError(err))
+            .finally(() => setLoadingAtividades(false));
+    }
 
     const iniciarNovoTreino = () => {
         if(getDiasRestantes() == 'encerrado'){
@@ -226,7 +230,7 @@ export default function DetalhesCampeonato() {
                         />,
 
                     atividades: () => 
-                        <ListaAtividades atividades={atividades} abrirAtividade={abrirAtividade}/>,
+                        <ListaAtividades atividades={atividades} loading={loadingAtividades} abrirAtividade={abrirAtividade}/>,
 
                     participantes: () =>
                         <ListaParticipantes progresso={progresso} />

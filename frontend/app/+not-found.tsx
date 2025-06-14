@@ -1,4 +1,5 @@
 import StyledText from '@/components/base/styledText';
+import { colors } from '@/constants/Colors';
 import { Link, router, Stack, useNavigation, usePathname } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -20,9 +21,9 @@ export default function NotFoundScreen() {
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
-        <StyledText>This screen doesn't exist.</StyledText>
+        <StyledText style={styles.txt}>This screen doesn't exist.</StyledText>
         <Link href="/" style={styles.link}>
-          <Text>Go to home screen!</Text>
+          <StyledText style={styles.txt}>Go to home screen!</StyledText>
         </Link>
       </View>
     </>
@@ -40,4 +41,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 15,
   },
+  txt:{
+    color:colors.branco.padrao
+  }
 });
